@@ -94,10 +94,12 @@ State.Tire.Fx = zeros( size( State.Tire.Fz ) ); % Longitudinal Tire Force [N]
 State.Tire.Fy = zeros( size( State.Tire.Fz ) ); % Lateral Tire Force      [N]
 State.Tire.Mz = zeros( size( State.Tire.Fz ) ); % Aligning Moment         [Nm]
 
+<<<<<<< Updated upstream
 %{
 Solver.Tolerance = 1E-3;
 Solver.Correction = ones( size( State.Chassis.x(:,1) ) );
 for i = 1 : numel( State.Chassis.x(:,2) )
+=======
 Opts = optimoptions( 'fmincon', ...
             'Algorithm', 'sqp', ...
             'MaxFunctionEvaluations', 10000, ...
@@ -144,6 +146,7 @@ for i = 1 : numel( unique( State.Chassis.xDot ) )
         end
     end
 end
+>>>>>>> Stashed changes
     
     while Solver.Correction(i) > Solver.Tolerance
         %%% Slip Estimation
