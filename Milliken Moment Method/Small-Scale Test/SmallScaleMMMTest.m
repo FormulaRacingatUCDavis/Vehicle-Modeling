@@ -98,6 +98,52 @@ State.Tire.Mz = zeros( size( State.Tire.Fz ) ); % Aligning Moment         [Nm]
 Solver.Tolerance = 1E-3;
 Solver.Correction = ones( size( State.Chassis.x(:,1) ) );
 for i = 1 : numel( State.Chassis.x(:,2) )
+Opts = optimoptions( 'fmincon', ...
+            'Algorithm', 'sqp', ...
+            'MaxFunctionEvaluations', 10000, ...
+            'MaxIterations', 10000, ...
+            'Display', 'off' );
+
+Solution = ones( [size(State.Chassis.Beta), 3] );
+
+for i = 1 : numel( unique( State.Chassis.xDot ) )
+    for j = 1 : numel( unique( State.Chassis.xDDot ) )
+        for k = 1 : numel( unique( State.Chassis.Beta ) )
+            for l = 1 : numel( unique( State.Steer.Wheel ) ) + 1
+                tic
+                if State.Chassis.Beta(i,j,k,l) == 0 && State.Steer.Wheel(i,j,k,l) == 0
+                    Solution(i,j,k,l,:) = fmincon( ...
+                        @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+                        [0 0 0], [], [], [], [], [], [], [], Opts );
+                elseif State.Steer.Wheel(i,j,k,l) == 0
+                    if State.Steer.Wheel(i,j,k,l) >= 0
+                        Solution(i,j,k,l,:) = fmincon( ...
+                            @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+                            [-1 1 0], [], [], [], [], [], [], [], Opts ); 
+                    else
+                        Solution(i,j,k,l,:) = fmincon( ...
+                            @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+                            [1 -1 0], [], [], [], [], [], [], [], Opts ); 
+                    end
+                else
+                    if State.Steer.Wheel(i,j,k,l) >= 0
+                        Solution(i,j,k,l,:) = fmincon( ...
+                            @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+                            Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
+                    else
+                        Solution(i,j,k,l,:) = fmincon( ...
+                            @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+                            Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
+                    end
+                end
+                
+                State = StateFunction( squeeze(Solution(i,j,k,l,:)), Parameter, State, i,j,k,l, 'Eval' );
+                
+                toc
+            end
+        end
+    end
+end
     
     while Solver.Correction(i) > Solver.Tolerance
         %%% Slip Estimation
