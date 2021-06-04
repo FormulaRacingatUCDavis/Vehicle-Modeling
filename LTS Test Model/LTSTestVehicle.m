@@ -50,21 +50,75 @@ Vehicle.Aero.AirDensity =  1.225; % Air Density                 [kg/m^3]
 Vehicle.Aero.DragCoeff  =  0.65 ; % Drag Coefficient            [ ]
 Vehicle.Aero.LiftCoeff  = -1.90 ; % Lift Coefficient            [ ]
 Vehicle.Aero.RefArea    =  0.958; % Aerodynamic Reference Area  [m^2]
-Vehicle.Aero.CoP(1)     =  0.52 ; % Center of Pressure Location [%]notep
+Vehicle.Aero.PerAero    =  0.45 ; % Percent Front Aero          [%]
+Vehicle.Aero.CoP(3)     =  0.00 ; % 
+
+%%% Computed Parameters
+Vehicle.Inertia.CoG(1) = (Vehicle.Inertia.PerFront-0.5) .* Vehicle.Suspension(1).Kinematics.Wheelbase;
+Vehicle.Aero.CoP(1)    = (Vehicle.Aero.PerAero    -0.5) .* Vehicle.Suspension(1).Kinematics.Wheelbase;
 
 %% Operating Conditions
-Response.Steer    = linspace( 0, 120, 13 );
-Response.BodySlip = linspace(-8,   8, 17 );
-Response.Speed    = 
-Response.LongAcc  = 
+SteerWheel = linspace(  0, 120, 13 );
+BodySlip   = linspace(-10,  10, 21 );
+LongVel    = [10 15];
+LongAcc    = [-5 0 5];
+
+[SteerWheel, BodySlip, LongVel, LongAcc ] = ndgrid( SteerWheel, BodySlip, LongVel, LongAcc ); 
+
+Response.SteerWheel = SteerWheel;
+Response.BodySlip   = BodySlip;
+Response.LongVel    = LongVel;
+Response.LongAcc    = LongAcc;
+
+clear SteerWheel BodySlip LongVel LongAcc
+
+%% Initializing Vehicle States
+%%% Chassis States
+Response.LatVel = Response.LongVel .* tand( Response.BodySlip ); % Lateral Velocity     {dot{y}   [m/s]
+Response.LatAcc = zeros( size( Response.BodySlip ) );            % Lateral Acceleration {ddot{y}} [m/s^2]
+
+Response.YawVel = zeros( size( Response.BodySlip ) ); % Yaw Rate         {dot{psi}}  [rad/s]
+Response.YawAcc = zeros( size( Response.BodySlip ) ); % Yaw Acceleration {ddot{psi}} [rad/s^2]
+
+Response.LongAccTot = Response.LongAcc;                   % Total Longitudinal Acceleration {a_x} [m/s^2]
+Response.LatAccTot  = zeros( size( Response.BodySlip ) ); % Total Lateral Acceleration      {a_y} [m/s^2]
+
+%%% Tire States
+Response.Steer = zeros( [size( Response.BodySlip ), 4] ); % Tire Steer Angle {delta} [deg]
+Response.Steer(:,:,:,:,1) = SteerAngleLookup( Response.SteerWheel, ...
+    Vehicle.Steering.CFactor, Vehicle.Suspension(1).Kinematics );
+Response.Steer(:,:,:,:,2) = Response.Steer(:,:,:,:,1);
+
+Response.SlipAngle = zeros( size( Response.BodySlip ) ); % Tire Slip Angle {alpha} [deg]
+Response.SlipRatio = zeros( size( Response.BodySlip ) ); % Tire Slip Ratio {kappa} [deg]
+
+Response.NormalLoad = SimplifiedWeightTransfer( Response.LongAccTot(:), Response.LatAccTot(:), ...
+    Vehicle.Suspension(1).Kinematics.Wheelbase, Vehicle.Suspension(1).Kinematics.Track, ...
+    Vehicle.Inertia.Mass, Vehicle.Inertia.CoG, 0, [0, 0, 0], 0.5 );
+    % Normal Load {F_z} [N]
+Response.NormalLoad = reshape( Response.NormalLoad, [size( Response.BodySlip ), 4] );
+
+Response.LongForce = zeros( [size( Response.BodySlip ), 4] ); % Tire Longitudinal Force {F_x} [N]
+Response.LatForce  = zeros( [size( Response.BodySlip ), 4] ); % Tire Lateral Force      {F_y} [N]
+
+Response.AligningMoment = zeros( [size( Response.BodySlip ), 4] ); % Tire Aligning Moment    {M_z} [N-m]
+Response.RollingResist  = zeros( [size( Response.BodySlip ), 4] ); % Tire Rolling Resistance {M_y} [N-m]
+
+%% Computing Vehicle Response
+
+a = 1;
 
 %% State Function
 function Out = StateFunction( x, Vehicle, State, i,j,k,l, Mode )
+
     %%% Powertrain & Brakes
     [BrakingTorque, LinePressure] = SimplifiedBrakingModel( PedalForce, ...
         PedalRatio, BalanceBar  , BoreDiameter, ...
         PadArea   , PadFriction , RotorRadius );
 
+    [DriveTorque, MotorSpeed] = RWDPowertrainOpenDiff( Throttle, WheelSpeed, ...
+        DriveRatio, TorqueMap );
+    
     %%% Tires
     [InputTorque, SpinAcc] = WheelSpeed( SpinRate, DriveTorque, ...
         BrakeTorque, RollingResist, TractiveForce, EffRadius, Inertia, Damping );
@@ -115,6 +169,9 @@ function TorqueMap = MotorTorqueMap()
     TorqueMap.Omega = TorqueMap.Omega .* 2*pi/60;
 end
 
-%%% Simplified Powertrain
-function DriveTorque = SimplifiedPowertrain( Throttle, 
-    WheelSpeed, 
+%%% Steering Wheel Lookup
+function Steer = SteerAngleLookup( SteerWheel, CFactor, Kinematics )
+    RackDisp = SteerWheel / (2000*pi) .* CFactor;
+    
+    Steer = interp1( Kinematics.RackDisp, Kinematics.Steer, RackDisp );
+end
