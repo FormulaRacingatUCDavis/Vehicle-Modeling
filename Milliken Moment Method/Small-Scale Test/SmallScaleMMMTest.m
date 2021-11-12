@@ -13,7 +13,7 @@ clc; clear; close all;
 % Tristan Pham       (atlpham@ucdavis.edu       )
 % Blake Christierson (bechristierson@ucdavis.edu) 
 % 
-% Last Updated: 16-Feb-2021
+% Last Updated: 11-Nov-2021
 
 tic
 
@@ -29,14 +29,17 @@ Parameter.Mass.Izz = Parameter.Mass.m .* 0.7^2; % Yaw Inertia                   
 %%% Suspension
 Parameter.Susp.L      =   1.525;         % Wheelbase                           [m]
 Parameter.Susp.tw     = [ 1.220, 1.220]; % [Front, Rear] Track Width           [m]
+%Parameter.Susp.IC     = [ 0, 0];        % [Front, Rear] Instant Center Height [m]
 Parameter.Susp.IC     = [ 0.025, 0.050]; % [Front, Rear] Instant Center Height [m]
 Parameter.Susp.Pf     =   0.60 ;         % Percent Front Roll Stiffness        [ ]
 Parameter.Susp.Camber = [-1.1  ,-1.1  ]; % [Front, Rear] Static Camber         [deg]
 Parameter.Susp.Toe    = [-0.0  , 0.0  ]; % [Front, Rear] Static Toe            [deg]
 
 %%% Tire Model
-load('Hoosier_R25B_16x75-10x7.mat'); Parameter.Tire(1).Model = Tire; % Front Tire [FRUCDTire]
-load('Hoosier_R25B_16x75-10x7.mat'); Parameter.Tire(2).Model = Tire; % Rear Tire  [FRUCDTire]
+load('Hoosier_R25B_16x75-10x7.mat'); 
+Parameter.Tire(1).Model = Tire; % Front Tire [FRUCDTire]
+load('Hoosier_R25B_16x75-10x7.mat'); 
+Parameter.Tire(2).Model = Tire; % Rear Tire  [FRUCDTire]
 
 Parameter.Tire(1).Fidelity.Pure     = 'Pacejka';
 Parameter.Tire(1).Fidelity.Combined = 'MNC';
@@ -73,9 +76,9 @@ Parameter.Susp.r(:,4) = [-Parameter.Mass.b, -Parameter.Susp.tw(2)/2, 0];
 clear Tire 
 
 %% Operating Conditions
-xDot  =  15;       % Longitudinal Speed        [m/s]
-xDDot =  0;        % Longitudinal Acceleration [m/s^2]
-Beta  =  [0:10];        % Body Slip Angle           [deg]
+xDot  =  15;                   % Longitudinal Speed        [m/s]
+xDDot =  0;                    % Longitudinal Acceleration [m/s^2]
+Beta  =  [-10:0.5:10];               % Body Slip Angle           [deg]
 DelSW =  [0:5:130, 0:-5:-130]; % Steering Angle            [deg]
 
 [xDot, xDDot, Beta, DelSW] = ndgrid( xDot, xDDot, Beta, DelSW ); 
@@ -142,15 +145,15 @@ for i = 1 : numel( unique( State.Chassis.xDot ) )
                             [1 -1 0], [], [], [], [], [], [], [], Opts ); 
                     end
                 else
-                    if State.Steer.Wheel(i,j,k,l) >= 0
+%                     if State.Steer.Wheel(i,j,k,l) >= 0
+%                         Solution(i,j,k,l,:) = fmincon( ...
+%                             @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+%                             Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
+%                     else
                         Solution(i,j,k,l,:) = fmincon( ...
                             @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
                             Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
-                    else
-                        Solution(i,j,k,l,:) = fmincon( ...
-                            @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
-                            Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
-                    end
+%                     end
                 end
                 
                 State = StateFunction( squeeze(Solution(i,j,k,l,:)), Parameter, State, i,j,k,l, 'Eval' );
@@ -256,9 +259,10 @@ for i = 1 : numel( unique( State.Chassis.xDot ) )
             'r' ); 
         plot( squeeze(State.Chassis.ay(i,j,:,NegIdx))' ./ 9.81,  squeeze(State.Chassis.psiDDot(i,j,:,NegIdx))', ...
             'b' );
-        
-        legend( '$\beta > 0, \delta > 0$', '$\beta > 0, \delta < 0$' )
-        xlabel( '$a_{y}$ [$g$]' ); ylabel( '$\ddot{\psi}$ [$rad/s^{2}$]' ); 
+      xline(0) 
+      yline(0)
+        legend( '$\beta > 0, \delta > 0$', '$\beta > 0, \delta < 0$','Interpreter','latex' )
+        xlabel( '$a_{y}$ [$g$]','Interpreter','latex' ); ylabel( '$\ddot{\psi}$ [$rad/s^{2}$]','Interpreter','latex' ); 
     end
 end
 
@@ -323,9 +327,9 @@ function Out = StateFunction( x, Parameter, State, i,j,k,l, Mode )
        State.Tire.Fz(i,j,k,l,:) = State.Tire.Fz(i,j,k,l,:) .* Parameter.Mass.m .* 9.81 ./ SumFz;
     end
 
-    %%% Tire Forces
+    %%% Tire Forces   
     [State.Tire.Fx(i,j,k,l,1:2), State.Tire.Fy(i,j,k,l,1:2), State.Tire.Mz(i,j,k,l,1:2), ~, ~] = ...
-        ContactPatchLoads( Parameter.Tire(1).Model, ...
+         ContactPatchLoads( Parameter.Tire(1).Model, ...
         squeeze(State.Tire.alpha(i,j,k,l,1:2)), squeeze(State.Tire.kappa(i,j,k,l,1:2)), ...
         squeeze(State.Tire.Fz(i,j,k,l,1:2)), Parameter.Tire(1).Pressure, Parameter.Susp.Camber(1).*[-1 1]', ...
         0, (1:2)', [Parameter.Tire.Fidelity] );
