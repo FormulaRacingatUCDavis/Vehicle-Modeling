@@ -78,7 +78,7 @@ clear Tire
 %% Operating Conditions
 xDot  =  15;                   % Longitudinal Speed        [m/s]
 xDDot =  0;                    % Longitudinal Acceleration [m/s^2]
-Beta  =  [-10:0.5:10];               % Body Slip Angle           [deg]
+Beta  =  [-10:0.5:10];         % Body Slip Angle           [deg]
 DelSW =  [0:5:130, 0:-5:-130]; % Steering Angle            [deg]
 
 [xDot, xDDot, Beta, DelSW] = ndgrid( xDot, xDDot, Beta, DelSW ); 
