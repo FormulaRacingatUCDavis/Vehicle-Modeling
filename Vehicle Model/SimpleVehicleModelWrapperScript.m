@@ -37,6 +37,11 @@ Parameter.Idx         = 1;
 Parameter.Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 
 load('Tire.mat');
+Tire.Source(4).FileName = 'B1965run4';
+Tire.Source(5).FileName = 'B1965run5';
+Tire.Source(6).FileName = 'B1965run6';
+Tire.Radius.Effective = [];
+Tire.Radius.Loaded = [];
 %% Run Model / Designat Model Input 
 
 Out = sim('SimpleVehicleModel.slx');
