@@ -27,13 +27,13 @@ Parameter.Mass.hu  = [ 0.220, 0.220];           % [Front, Rear] Unsprung Center 
 Parameter.Mass.Izz = Parameter.Mass.m .* 0.7^2; % Yaw Inertia                              [kg-m^2]
 
 %%% Suspension
-Parameter.Susp.L      =   1.525;         % Wheelbase                           [m]
-Parameter.Susp.tw     = [ 1.220, 1.220]; % [Front, Rear] Track Width           [m]
-%Parameter.Susp.IC     = [ 0, 0];        % [Front, Rear] Instant Center Height [m]
-Parameter.Susp.IC     = [ 0.025, 0.050]; % [Front, Rear] Instant Center Height [m]
-Parameter.Susp.Pf     =   0.60 ;         % Percent Front Roll Stiffness        [ ]
-Parameter.Susp.Camber = [-1.1  ,-1.1  ]; % [Front, Rear] Static Camber         [deg]
-Parameter.Susp.Toe    = [-0.0  , 0.0  ]; % [Front, Rear] Static Toe            [deg]
+Parameter.Susp.L      = 1.525;           % Wheelbase                              [m]
+Parameter.Susp.tw     = [ 1.220, 1.220]; % [Front, Rear] Track Width              [m]
+%Parameter.Susp.IC    = [ 0, 0];         % [Front, Rear] Instant Center Height    [m]
+Parameter.Susp.IC     = [ 0.025, 0.050]; % [Front, Rear] Instant Center Height    [m]
+Parameter.Susp.Pf     =  0.60 ;          % Percent Front Roll Stiffness           [ ]
+Parameter.Susp.Camber = [-1.1  ,-1.1  ]; % [Front, Rear] Static Camber          [deg]
+Parameter.Susp.Toe    = [-0.0  , 0.0  ]; % [Front, Rear] Static Toe             [deg]
 
 %%% Tire Model
 load('Hoosier_R25B_16x75-10x7.mat'); 
@@ -78,7 +78,7 @@ clear Tire
 %% Operating Conditions
 xDot  =  15;                   % Longitudinal Speed        [m/s]
 xDDot =  0;                    % Longitudinal Acceleration [m/s^2]
-Beta  =  [-10:0.5:10];         % Body Slip Angle           [deg]
+Beta  =  [-10:1:10];           % Body Slip Angle           [deg]
 DelSW =  [0:5:130, 0:-5:-130]; % Steering Angle            [deg]
 
 [xDot, xDDot, Beta, DelSW] = ndgrid( xDot, xDDot, Beta, DelSW ); 
@@ -102,8 +102,8 @@ State.Chassis.ay = zeros( size( State.Chassis.Beta ) ); % Lateral Acceleration  
 
 State.Tire.delta(:,:,:,:,1) =  Parameter.Steer.Function( State.Steer.Wheel, 1 ); % Front-Left Steer Angle  [deg]
 State.Tire.delta(:,:,:,:,2) =  Parameter.Steer.Function( State.Steer.Wheel, 2 ); % Front-Right Steer Angle [deg]
-State.Tire.delta(:,:,:,:,3) =  Parameter.Susp.Toe(2);                            % Rear-Left Steer Angle  [deg]
-State.Tire.delta(:,:,:,:,4) = -Parameter.Susp.Toe(2);                            % Rear-Right Steer Angle [deg]
+State.Tire.delta(:,:,:,:,3) =  Parameter.Susp.Toe(2);                            % Rear-Left Steer Angle   [deg]
+State.Tire.delta(:,:,:,:,4) = -Parameter.Susp.Toe(2);                            % Rear-Right Steer Angle  [deg]
 
 State.Tire.alpha = zeros( size( State.Tire.delta ) ); % Tire Slip Angle [deg]
 State.Tire.kappa = zeros( size( State.Tire.delta ) ); % Tire Slip Ratio [ ]
