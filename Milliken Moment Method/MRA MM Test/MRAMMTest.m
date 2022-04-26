@@ -25,23 +25,29 @@ Solver.i = 0;
 Solver.d = 0;
 Solver.q = 0;
 
-while Solver.i < 3
-    DelSW = 0 + Solver.d;                          %[0:5:130, 0:-5:-130]; % Steering Wheel Angle (degree)
-    while solver.q < 180
+%%Plotting initialize
+lat_Acc_Array = [];
+yaw_Acc_Array = [];
+
+while Solver.i < 24
+DelSW = 0 + Solver.d;                     %[0:5:130, 0:-5:-130]; % Steering Wheel Angle (degree)
+    %while solver.q < 10
 %% Vehicle Parameters
 
 %%% Aero
-Parameter.g = 9.8;                            % Acceleration due to gravity (m/s^2)                (m/s^2)
+Parameter.g = 9.8;                            % Acceleration due to gravity (m/s^2)
 Parameter.air_density = 1.225;                % Air Density 
 Parameter.aero_Distribution_Front = 0;        % Front Aero Distribution
+Parameter.RefArea = 1.1;
+Parameter.DownForceCoeff = 1.5;
 
 %%% Tire
 load('Hoosier_LCO_16x75-10x7.mat');           % Loading Tire Data (Tire Repo);
 Parameter.rearsteer = 1/6;                    % Rear Steer coefficient (may not apply to us)
-Parameter.turning_Radius = 10;                % CHECK Turning Radius (m)
+Parameter.turning_radius = 10;                % CHECK Turning Radius (m)
 Parameter.SlipRatio = 0.01;                   % Slip Ratio (degree)
-Parameter.Pressure = 80;                      % Tire Pressure (KPa?)
-Parameter.Inclination = 0;                    % Tire Inclination (degree)
+Parameter.Pressure = 80;                      % Tire Pressure (KPa)
+Parameter.Inclination = 0;                    % Tire Inclination (degrees)
 Parameter.Idx = 1;
 Fidelity = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 %Velocity = tire_vel(1:4)
@@ -70,15 +76,15 @@ Parameter.a = Parameter.L .* (1-Parameter.Pf); % Front Distance From CoG
 Parameter.b = Parameter.L .* Parameter.Pf;     % Rear Distance From CoG
 
 %% Variable Initialization
-alpha = zeros(1,4);                            % Initializing Slip Angle (degree)
-delta = zeros(1,4);                            % Initializing Steer Angle (degree)
-tire_vel = zeros(1:4);                         % Initializing Tire Velocities (m/s)
-Fy = zeros(1:4);                               % Initializing Tire Velocities (m/s)
-Fz = zeros(1,4);                               % Initializing Normal Loads (N)
+alpha = zeros(1,4);                            % Slip Angle (degree)
+delta = zeros(1,4);                            % Steer Angle (degree)
+tire_vel = zeros(1:4);                         % Tire Velocities (m/s)
+Fy = zeros(1:4);                               % Tire Velocities (m/s)
+Fz = zeros(1,4);                               % Normal Loads (N)
 
 %% Iterated Variables
 beta = -10 + Solver.q;                         % CHECK Body Slip Angle (degree)
-long_Vel = 15;                                 % Longitudinal Velocity (m/s)
+long_Vel = 10;                                 % Longitudinal Velocity (m/s)
 
 %% Steering Calculation (Currently having 0 steer for rear tires)
 delta(1) = -Parameter.toe_Front + (DelSW + Parameter.ackerman_Front .* DelSW.^2);
@@ -95,49 +101,56 @@ T_4 = [Parameter.b; -Parameter.tw/2; 0];
 %% Acceleration Calculation
 lat_Vel = tanh(beta).*long_Vel;         % Double Check
 velocity_CoG = [long_Vel; lat_Vel; 0];
-yaw_rate = sqrt(long_Vel.^2 + lat_Vel.^2) ./ Parameter.turning_Radius;
+yaw_rate = sqrt(long_Vel.^2 + lat_Vel.^2) ./ Parameter.turning_radius;
 omega = [0;0;yaw_rate];
-latAcc = (long_Vel.^2 + lat_Vel.^2)./Parameter.turning_Radius;   %DOUBLE CHECK
+latAcc = (long_Vel.^2 + lat_Vel.^2)./Parameter.turning_radius;   %DOUBLE CHECK
 
 %% Unsprung Weight Transfer
-deltaFz_LFU = (2 .* Parameter.unsprung_mass .* latAcc .*...
-    Parameter.unsprung_CG_Height) ./ Parameter.tw; % Lateral Front Unsprung Weight Transfer
+deltaFz_LFU = ( Parameter.unsprung_mass .* latAcc .*...
+    Parameter.unsprung_CG_Height) ./ Parameter.tw; 
+% Lateral Front Unsprung Weight Transfer
 
-deltaFz_LRU = (2 .* Parameter.unsprung_mass .* latAcc .*...
-    Parameter.unsprung_CG_Height) ./ Parameter.tw; % Lateral Rear Unsprung Weight Transfer
+deltaFz_LRU = ( Parameter.unsprung_mass .* latAcc .*...
+    Parameter.unsprung_CG_Height) ./ Parameter.tw; 
+% Lateral Rear Unsprung Weight Transfer
 
 %% Suspended Weight Transfer Geometric
 deltaFz_Lateral_Front_Suspended_Geometric = (Parameter.suspended_mass .*...
-    (1-Parameter.Pf) .* latAcc .* Parameter.roll_Center_Height)./Parameter.tw;
+    (1-Parameter.Pf) .* latAcc .* Parameter.roll_Center_Height) ./ Parameter.tw;
 % Lateral Front Geometric Weight Transfer (Suspended)
 
 deltaFz_Lateral_Rear_Suspended_Geometric = (Parameter.suspended_mass .*...
-    (Parameter.Pf) .* latAcc .* Parameter.roll_Center_Height)./Parameter.tw;
+    (Parameter.Pf) .* latAcc .* Parameter.roll_Center_Height) ./ Parameter.tw;
 % Lateral Rear Geometric Weight Transfer (Suspended)
 
 %% Suspended Weight Transfer Elastic
-deltaFz_Lateral_Front_Suspended_Elastic = ((Parameter.suspended_mass .* latAcc .* (Parameter.height_CG_Suspended)...
-    - Parameter.roll_Center_Height) ./ Parameter.tw ) .* Parameter.roll_SDF;
+deltaFz_Lateral_Front_Suspended_Elastic = ((Parameter.suspended_mass .* latAcc ...
+    .* (Parameter.height_CG_Suspended - Parameter.roll_Center_Height)) ...
+    ./ Parameter.tw ) .* Parameter.roll_SDF;
 % Lateral Front Elastic Weight Transfer (Suspended)
 
-deltaFz_Lateral_Rear_Suspended_Elastic = ((Parameter.suspended_mass .* latAcc .* (Parameter.height_CG_Suspended)...
-    - Parameter.roll_Center_Height) ./ Parameter.tw ) .* (1-Parameter.roll_SDF);
+deltaFz_Lateral_Rear_Suspended_Elastic = ((Parameter.suspended_mass .* latAcc ...
+    .* (Parameter.height_CG_Suspended - Parameter.roll_Center_Height)) ...
+    ./ Parameter.tw ) .* (1-Parameter.roll_SDF);
 % Lateral Rear Elastic Transfer (Suspended)
+
+%% Aero
+F_aero = 0.5.^3 .* Parameter.air_density .*Parameter.RefArea .* long_Vel .^2 ...
+.* Parameter.DownForceCoeff;
 
 %% Normal Force Calculation
 deltaFz_Lateral_Front = deltaFz_LFU + ...
     deltaFz_Lateral_Front_Suspended_Geometric + ...
-    deltaFz_Lateral_Front_Suspended_Elastic;
+    deltaFz_Lateral_Front_Suspended_Elastic-F_aero;
 deltaFz_Lateral_Rear = deltaFz_LRU + ...
     deltaFz_Lateral_Rear_Suspended_Geometric + ...
-    deltaFz_Lateral_Rear_Suspended_Elastic;
-%F_aero = 0.5 .* Parameter.air_density .* cross_Sectional_Area .* longVel .^2 .* Downforce_Coef;
+    deltaFz_Lateral_Rear_Suspended_Elastic-F_aero;
 
-%% Normal Force Calculation (Positive steering)
-Fz(1) = 0.5 .* Parameter.Mass .* Parameter.g .* Parameter.Pf - deltaFz_Lateral_Front; %+ 0.5 .* F_aero .* Parameter.aero_Distribution_Front;
-Fz(2) = 0.5 .* Parameter.Mass .* Parameter.g .* Parameter.Pf - deltaFz_Lateral_Front; %+ 0.5 .* F_aero .* Parameter.aero_Distribution_Front;
-Fz(3) = 0.5 .* Parameter.Mass .* Parameter.g .* (1-Parameter.Pf) - deltaFz_Lateral_Front; %+ 0.5 .* F_aero .* (1-Parameter.aero_Distribution_Front);
-Fz(4) = 0.5 .* Parameter.Mass .* Parameter.g .* (1-Parameter.Pf) - deltaFz_Lateral_Front; %+ 0.5 .* F_aero .* (1-Parameter.aero_Distribution_Front);
+%% Normal Force Calculation (Positive steering) (VALUES TOO SMALL)
+Fz(1) = 0.5 .* Parameter.Mass .* Parameter.g .* Parameter.Pf - deltaFz_Lateral_Front; + 0.5 .* F_aero .* Parameter.aero_Distribution_Front;
+Fz(2) = 0.5 .* Parameter.Mass .* Parameter.g .* Parameter.Pf - deltaFz_Lateral_Front; + 0.5 .* F_aero .* Parameter.aero_Distribution_Front;
+Fz(3) = 0.5 .* Parameter.Mass .* Parameter.g .* (1-Parameter.Pf) - deltaFz_Lateral_Front; + 0.5 .* F_aero .* (1-Parameter.aero_Distribution_Front);
+Fz(4) = 0.5 .* Parameter.Mass .* Parameter.g .* (1-Parameter.Pf) - deltaFz_Lateral_Front; + 0.5 .* F_aero .* (1-Parameter.aero_Distribution_Front);
 
 %% Slip angle Calulations
 tire_vel_1 = velocity_CoG + cross(omega, T_1);
@@ -186,9 +199,13 @@ yaw_Acc = yaw_Acc(3)
 
 Solver.i = Solver.i + 1;
 Solver.q = Solver.q + 1;
-    end
-    Solver.d = Solver.d + 5;
+    %end
+Solver.d = Solver.d + 5;
+lat_Acc_Array(end+1) = lat_Acc;
+yaw_Acc_Array(end+1) = yaw_Acc;
 end
+
+plot(lat_Acc_Array,yaw_Acc_Array)
 
 %         figure( 'Name', 'Beta Isolines')
 %         plot3( , ,  , 'r' ); hold on;
