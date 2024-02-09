@@ -442,8 +442,10 @@ end
 
 %%% Evaluate Rolling Resistance
 function My = EvaluateMy( Tire, ~, Kappa, Fz, ~, Pi, ~, Inc, V, ~, ~, Fx )
-    Re = Tire.Radius.Effective( Kappa, Fz, Pi, Inc );
-    Rl = Tire.Radius.Loaded( Fz, Pi, Inc );
+    Re = Tire.Radius.Effective( Kappa, Fz, Pi );
+    Rl = Tire.Radius.Loaded( Fz, Pi );
+    %Re = Tire.Radius.Effective( Kappa, Fz, Pi, Inc );
+    %Rl = Tire.Radius.Loaded( Fz, Pi, Inc );
     
     My = Fx .* (Re - Rl) + Fz .* Re .* ( Tire.Pacejka.q.s.y(1) + ...
         Tire.Pacejka.q.s.y(3) .* (V ./ Tire.Pacejka.Vo) + ...

@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<SimMechanicsImportXML version="1.0" xmlns="urn:mathworks:simmechanics:import" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Created by="" on="02/10/16||11:26:20" using="SimMechanics Link Version 4.7" from="SolidWorks 22.0.0"/>
+<ModelUnits mass="kilogram" length="centimeter"/>
+<DataUnits mass="kilogram" length="meter"/>
+<RootAssembly name="suspensionAssembly" uid="suspensionAssembly" version="337">
+<AssemblyFile name="suspensionAssembly.SLDASM" type="SolidWorks Assembly"/>
+<InstanceTree>
+<Instance name="chassisSimplified-1" uid="chassisSimplified-1" grounded="true" entityUid="chassisSimplified*:*Default">
+<Transform>
+<Rotation>1 0 0 0 1 0 0 0 1</Rotation>
+<Translation>0.59999999999999998 -0.13045064769202541 0.018244845831056483</Translation>
+</Transform>
+</Instance>
+<Instance name="arm1-1" uid="arm1-1" entityUid="arm1*:*Default">
+<Transform>
+<Rotation>0 0 1 0.9811412337660389 0.19329221247648662 0 -0.19329221247648662 0.9811412337660389 0</Rotation>
+<Translation>0.59000000000000008 0.23536596109416608 0.079754334914237307</Translation>
+</Transform>
+</Instance>
+<Instance name="wheelhub-1" uid="wheelhub-1" entityUid="wheelhub*:*Default">
+<Transform>
+<Rotation>1 0 0 0 0.99616977705218512 0.08744012401523743 0 -0.08744012401523743 0.99616977705218512</Rotation>
+<Translation>0.59999999999999998 0.45431363225341909 -0.11248151247947889</Translation>
+</Transform>
+</Instance>
+<Instance name="rim-1" uid="rim-1" entityUid="rim*:*Default">
+<Transform>
+<Rotation>0.93920706834339085 0.34335125276284267 0 -0.03002267612237006 0.082124382531933562 -0.99616977705218512 -0.3420361409153494 0.935609695877472 0.087440124015237292</Rotation>
+<Translation>0.59999999999997167 0.60573143836532339 -0.12577241133013067</Translation>
+</Transform>
+</Instance>
+<Instance name="tire-1" uid="tire-1" entityUid="tire*:*Default">
+<Transform>
+<Rotation>-0.79613546594000195 -0.60511843458326109 1.8078122549294862e-015 0.052911630963864698 -0.069614183874722999 -0.99616977705218501 0.60280069606897446 -0.79308608960878901 0.087440124015236556</Rotation>
+<Translation>0.59999999999997145 0.60573143836532328 -0.12577241133013034</Translation>
+</Transform>
+</Instance>
+<Instance name="cylinder-1" uid="cylinder-1" entityUid="cylinder*:*Default">
+<Transform>
+<Rotation>1 0 0 0 0.94343869381727996 -0.33154702684286752 0 0.33154702684286752 0.94343869381727996</Rotation>
+<Translation>0.60000000000000009 0.14746895702589347 -0.061539037780036124</Translation>
+</Transform>
+</Instance>
+<Instance name="piston-1" uid="piston-1" entityUid="piston*:*Default">
+<Transform>
+<Rotation>1 0 0 0 0.94343869381728007 -0.33154702684286735 0 0.33154702684286735 0.94343869381728007</Rotation>
+<Translation>0.60000000000000009 0.16509259380241836 -0.11168824593030019</Translation>
+</Transform>
+</Instance>
+<Instance name="arm2-1" uid="arm2-1" entityUid="arm2*:*Default">
+<Transform>
+<Rotation>0 0 -0.99999999999999989 0.89694197490542715 -0.44214827111813088 0 -0.44214827111813088 -0.89694197490542715 0</Rotation>
+<Translation>0.60999999999999999 0.21852610932204358 -0.17035273997104913</Translation>
+</Transform>
+</Instance>
+</InstanceTree>
+<Constraints>
+<Coincident name="Hub_Rim_coi">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>wheelhub-1</Uid>
+</InstancePath>
+<Position>0 0.024999999999999967 0</Position>
+<Axis>0 1.0000000000000002 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>rim-1</Uid>
+</InstancePath>
+<Position>0 0 0.12700000000000006</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Concentric name="Hub_Rim_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>wheelhub-1</Uid>
+</InstancePath>
+<Position>0 0.045000000000000095 0</Position>
+<Axis>0 -1.0000000000000002 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>rim-1</Uid>
+</InstancePath>
+<Position>0 0 0.12700000000000006</Position>
+<Axis>0 0 -1</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Concentric name="Rim_Tire_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>rim-1</Uid>
+</InstancePath>
+<Position>0 0 0.12700000000000006</Position>
+<Axis>0 0 -1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>tire-1</Uid>
+</InstancePath>
+<Position>-1.1102230246251565e-016 0 0.17780000000000007</Position>
+<Axis>0 0 -1</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Coincident name="Rim_Tire_coi">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>rim-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 0 -1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>tire-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 0 -1</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Concentric name="Cyl_Pst_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>cylinder-1</Uid>
+</InstancePath>
+<Position>0 0 0.15000000000000008</Position>
+<Axis>0 0 -1.0000000000000002</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>piston-1</Uid>
+</InstancePath>
+<Position>0 0 0.10000000000000006</Position>
+<Axis>0 0 -1.0000000000000002</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Concentric name="Cyl_Arm1_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>arm1-1</Uid>
+</InstancePath>
+<Position>-0.13000000000000006 -0.035000000000000017 -0.0050000000000000044</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>cylinder-1</Uid>
+</InstancePath>
+<Position>-0.015000000000000013 0 0.14000000000000007</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Concentric name="Ch_Arm1_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>chassisSimplified-1</Uid>
+</InstancePath>
+<Position>0 0.16958836203298183 0.10016793157847853</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>arm1-1</Uid>
+</InstancePath>
+<Position>-0.20000000000000007 0 0</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Distance name="Ch_Arm1_dst">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>arm1-1</Uid>
+</InstancePath>
+<Position>-0.20000000000000007 0 0.020000000000000018</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>chassisSimplified-1</Uid>
+</InstancePath>
+<Position>0.020000000000000018 0.185184791542919 0.10000000000000001</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Distance>
+<Concentric name="Arm2_Pst_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>piston-1</Uid>
+</InstancePath>
+<Position>-0.0074999999999999512 0 0.0085859704753475652</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>arm2-1</Uid>
+</InstancePath>
+<Position>-0.079999999999999988 -0.035000000000000003 -0.0050000000000000044</Position>
+<Axis>0 0 0.99999999999999989</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Concentric name="Ch_Arm2_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>chassisSimplified-1</Uid>
+</InstancePath>
+<Position>0 0.16958836203298183 -0.10016793157847853</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>arm2-1</Uid>
+</InstancePath>
+<Position>-0.20000000000000001 0 0</Position>
+<Axis>0 0 0.99999999999999989</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Distance name="Ch_Arm2_dst">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>chassisSimplified-1</Uid>
+</InstancePath>
+<Position>0.020000000000000018 0.185184791542919 -0.10000000000000001</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>arm2-1</Uid>
+</InstancePath>
+<Position>-0.20000000000000001 0 0</Position>
+<Axis>0 0 -0.99999999999999989</Axis>
+</ConstraintGeometry>
+</Distance>
+<Concentric name="Arm2_Hub_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>wheelhub-1</Uid>
+</InstancePath>
+<Position>-0.025000000000000022 -0.043390539475411105 -0.15067206346298068</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>arm2-1</Uid>
+</InstancePath>
+<Position>0.20000000000000007 0 0</Position>
+<Axis>0 0 0.99999999999999989</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Concentric name="Arm1_Hub_con">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>arm1-1</Uid>
+</InstancePath>
+<Position>0.20000000000000004 0 0</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>wheelhub-1</Uid>
+</InstancePath>
+<Position>-0.025000000000000022 -0.036061231275605121 0.15100257991040006</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Coincident name="Arm1_Cyl_coi">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>arm1-1</Uid>
+</InstancePath>
+<Position>0 0 0.010000000000000009</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>cylinder-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Distance name="Arm1_Hub_dst">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>arm1-1</Uid>
+</InstancePath>
+<Position>-0.20000000000000007 0 0.020000000000000018</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>wheelhub-1</Uid>
+</InstancePath>
+<Position>0.020000000000000018 -0.045645076412562824 0.15000000000000002</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Distance>
+</Constraints>
+</RootAssembly>
+<Assemblies>
+</Assemblies>
+<Parts>
+<Part name="arm1" uid="arm1*:*Default" version="155">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="arm1.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>2.7810842878081461</Mass>
+<CenterOfMass>-0.0035821772726174887 -0.00089462239840824148 0.010000009944404462</CenterOfMass>
+<Inertia>0.00053831635973268629 0.041976449865496403 0.04232490384292608 1.2371967258877662e-009 2.8284784852935543e-009 -0.00031481840531341089</Inertia>
+</MassProperties>
+<GeometryFile name="arm1_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Diffuse r="0" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Specular r="0" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Emissive r="0" g="0" b="0" a="1"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="arm2" uid="arm2*:*Default" version="173">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="arm2.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>2.7806636601882158</Mass>
+<CenterOfMass>-0.0021968029002257779 -0.00089110383525226814 0.010000044651113281</CenterOfMass>
+<Inertia>0.00053793612377003115 0.041192245449043118 0.041540369669705313 4.3274042817583351e-009 7.7299119481322936e-009 -0.00019326495309598078</Inertia>
+</MassProperties>
+<GeometryFile name="arm2_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Diffuse r="0" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Specular r="0" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Emissive r="0" g="0" b="0" a="1"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="chassisSimplified" uid="chassisSimplified*:*Default" version="257">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="chassisSimplified.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>576.20038157797137</Mass>
+<CenterOfMass>0 5.7540153999715054e-005 0</CenterOfMass>
+<Inertia>12.007515835198969 24.96207335904689 21.605553480736912 0 -5.6389904631047606e-009 0</Inertia>
+</MassProperties>
+<GeometryFile name="chassisSimplified_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="1" g="0.50196078431372548" b="0.50196078431372548" a="0.5"/>
+<Diffuse r="1" g="0.50196078431372548" b="0.50196078431372548" a="0.5"/>
+<Specular r="1" g="0.50196078431372548" b="0.50196078431372548" a="0.5"/>
+<Emissive r="0" g="0" b="0" a="0.5"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="cylinder" uid="cylinder*:*Default" version="143">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="cylinder.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>0.61313869172296653</Mass>
+<CenterOfMass>2.5500040096047471e-008 -7.2673490598873497e-009 0.072557966981537103</CenterOfMass>
+<Inertia>0.0011359008843013984 0.0011336331668683483 8.6485166336182671e-005 2.6619666183741235e-010 -7.902566172421739e-010 2.1897670857780659e-010</Inertia>
+</MassProperties>
+<GeometryFile name="cylinder_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0.75294117647058822" g="0.75294117647058822" b="0.75294117647058822" a="0.5"/>
+<Diffuse r="0.75294117647058822" g="0.75294117647058822" b="0.75294117647058822" a="0.5"/>
+<Specular r="0.75294117647058822" g="0.75294117647058822" b="0.75294117647058822" a="0.5"/>
+<Emissive r="0" g="0" b="0" a="0.5"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="piston" uid="piston*:*Default" version="120">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="piston.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>0.13079105835097787</Mass>
+<CenterOfMass>-6.841706503665646e-009 4.3102936418517178e-008 0.053348145390107106</CenterOfMass>
+<Inertia>0.00010003701089490187 9.9935405971661735e-005 3.7286838957088964e-006 2.0480163064459544e-010 -5.3999413222638542e-011 -3.7528165951847989e-010</Inertia>
+</MassProperties>
+<GeometryFile name="piston_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0.50196078431372548" g="0.50196078431372548" b="1" a="1"/>
+<Diffuse r="0.50196078431372548" g="0.50196078431372548" b="1" a="1"/>
+<Specular r="0.50196078431372548" g="0.50196078431372548" b="1" a="1"/>
+<Emissive r="0" g="0" b="0" a="1"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="rim" uid="rim*:*Default" version="126">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="rim.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>76.866914934186468</Mass>
+<CenterOfMass>0 0 0.056729801018047227</CenterOfMass>
+<Inertia>1.3890359374601415 1.3890359374601418 2.5432385593284494 0 0 0</Inertia>
+</MassProperties>
+<GeometryFile name="rim_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0.75294117647058822" g="0.75294117647058822" b="0" a="1"/>
+<Diffuse r="0.75294117647058822" g="0.75294117647058822" b="0" a="1"/>
+<Specular r="0.75294117647058822" g="0.75294117647058822" b="0" a="1"/>
+<Emissive r="0" g="0" b="0" a="1"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="tire" uid="tire*:*Default" version="112">
+<ModelUnits mass="kilogram" length="centimeter"/>
+<PartFile name="tire.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>9.908383024393185</Mass>
+<CenterOfMass>0 0 0.088900000000000048</CenterOfMass>
+<Inertia>0.33174371976074196 0.33174371976074196 0.61128208498667413 0 0 0</Inertia>
+</MassProperties>
+<GeometryFile name="tire_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0.25098039215686274" g="0.25098039215686274" b="0.25098039215686274" a="1"/>
+<Diffuse r="0.25098039215686274" g="0.25098039215686274" b="0.25098039215686274" a="1"/>
+<Specular r="0.25098039215686274" g="0.25098039215686274" b="0.25098039215686274" a="1"/>
+<Emissive r="0" g="0" b="0" a="1"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+<Part name="wheelhub" uid="wheelhub*:*Default" version="303">
+<ModelUnits mass="kilogram" length="meter"/>
+<PartFile name="wheelhub.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>2.021321522417443</Mass>
+<CenterOfMass>0 0.0035062225599269822 -0.0032895222267610861</CenterOfMass>
+<Inertia>0.018197318939184338 0.018957159399354429 0.0019409045374054602 -2.674539794065816e-005 0 0</Inertia>
+</MassProperties>
+<GeometryFile name="wheelhub_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0.20784313725490194" g="0.16470588235294117" b="0" a="1"/>
+<Diffuse r="0.20784313725490194" g="0.16470588235294117" b="0" a="1"/>
+<Specular r="0.20784313725490194" g="0.16470588235294117" b="0" a="1"/>
+<Emissive r="0" g="0" b="0" a="1"/>
+<Shininess>0.31</Shininess>
+</VisualProperties>
+</Part>
+</Parts>
+</SimMechanicsImportXML>

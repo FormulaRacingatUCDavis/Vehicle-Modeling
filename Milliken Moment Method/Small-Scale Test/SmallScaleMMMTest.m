@@ -28,7 +28,7 @@ Parameter.Mass.Izz = Parameter.Mass.m .* 0.7^2; % Yaw Inertia                   
 
 %%% Suspension
 Parameter.Susp.L      = 1.525;           % Wheelbase                              [m]
-Parameter.Susp.tw     = [ 1.220, 1.220]; % [Front, Rear] Track Width              [m]
+Parameter.Susp.tw     = [ 3, 3]; % [Front, Rear] Track Width              [m]
 %Parameter.Susp.IC    = [ 0, 0];         % [Front, Rear] Instant Center Height    [m]
 Parameter.Susp.IC     = [ 0.025, 0.050]; % [Front, Rear] Instant Center Height    [m]
 Parameter.Susp.Pf     =  0.60 ;          % Percent Front Roll Stiffness           [ ]
@@ -145,15 +145,15 @@ for i = 1 : numel( unique( State.Chassis.xDot ) )
                             [1 -1 0], [], [], [], [], [], [], [], Opts ); 
                     end
                 else
-%                     if State.Steer.Wheel(i,j,k,l) >= 0
-%                         Solution(i,j,k,l,:) = fmincon( ...
-%                             @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
-%                             Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
-%                     else
+                    if State.Steer.Wheel(i,j,k,l) >= 0
                         Solution(i,j,k,l,:) = fmincon( ...
                             @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
                             Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
-%                     end
+                    else
+                        Solution(i,j,k,l,:) = fmincon( ...
+                            @(x) StateFunction( x, Parameter, State, i,j,k,l, 'Opt' ), ...
+                            Solution(i,j,k,l-1,:), [], [], [], [], [], [], [], Opts ); 
+                     end
                 end
                 
                 State = StateFunction( squeeze(Solution(i,j,k,l,:)), Parameter, State, i,j,k,l, 'Eval' );
@@ -263,6 +263,7 @@ for i = 1 : numel( unique( State.Chassis.xDot ) )
       yline(0)
         legend( '$\beta > 0, \delta > 0$', '$\beta > 0, \delta < 0$','Interpreter','latex' )
         xlabel( '$a_{y}$ [$g$]','Interpreter','latex' ); ylabel( '$\ddot{\psi}$ [$rad/s^{2}$]','Interpreter','latex' ); 
+
     end
 end
 

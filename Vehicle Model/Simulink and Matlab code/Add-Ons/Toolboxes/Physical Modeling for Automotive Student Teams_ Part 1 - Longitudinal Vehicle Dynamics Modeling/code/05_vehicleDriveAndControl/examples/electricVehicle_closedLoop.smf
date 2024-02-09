@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependencyReport Version="1.1">
+   <FileList ProjectRoot="C:\Work\FS_Training_Project\vehicleDriveAndControl\examples">
+      <FileState>
+         <FileName RelativeTo="projectroot">electricVehicle_closedLoop.slx</FileName>
+         <Size>42686</Size>
+         <LastModifiedDate>2015-08-21 17:14:06</LastModifiedDate>
+         <Exportable>true</Exportable>
+      </FileState>
+      <FileState>
+         <FileName RelativeTo="none">car_tire_data</FileName>
+         <Size>0</Size>
+         <LastModifiedDate>&lt;file not found&gt;</LastModifiedDate>
+         <Exportable>false</Exportable>
+      </FileState>
+      <FileState>
+         <FileName RelativeTo="none">engine_data</FileName>
+         <Size>0</Size>
+         <LastModifiedDate>&lt;file not found&gt;</LastModifiedDate>
+         <Exportable>false</Exportable>
+      </FileState>
+   </FileList>
+   <MDLDepSet>
+      <MDLName IsLibrary="false">electricVehicle_closedLoop</MDLName>
+      <FileName RelativeTo="projectroot">electricVehicle_closedLoop.slx</FileName>
+      <AnalysisDate>19-Oct-2015 10:18:23</AnalysisDate>
+      <AnalysisOptions>
+         <AnalyzeMathWorksFiles>false</AnalyzeMathWorksFiles>
+         <AnalyzeUserToolboxFiles>true</AnalyzeUserToolboxFiles>
+         <StoreReferences>true</StoreReferences>
+         <FindLibraryLinks>true</FindLibraryLinks>
+         <FindModelRefs>true</FindModelRefs>
+         <FindSFunctions>true</FindSFunctions>
+         <FindCallbackFiles>true</FindCallbackFiles>
+         <FindCodeGenFiles>true</FindCodeGenFiles>
+         <FindUserDependencies>true</FindUserDependencies>
+         <FindDataFiles>true</FindDataFiles>
+         <FindRequirementsDocs>false</FindRequirementsDocs>
+         <AnalyzeStateflow>true</AnalyzeStateflow>
+         <AnalyzeEML>true</AnalyzeEML>
+         <AnalyzeMFiles>true</AnalyzeMFiles>
+         <FindSimscapeFiles>true</FindSimscapeFiles>
+         <AllowUnsavedChanges>false</AllowUnsavedChanges>
+         <StoreMathWorksReferences>false</StoreMathWorksReferences>
+         <StoreWarnings>true</StoreWarnings>
+         <CloseModels>false</CloseModels>
+         <FindWorkspaceVars>false</FindWorkspaceVars>
+         <OptimizedMode>false</OptimizedMode>
+         <FindEnums>false</FindEnums>
+         <AnalyzeTestHarnesses>true</AnalyzeTestHarnesses>
+      </AnalysisOptions>
+      <ReferencedModels/>
+      <LinkedLibraries>
+         <MDLFile>
+            <MDLName>elec_lib</MDLName>
+            <FileName RelativeTo="matlabroot">toolbox/physmod/elec/elec/elec_lib.slx</FileName>
+         </MDLFile>
+         <MDLFile>
+            <MDLName>fl_lib</MDLName>
+            <FileName RelativeTo="matlabroot">toolbox/physmod/simscape/library/m/fl_lib.slx</FileName>
+         </MDLFile>
+         <MDLFile>
+            <MDLName>nesl_utility</MDLName>
+            <FileName RelativeTo="matlabroot">toolbox/physmod/ne_sli/ne_sli/nesl_utility.slx</FileName>
+         </MDLFile>
+         <MDLFile>
+            <MDLName>sdl_lib</MDLName>
+            <FileName RelativeTo="matlabroot">toolbox/physmod/sdl/sdl/sdl_lib.slx</FileName>
+         </MDLFile>
+      </LinkedLibraries>
+      <Toolboxes>
+         <ToolboxDetails>
+            <DirectoryName>matlab</DirectoryName>
+            <Name>MATLAB</Name>
+            <Version>8.6</Version>
+            <Release>(R2015b)</Release>
+            <Date>13-Aug-2015</Date>
+         </ToolboxDetails>
+         <ToolboxDetails>
+            <DirectoryName>sdl</DirectoryName>
+            <Name>SimDriveline</Name>
+            <Version>2.9</Version>
+            <Release>(R2015b)</Release>
+            <Date>13-Aug-2015</Date>
+         </ToolboxDetails>
+         <ToolboxDetails>
+            <DirectoryName>elec</DirectoryName>
+            <Name>SimElectronics</Name>
+            <Version>2.8</Version>
+            <Release>(R2015b)</Release>
+            <Date>13-Aug-2015</Date>
+         </ToolboxDetails>
+         <ToolboxDetails>
+            <DirectoryName>simscape</DirectoryName>
+            <Name>Simscape</Name>
+            <Version>3.14</Version>
+            <Release>(R2015b)</Release>
+            <Date>13-Aug-2015</Date>
+         </ToolboxDetails>
+         <ToolboxDetails>
+            <DirectoryName>simulink</DirectoryName>
+            <Name>Simulink</Name>
+            <Version>8.6</Version>
+            <Release>(R2015b)</Release>
+            <Date>13-Aug-2015</Date>
+         </ToolboxDetails>
+         <ToolboxDetails>
+            <DirectoryName>simulinkcoder</DirectoryName>
+            <Name>Simulink Coder</Name>
+            <Version>8.9</Version>
+            <Release>(R2015b)</Release>
+            <Date>13-Aug-2015</Date>
+         </ToolboxDetails>
+      </Toolboxes>
+      <AllFiles>
+         <FileName RelativeTo="projectroot">electricVehicle_closedLoop.slx</FileName>
+         <FileName RelativeTo="none">car_tire_data</FileName>
+         <FileName RelativeTo="none">engine_data</FileName>
+      </AllFiles>
+      <AllIncludeDirs/>
+      <AllReferences>
+         <FileReference>
+            <FileName RelativeTo="none">car_tire_data</FileName>
+            <ReferenceType>ModelCallback,PreLoadFcn</ReferenceType>
+            <ReferenceLocation>electricVehicle_closedLoop</ReferenceLocation>
+            <Resolved>false</Resolved>
+            <ToolboxDetails/>
+         </FileReference>
+         <FileReference>
+            <FileName RelativeTo="none">engine_data</FileName>
+            <ReferenceType>ModelCallback,PreLoadFcn</ReferenceType>
+            <ReferenceLocation>electricVehicle_closedLoop</ReferenceLocation>
+            <Resolved>false</Resolved>
+            <ToolboxDetails/>
+         </FileReference>
+      </AllReferences>
+   </MDLDepSet>
+</DependencyReport>

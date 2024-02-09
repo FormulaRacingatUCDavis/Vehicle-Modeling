@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<SimMechanicsImportXML version="1.0" xmlns="urn:mathworks:simmechanics:import" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Created by="" on="02/16/16||09:30:54" using="SimMechanics Link Version 4.7" from="SolidWorks 22.0.0"/>
+<ModelUnits mass="kilogram" length="millimeter"/>
+<DataUnits mass="kilogram" length="meter"/>
+<RootAssembly name="cad_engine" uid="cad_engine" version="1671">
+<AssemblyFile name="cad_engine.SLDASM" type="SolidWorks Assembly"/>
+<InstanceTree>
+<Instance name="crank-2" uid="crank-2" entityUid="crank*:*Default">
+<Transform>
+<Rotation>1.0165400164137601e-016 1 0 -0.5639690892049356 1.0716480130637561e-016 0.82579589876758019 0.82579589876758019 0 0.5639690892049356</Rotation>
+<Translation>0.014999999999999999 0.012689304507111053 -0.018580407722270553</Translation>
+</Transform>
+</Instance>
+<Instance name="rod-2" uid="rod-2" entityUid="rod*:*Default">
+<Transform>
+<Rotation>0 1 0 -0.95827365103402484 0 -0.2858524264964703 -0.2858524264964703 0 0.95827365103402484</Rotation>
+<Translation>0.024999999999999988 0.087666396331442825 -0.018580407722264335</Translation>
+</Transform>
+</Instance>
+<Instance name="head-2" uid="head-2" entityUid="head*:*Default">
+<Transform>
+<Rotation>1 -4.9960036108132044e-016 0 -4.9960036108132044e-016 -1 1.222742155252382e-016 0 -1.2227421552523835e-016 -0.99999999999999989</Rotation>
+<Translation>0.030000000000000027 0.16995418364865575 0</Translation>
+</Transform>
+</Instance>
+<Instance name="flywheel-1" uid="flywheel-1" entityUid="flywheel*:*Default">
+<Transform>
+<Rotation>0 -1 -1.3232350173434618e-016 -0.82579589876758019 -1.0552525315974709e-016 0.5639690892049356 -0.5639690892049356 0 -0.82579589876758019</Rotation>
+<Translation>0 0 0</Translation>
+</Transform>
+</Instance>
+</InstanceTree>
+<Constraints>
+<Coincident name="Coincident1">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>flywheel-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 -1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>crank-2</Uid>
+</InstancePath>
+<Position>0.022500000000000003 -0.015000000000000003 0</Position>
+<Axis>0 -1 0</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Concentric name="Concentric6">
+<ConstraintGeometry geomType="circle">
+<InstancePath>
+<Uid>flywheel-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="circle">
+<InstancePath>
+<Uid>crank-2</Uid>
+</InstancePath>
+<Position>0.022500000000000003 -0.015000000000000003 0</Position>
+<Axis>0 1 0</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Parallel name="Parallel1">
+<ConstraintGeometry geomType="line">
+<InstancePath>
+<Uid>flywheel-1</Uid>
+</InstancePath>
+<Position>-0.0049999999999999992 0.01 0.0049999999999999845</Position>
+<Axis>2.7755575615628914e-016 0 1.0000000000000002</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="line">
+<InstancePath>
+<Uid>crank-2</Uid>
+</InstancePath>
+<Position>-0.022499999999999996 0 0.0050000000000000096</Position>
+<Axis>1.0000000000000002 0 0</Axis>
+</ConstraintGeometry>
+</Parallel>
+<Coincident name="Coincident3">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>crank-2</Uid>
+</InstancePath>
+<Position>-0.022500000000000003 0.010000000000000002 0</Position>
+<Axis>0 1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>rod-2</Uid>
+</InstancePath>
+<Position>-0.064999999999999974 0 0</Position>
+<Axis>0 -1 0</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Coincident name="Coincident4">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>crank-2</Uid>
+</InstancePath>
+<Position>-0.022500000000000003 0.015000000000000003 0</Position>
+<Axis>0 -1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="circle">
+<InstancePath>
+<Uid>rod-2</Uid>
+</InstancePath>
+<Position>0.065000000000000002 0 0</Position>
+<Axis>0 1 0</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Concentric name="Concentric8">
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>rod-2</Uid>
+</InstancePath>
+<Position>-0.064999999999999974 0.010000000000000002 0</Position>
+<Axis>0 -1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="cylinder">
+<InstancePath>
+<Uid>head-2</Uid>
+</InstancePath>
+<Position>0.019999999999999997 0.020000000000000018 0</Position>
+<Axis>-1 0 0</Axis>
+</ConstraintGeometry>
+</Concentric>
+<Coincident name="Coincident52">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>head-2</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 0 0.99999999999999989</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>cad_engine</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 0 1</Axis>
+</ConstraintGeometry>
+</Coincident>
+<Distance name="Distance23">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>rod-2</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>head-2</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Distance>
+<Coincident name="Coincident60">
+<ConstraintGeometry geomType="point">
+<InstancePath>
+<Uid>flywheel-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="point">
+<InstancePath>
+<Uid>cad_engine</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+</ConstraintGeometry>
+</Coincident>
+<Coincident name="Coincident61">
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>flywheel-1</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>0 1 0</Axis>
+</ConstraintGeometry>
+<ConstraintGeometry geomType="plane">
+<InstancePath>
+<Uid>cad_engine</Uid>
+</InstancePath>
+<Position>0 0 0</Position>
+<Axis>1 0 0</Axis>
+</ConstraintGeometry>
+</Coincident>
+</Constraints>
+</RootAssembly>
+<Assemblies>
+</Assemblies>
+<Parts>
+<Part name="crank" uid="crank*:*Default" version="147">
+<ModelUnits mass="kilogram" length="millimeter"/>
+<PartFile name="crank.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>0.043853981633974505</Mass>
+<CenterOfMass>0.00080592265596026325 0.0044627182293598289 0</CenterOfMass>
+<Inertia>1.1264837107722418e-006 1.1006043099238143e-005 1.1449078255149405e-005 0 0 8.6458382860718058e-007</Inertia>
+</MassProperties>
+<GeometryFile name="crank_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0" g="1" b="1" a="1"/>
+<Diffuse r="0" g="1" b="1" a="1"/>
+<Specular r="0" g="0.5" b="0.5" a="1"/>
+<Emissive r="0" g="0.10000000000000001" b="0.10000000000000001" a="1"/>
+<Shininess>0.40000000596046448</Shininess>
+</VisualProperties>
+</Part>
+<Part name="flywheel" uid="flywheel*:*Default" version="136">
+<ModelUnits mass="kilogram" length="millimeter"/>
+<PartFile name="flywheel.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>0.37867043025321417</Mass>
+<CenterOfMass>0 0.0047512690421037482 0</CenterOfMass>
+<Inertia>0.0001570735294714251 0.00030826367153068975 0.00015707352947142512 0 0 0</Inertia>
+</MassProperties>
+<GeometryFile name="flywheel_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0.75294117647058822" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Diffuse r="0.75294117647058822" g="0.75294117647058822" b="0.75294117647058822" a="1"/>
+<Specular r="0.37647058823529411" g="0.37647058823529411" b="0.37647058823529411" a="1"/>
+<Emissive r="0.075294117647058831" g="0.075294117647058831" b="0.075294117647058831" a="1"/>
+<Shininess>0.40000000596046448</Shininess>
+</VisualProperties>
+</Part>
+<Part name="head" uid="head*:*Default" version="176">
+<ModelUnits mass="kilogram" length="millimeter"/>
+<PartFile name="head.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>0.048861864899318458</Mass>
+<CenterOfMass>1.1411296152290014e-008 0.016379140800245606 3.0227943150198734e-009</CenterOfMass>
+<Inertia>1.6319173181513036e-005 1.6627765685626328e-005 1.6387518884122041e-005 -5.2514716946137787e-013 -3.6848315495944636e-012 -7.0348312363423225e-012</Inertia>
+</MassProperties>
+<GeometryFile name="head_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="0" g="1" b="0" a="1"/>
+<Diffuse r="0" g="1" b="0" a="1"/>
+<Specular r="0" g="0.5" b="0" a="1"/>
+<Emissive r="0" g="0.10000000000000001" b="0" a="1"/>
+<Shininess>0.40000000596046448</Shininess>
+</VisualProperties>
+</Part>
+<Part name="rod" uid="rod*:*Default" version="132">
+<ModelUnits mass="kilogram" length="millimeter"/>
+<PartFile name="rod.SLDPRT" type="SolidWorks Part"/>
+<MassProperties>
+<Mass>0.10714159265358965</Mass>
+<CenterOfMass>0 0.005000000000000001 0</CenterOfMass>
+<Inertia>1.793874441761882e-006 0.00016240861796738059 0.00016240043673651191 0 0 0</Inertia>
+</MassProperties>
+<GeometryFile name="rod_Default_sldprt.STEP" type="STEP"/>
+<VisualProperties>
+<Ambient r="1" g="1" b="0" a="1"/>
+<Diffuse r="1" g="1" b="0" a="1"/>
+<Specular r="0.5" g="0.5" b="0" a="1"/>
+<Emissive r="0.10000000000000001" g="0.10000000000000001" b="0" a="1"/>
+<Shininess>0.40000000596046448</Shininess>
+</VisualProperties>
+</Part>
+</Parts>
+</SimMechanicsImportXML>
