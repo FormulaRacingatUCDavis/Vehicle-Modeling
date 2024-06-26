@@ -19,16 +19,16 @@ tic
 
 %% Vehicle Parameters
 %%% Mass
-Parameter.Mass.m   = 200 + 68;                  % Vehicle + Driver Mass                    [kg]
+Parameter.Mass.m   = 263.773035; %200 + 68;                  % Vehicle + Driver Mass                    [kg]
 Parameter.Mass.hs  =   0.245;                   % Sprung Center of Gravity                 [m]
-Parameter.Mass.Pf  =   0.50 ;                   % Percent Front Weight Distribution        [ ]
+Parameter.Mass.Pf  =   0.53 ;                   % Percent Front Weight Distribution        [ ]
 Parameter.Mass.mu  = [38.5  , 38.5 ];           % [Front, Rear] Unsprung Mass              [kg]
 Parameter.Mass.hu  = [ 0.220, 0.220];           % [Front, Rear] Unsprung Center of Gravity [m]
 Parameter.Mass.Izz = Parameter.Mass.m .* 0.7^2; % Yaw Inertia                              [kg-m^2]
 
 %%% Suspension
 Parameter.Susp.L      = 1.525;           % Wheelbase                              [m]
-Parameter.Susp.tw     = [ 3, 3]; % [Front, Rear] Track Width              [m]
+Parameter.Susp.tw     = [ 1.22, 1.22]; % [Front, Rear] Track Width              [m]
 %Parameter.Susp.IC    = [ 0, 0];         % [Front, Rear] Instant Center Height    [m]
 Parameter.Susp.IC     = [ 0.025, 0.050]; % [Front, Rear] Instant Center Height    [m]
 Parameter.Susp.Pf     =  0.60 ;          % Percent Front Roll Stiffness           [ ]
