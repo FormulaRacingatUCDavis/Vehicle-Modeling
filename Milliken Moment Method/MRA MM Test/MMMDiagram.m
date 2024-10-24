@@ -107,7 +107,7 @@ ICG = m.tot * 0.7^2;        %Yaw moment of inertia
 %Tire Model Parameters
 Idx = 1;                    %Moment of Inertia in x for wheel
 TirePressure = 70; %psi
-TireInclination = -1;        %deg 
+TireInclination = 1;        %deg 
 TireSR = 0; % -
 Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 load('Hoosier_R25B_16x75-10x7.mat');
