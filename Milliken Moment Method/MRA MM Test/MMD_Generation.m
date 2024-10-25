@@ -74,6 +74,8 @@ FxTire = zeros(4,1);
 FyTire = zeros(4,1);
 MzTire = zeros(4,1);
 saveAyBody = zeros(length(dSteer), length(SA_CG));
+saveAxBody = zeros(length(dSteer), length(SA_CG));
+saveItFz = [];
 
 
 
@@ -84,15 +86,74 @@ for i = 1:length(dSteer)
         AxGuess = 0;
         AyGuess = 10;
         res = 1;
+        resAx = 1;
         tol = 1e-3;
         itAyBody = [];
         itAyBody(1,1) = AyGuess;
+        itAxBody = [];
+        itAxBody(1,1) = AxGuess;
+        itAxBody2 = [];
+        itAxBody2(1,1) = AxGuess; % Inside iteration AxBody saving
+        
         itFz = [];
         c = 1;
+        k = 1;
         
         while abs(res) > tol && c < 500
             AyCurr = itAyBody(c);
-            AxCurr = AxGuess;
+
+            while abs(resAx) > tol && k < 500
+                AxCurr = itAxBody2(k);
+                V = sqrt(abs(AyCurr).* R) ; %.* (abs(AyCurr)./AyCurr);
+                Omega = V/R;
+                
+                for p = 1:4
+                    % SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
+                    %                     / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+                    SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
+                                         / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+                
+                    V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
+                end
+                
+                dFzf_dAx = (hCG .* m)./(2.* WB);
+                dFzf_dAy = 0.1*(hCG .* m .* g .* PFront)/TWf;
+                dFzr_dAy = 0.1*(hCG .* m .* g .* (1-PFront))/TWr;
+                
+                Fz_Wf = (m.*g.* PFront)/2;
+                Fz_Wr = (m.*g.* (1-PFront))/2;
+                    
+                Fz(1,1) = Fz_Wf + dFzf_dAx .* AxCurr + dFzf_dAy .* AyCurr;
+                Fz(2,1) = Fz_Wf + dFzf_dAx .* AxCurr - dFzf_dAy .* AyCurr;
+                Fz(3,1) = Fz_Wf - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
+                Fz(4,1) = Fz_Wf - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
+                
+                for p = 1:4
+                    [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
+                    
+                    FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
+                    FyTire(p,1) = 1*TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
+                    
+                    % Made it a matrix sum so its not ugly :)
+                    MzTire(p,1) = sum( [coord_AllW(1,p) .* TM_Fx(p) .* sin(dSteer_AllW(i,p)) ;
+                                      - coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
+                                        coord_AllW(2,p) .* TM_Fy(p) .* sin(dSteer_AllW(i,p)) ;
+                                        coord_AllW(1,p) .* TM_Fy(p) .* cos(dSteer_AllW(i,p))  ] ); 
+                end
+                
+                FxBody = sum(FxTire);
+                FyBody = sum(FyTire);
+                MzBody = sum(MzTire);
+                
+                itAxBody2(k+1,1) = FxBody/m;
+                resAx = itAxBody2(k+1) - itAxBody2(k);
+                % plot(1:c, itFz);
+                % plot(1:c+1, itAyBody);
+                %legend(["FzW1" "FzW2" "FzW3" "FzW4"])
+                
+                k = k + 1;
+            end % Inside Ax While end
+            AxCurr = itAxBody2(end);
             V = sqrt(abs(AyCurr).* R) ; %.* (abs(AyCurr)./AyCurr);
             Omega = V/R;
             
@@ -106,8 +167,8 @@ for i = 1:length(dSteer)
             end
             
             dFzf_dAx = (hCG .* m)./(2.* WB);
-            dFzf_dAy = (hCG .* m .* g .* PFront)/TWf;
-            dFzr_dAy = (hCG .* m .* g .* (1-PFront))/TWr;
+            dFzf_dAy = 0.1*(hCG .* m .* g .* PFront)/TWf;
+            dFzr_dAy = 0.1*(hCG .* m .* g .* (1-PFront))/TWr;
             
             Fz_Wf = (m.*g.* PFront)/2;
             Fz_Wr = (m.*g.* (1-PFront))/2;
@@ -134,24 +195,30 @@ for i = 1:length(dSteer)
             FyBody = sum(FyTire);
             MzBody = sum(MzTire);
             
-
             itFz(:,c) = Fz;
             itAyBody(c+1,1) = FyBody/m;
+            itAxBody(k+1,1) = FxBody/m;
             res = itAyBody(c+1) - itAyBody(c);
 
-            plot(1:c, itFz);
+            %plot(1:c, itFz);
             plot(1:c+1, itAyBody);
             %legend(["FzW1" "FzW2" "FzW3" "FzW4"])
             
-
             c = c + 1;
+            k = 1;
+
+            if c > 499
+                disp("balls");
+            end
             
         end
-        if j == 14
-            return
-        end
+        % if j == 13
+        %     return
+        % end
         %saveAyBody(i,j) = (itAyBody(end)+itAyBody(end-1))/2;
         saveAyBody(i,j) = itAyBody(end);
+        saveAxBody(i,j) = itAxBody(end);
+        saveItFz(:,j) = Fz;
         saveItAyBody{j,1} = itAyBody;
         disp("Steering Angle [" + i + "] Slip Angle [" + j + "] finished")
 
