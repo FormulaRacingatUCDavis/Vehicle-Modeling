@@ -14,6 +14,11 @@ format long g
 % doesnt want to converge and is currently oscillating between two values,
 % BUT I ADDED iteration limit so oh well, seemed to be struggling at
 % SA_CG[3:14] --> Need to investigate
+%
+% 10/25/2024: Deriving and confirming beta(i) equations, but we need to
+% find out which direction is positive turning, but then ran into troubles
+% with defining correct yaw rate direction and body velocity heading --->
+% need to work on overall coordinate system correction and confirmation
 %% Constants
 %
 %
@@ -78,7 +83,6 @@ saveAxBody = zeros(length(dSteer), length(SA_CG));
 saveItFz = [];
 
 
-
 for i = 1:length(dSteer)
 
     for j = 1:length(SA_CG)
@@ -125,8 +129,8 @@ for i = 1:length(dSteer)
                     
                 Fz(1,1) = Fz_Wf + dFzf_dAx .* AxCurr + dFzf_dAy .* AyCurr;
                 Fz(2,1) = Fz_Wf + dFzf_dAx .* AxCurr - dFzf_dAy .* AyCurr;
-                Fz(3,1) = Fz_Wf - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
-                Fz(4,1) = Fz_Wf - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
+                Fz(3,1) = Fz_Wr - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
+                Fz(4,1) = Fz_Wr - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
                 
                 for p = 1:4
                     [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
@@ -153,8 +157,9 @@ for i = 1:length(dSteer)
                 
                 k = k + 1;
             end % Inside Ax While end
+            
             AxCurr = itAxBody2(end);
-            V = sqrt(abs(AyCurr).* R) ; %.* (abs(AyCurr)./AyCurr);
+            V = sqrt(abs(AyCurr).* R) .* (abs(AyCurr)./AyCurr);
             Omega = V/R;
             
             for p = 1:4
@@ -175,8 +180,8 @@ for i = 1:length(dSteer)
                 
             Fz(1,1) = Fz_Wf + dFzf_dAx .* AxCurr + dFzf_dAy .* AyCurr;
             Fz(2,1) = Fz_Wf + dFzf_dAx .* AxCurr - dFzf_dAy .* AyCurr;
-            Fz(3,1) = Fz_Wf - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
-            Fz(4,1) = Fz_Wf - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
+            Fz(3,1) = Fz_Wr - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
+            Fz(4,1) = Fz_Wr - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
             
             for p = 1:4
                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
@@ -226,7 +231,17 @@ for i = 1:length(dSteer)
 
 end % dSteer End
 
+%%
 
+saveAxVel = zeros(size(saveAyBody));
+saveAyVel = zeros(size(saveAyBody));
+
+for i = 1:length(SA_CG)
+
+    saveAxVel(:,i) = saveAxBody(:,i) .* cos(SA_CG) + saveAyBody(:,i) .* sin(SA_CG);
+    saveAyVel(:,i) = saveAyBody(:,i) .* cos(SA_CG) - saveAxBody(:,i) .* sin(SA_CG);
+
+end
 
 
 
