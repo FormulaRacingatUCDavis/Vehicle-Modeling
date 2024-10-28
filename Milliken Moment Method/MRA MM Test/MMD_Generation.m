@@ -19,6 +19,15 @@ format long g
 % find out which direction is positive turning, but then ran into troubles
 % with defining correct yaw rate direction and body velocity heading --->
 % need to work on overall coordinate system correction and confirmation
+%
+% 10/28/2024: Corrected track coordinates in accordance with right hand
+% positive y, paper suspected to use coordinate system suggested in RCVD
+% section 5, tried turning tire model output TM_Fy to negative, but didn't
+% seem to affect anything? Model only seems to be struggling nearing the
+% middle of each linspace for some reason(model doesn't like small angles?)
+% could be the tire model as well. But added graphing and lowered weight
+% transfer(by a multiplier) and seems to converge very fast with low weight
+% transfer(kind of makes sense?)
 %% Constants
 %
 %
@@ -31,7 +40,7 @@ format long g
 % Backwards
 
 g = 9.81; % Grav constant
-m = 220; %kg
+m = 100; %kg
 PFront = 52 /100;
 WB = 1.5; %Wheelbase - m
 TWf = 1.2; %Trackwidth - m
@@ -49,8 +58,8 @@ TireSR = 0; % -
 Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 load('Hoosier_R25B_16x75-10x7.mat');
 
-dSteer = deg2rad(linspace(0,30,31))';
-SA_CG = deg2rad(linspace(0,12,31))';
+dSteer = deg2rad(linspace(-30,30,41))';
+SA_CG = deg2rad(linspace(-12,12,41))';
 
 dSteer_W1 = toe_f + dSteer;
 dSteer_W2 = -toe_f + dSteer;
@@ -68,6 +77,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 
 %% FREE ROLLING MMD SECTION
+
 R = 15; %Radius of Turn - m
 
 % Mat Initialization
@@ -101,7 +111,7 @@ for i = 1:length(dSteer)
 
         c = 1;
     
-        while abs(res) > tol %&& c <500
+        while abs(res) > tol && c < 1000
             if c == 1
                 AyCurr = itAyBody(c);
             else
@@ -130,8 +140,8 @@ for i = 1:length(dSteer)
             V_Wheel = V_Wheel .* 0;
             
             dFzf_dAx = (hCG .* m)./(2.* WB);
-            dFzf_dAy = 1*(hCG .* m .* g .* PFront)/TWf;
-            dFzr_dAy = 1*(hCG .* m .* g .* (1-PFront))/TWr;
+            dFzf_dAy = 0.5*(hCG .* m .* g .* PFront)/TWf;
+            dFzr_dAy = 0.5*(hCG .* m .* g .* (1-PFront))/TWr;
             
             Fz_Wf = (m.*g.* PFront)/2;
             Fz_Wr = (m.*g.* (1-PFront))/2;
@@ -149,7 +159,8 @@ for i = 1:length(dSteer)
                 
                 % Calspan TTC Data usual correction factor - 0.7
                 TM_Fx = TM_Fx .* 0.7;
-                TM_Fy = TM_Fy .* 0.7;
+                TM_Fy = (1).* TM_Fy .* 0.7;
+
                 FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
                 FyTire(p,1) = 1*TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
                 
@@ -176,9 +187,11 @@ for i = 1:length(dSteer)
             
             c = c + 1;
     
-            % if c > 499
-            %     disp("balls");
-            % end
+            if c > 499
+                iterationCtrl = itAyBody( (c-10) : (c-1) );
+                itAyBody(c) = min(iterationCtrl);
+                break
+            end
                 
         end % while loop end
         % if j == 13
@@ -210,6 +223,9 @@ for i = 1:length(SA_CG)
 
 end
 
+figure
+hold on
+grid on
 for i = 1:length(dSteer)
     plot(saveAyVel(i,:),saveMzBody(i,:), "Color", "blue")
 end
@@ -217,6 +233,11 @@ end
 for i = 1:length(SA_CG)
     plot(saveAyVel(:,i),saveMzBody(:,i), "Color", "red")
 end
+
+xlabel("C_(AY)")
+ylabel("C_N")
+
+
 
 
 
