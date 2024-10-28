@@ -58,8 +58,11 @@ TireSR = 0; % -
 Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 load('Hoosier_R25B_16x75-10x7.mat');
 
-dSteer = deg2rad(linspace(-30,30,41))';
+% dSteer = deg2rad(linspace(-30,30,41))';
 SA_CG = deg2rad(linspace(-12,12,41))';
+
+dSteer = deg2rad(linspace(-15,15,41))';
+% SA_CG = deg2rad(linspace(-9,9,41))';
 
 dSteer_W1 = toe_f + dSteer;
 dSteer_W2 = -toe_f + dSteer;
@@ -140,8 +143,8 @@ for i = 1:length(dSteer)
             V_Wheel = V_Wheel .* 0;
             
             dFzf_dAx = (hCG .* m)./(2.* WB);
-            dFzf_dAy = 0.5*(hCG .* m .* g .* PFront)/TWf;
-            dFzr_dAy = 0.5*(hCG .* m .* g .* (1-PFront))/TWr;
+            dFzf_dAy = .5*(hCG .* m .* g .* PFront)/TWf;
+            dFzr_dAy = .5*(hCG .* m .* g .* (1-PFront))/TWr;
             
             Fz_Wf = (m.*g.* PFront)/2;
             Fz_Wr = (m.*g.* (1-PFront))/2;
@@ -181,9 +184,12 @@ for i = 1:length(dSteer)
             itAxBody(c+1,1) = FxBody/m;
             res = itAyBody(c+1) - itAyBody(c);
     
-            %plot(1:c, itFz);
+            % % Tests the weight transfer eqn
+            % plot(1:c, itFz);
+            % legend(["FzW1" "FzW2" "FzW3" "FzW4"])
+            
+            % Tests the c 
             plot(1:c+1, itAyBody);
-            %legend(["FzW1" "FzW2" "FzW3" "FzW4"])
             
             c = c + 1;
     
@@ -216,6 +222,7 @@ end % dSteer End
 saveAxVel = zeros(size(saveAyBody));
 saveAyVel = zeros(size(saveAyBody));
 
+
 for i = 1:length(SA_CG)
 
     saveAxVel(:,i) = saveAxBody(:,i) .* cos(SA_CG) + saveAyBody(:,i) .* sin(SA_CG);
@@ -227,20 +234,16 @@ figure
 hold on
 grid on
 for i = 1:length(dSteer)
-    plot(saveAyVel(i,:),saveMzBody(i,:), "Color", "blue")
+    steer = plot(saveAyVel(i,:),saveMzBody(i,:), "Color", "blue", 'LineStyle','--');
 end
 
 for i = 1:length(SA_CG)
-    plot(saveAyVel(:,i),saveMzBody(:,i), "Color", "red")
+    slip = plot(saveAyVel(:,i),saveMzBody(:,i), "Color", "red");
 end
 
-xlabel("C_(AY)")
+legend([steer, slip],{"Constant Steer", "Constant Slip"}, "Location","northeast")
+
+xlabel("C_{(AY)}")
 ylabel("C_N")
 
-
-
-
-
-
-
-
+title("SA in [-12, 12] & Steering in [-30, 30]")
