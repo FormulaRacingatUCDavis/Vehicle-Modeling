@@ -34,42 +34,52 @@ format long g
 % since right hand turns are supposed to yield positive Ay, but TM outputs
 % negative Ay for positive $alpha$, FreeRolling inf radius now works
 %
+% 10/29/2024: Noticed a potential error, some forces from TM_Fy are
+% negative for some reason, added logging for slip angles to try to
+% evaluate problem, but WT seems to be working fine, SAWheel seems alright?
+% Need to check again, and Vwheel is definitely 0, so something somewhere
+% is going awry
+%
 %
 %% Constants
 %
 %
-% RIGHT HAND SIDE IS POSITIVE Y - apparently the standard?
+% RIGHT HAND SIDE IS POSITIVE Y - RCVD Standard (but lots of industry
+% doesnt like to use this, but for the sake of the paper, we will use this,
+% maybe change it later once I have this all figured out.
 %
 % Tires go 
+%
 % Forwards
-% 1  2      Postive Y
+% 1  2      Postive Y coord
 % 3  4
 % Backwards
-% RIGHT HAND TURN RESULTS IN POSTIVE AY
+%
+% RIGHT HAND TURN RESULTS IN POSTIVE AY(yes you heard that right)
 
-g = 9.81; % Grav constant
-m = 250; %kg
-PFront = 50 /100;
-WB = 1.5; %Wheelbase - m
-TWf = 1.2; %Trackwidth - m
+
+g = 9.81;                   % Grav constant [m/s^2]
+m = 250;                    % Total Mass [kg]
+PFront = 20 /100;           % Percent Mass Front [0-1]
+WB = 1.5;                   % Wheelbase [m]
+TWf = 1.2;                  % Trackwidth [m]
 TWr = 1.2;
-toe_f = 0.5 * (pi/180); %Toe Angles
+toe_f = 0.5 * (pi/180);     % Toe Angles [radians]
 toe_r = 0.5 * (pi/180);
-hCG = 0.2; % CG height
+hCG = 0.2;                  % CG height [m]
 
-%Tire Model Parameters
-Idx = 1;                    %Moment of Inertia in x for wheel
-TirePressure = 70; %psi
-TireInclination = 0;        %deg 
-TireSR = 0; % -
+% Tire Model Parameters
+Idx = 1;                    % Moment of Inertia in x for wheel
+TirePressure = 70;          % kPa
+TireInclination = 0;        % deg 
+TireSR = 0;                 % -
 Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 load('Hoosier_R25B_16x75-10x7.mat');
 
-% dSteer = deg2rad(linspace(-30,30,41))';
-SA_CG = deg2rad(linspace(-12,12,31))';
+%%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
+SA_CG = deg2rad(linspace(-5,5,21))';
+dSteer = deg2rad(linspace(-5,5,21))';
 
-dSteer = deg2rad(linspace(-20,20,31))';
-% SA_CG = deg2rad(linspace(-9,9,41))';
 
 dSteer_W1 = toe_f + dSteer;
 dSteer_W2 = -toe_f + dSteer;
@@ -102,6 +112,7 @@ saveAyBody = zeros(length(dSteer), length(SA_CG));
 saveAxBody = zeros(length(dSteer), length(SA_CG));
 saveMzBody = zeros(length(dSteer), length(SA_CG));
 saveItFz = [];
+saveTM_Fy = zeros(4,length(SA_CG));
 
 
 for i = 1:length(dSteer)
@@ -120,6 +131,7 @@ for i = 1:length(dSteer)
         itCAyBody = [];
         itCAyBody(1,1) = AyGuess/g;
         itFz = [];
+        itFyTire = [];
 
         c = 1;
     
@@ -131,7 +143,7 @@ for i = 1:length(dSteer)
             end
 
             AxCurr = itAxBody(c);
-            V = sqrt(abs(AyCurr).* R); %.* (abs(AyCurr)./AyCurr);
+            V = sqrt(abs(AyCurr).* R); 
             Omega = V/R;
             
             % Free Rolling MMD Assumption
@@ -173,6 +185,7 @@ for i = 1:length(dSteer)
                 
                 % Calspan TTC Data usual correction factor - 0.7
                 TM_Fx = TM_Fx .* 0.7;
+                % Tire Model outputs in opposite Y coordinates
                 TM_Fy = (-1).* TM_Fy .* 0.7;
 
                 FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
@@ -216,7 +229,9 @@ for i = 1:length(dSteer)
         %     return
         % end
         %saveAyBody(i,j) = (itAyBody(end)+itAyBody(end-1))/2;
-        
+        saveTM_Fy(:,j) = TM_Fy;
+        saveSA_Wheel(:,j) = SA_Wheel;
+        saveFz(:,j) = Fz;
         saveAyBody(i,j) = itAyBody(end);
         saveAxBody(i,j) = itAxBody(end);
         saveMzBody(i,j) = MzBody/(m.*g.*WB);
@@ -253,8 +268,8 @@ for i = 1:length(SA_CG)
     slip = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red");
 end
 
-xlabel("C_{AY}")
-ylabel("C_M")
+xlabel("Normalized Lateral Acceleration (C_{Ay})")
+ylabel("Normalized Yaw Moment (C_{Mz})")
 xlim([-2,2])
 ylim([-1,1])
 
@@ -266,12 +281,14 @@ else
     resp = 'Neutral Steer';
 end
 
-title( ...
-     {['SA: [' num2str(min(rad2deg(SA_CG))) ',' num2str(max(rad2deg(SA_CG))) '] & Steering: [' num2str(min(rad2deg(dSteer))) ',' num2str(max(rad2deg(dSteer))) ']'], ...
-      ['Expected Response: '  resp]});
+title({ ...
+       ['SA: [' num2str(min(rad2deg(SA_CG))) ',' num2str(max(rad2deg(SA_CG))) '] & Steering: [' num2str(min(rad2deg(dSteer))) ',' num2str(max(rad2deg(dSteer))) ']'], ...
+       ['Expected Response: '  resp] ...
+      });
 
 
 %% FINDING HIGHEST STEADY STATE AY
+
 zeroMz_CAy = zeros(1,length(SA_CG));
 
 % Find Change Pts of Mz from pos to negative for each SA_CG
@@ -288,7 +305,7 @@ for j = 1:length(SA_CG)
     b = saveMzBody(indexSS,j) - slope*saveCAyVel(indexSS,j);
     zeroMz_CAy(j) = -b/slope;
 end
-%plot(zeroMz_CAy, zeros(length(zeroMz_CAy)), "LineStyle", "-.")
+
 AyMaxSS = plot(max(zeroMz_CAy), 0, "Marker", ".", "MarkerSize", 20);
 text(max(zeroMz_CAy), 0, {'','','','','C_{Ay_0} =', num2str(max(zeroMz_CAy))}, "FontSize",7 );
 
