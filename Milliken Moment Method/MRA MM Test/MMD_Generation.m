@@ -28,6 +28,13 @@ format long g
 % could be the tire model as well. But added graphing and lowered weight
 % transfer(by a multiplier) and seems to converge very fast with low weight
 % transfer(kind of makes sense?)
+% 
+% 10/28/2024: Fixed the model, WT eq had an extra grav constant g for some
+% reason, removed that and flipped TM_Fy sign by multiplying it by -1,
+% since right hand turns are supposed to yield positive Ay, but TM outputs
+% negative Ay for positive $alpha$, FreeRolling inf radius now works
+%
+%
 %% Constants
 %
 %
@@ -42,13 +49,12 @@ format long g
 
 g = 9.81; % Grav constant
 m = 250; %kg
-PFront = 60 /100;
+PFront = 50 /100;
 WB = 1.5; %Wheelbase - m
 TWf = 1.2; %Trackwidth - m
 TWr = 1.2;
 toe_f = 0.5 * (pi/180); %Toe Angles
 toe_r = 0.5 * (pi/180);
-
 hCG = 0.2; % CG height
 
 %Tire Model Parameters
@@ -62,7 +68,7 @@ load('Hoosier_R25B_16x75-10x7.mat');
 % dSteer = deg2rad(linspace(-30,30,41))';
 SA_CG = deg2rad(linspace(-12,12,31))';
 
-dSteer = deg2rad(linspace(-25,25,31))';
+dSteer = deg2rad(linspace(-20,20,31))';
 % SA_CG = deg2rad(linspace(-9,9,41))';
 
 dSteer_W1 = toe_f + dSteer;
@@ -224,14 +230,13 @@ for i = 1:length(dSteer)
 end % dSteer End
 
 %% PLOTTING
+close all;
 
 saveAxVel = zeros(size(saveAyBody));
 saveAyVel = zeros(size(saveAyBody));
 saveCAyVel = zeros(size(saveAyBody));
 
-
 for i = 1:length(SA_CG)
-
     saveAxVel(:,i) = saveAxBody(:,i) .* cos(SA_CG) + saveAyBody(:,i) .* sin(SA_CG);
     saveAyVel(:,i) = saveAyBody(:,i) .* cos(SA_CG) - saveAxBody(:,i) .* sin(SA_CG);
     saveCAyVel(:,i) = saveAyVel(:,i)/g;
@@ -248,10 +253,8 @@ for i = 1:length(SA_CG)
     slip = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red");
 end
 
-legend([steer, slip],{"Constant Steer", "Constant Slip"}, "Location","northeast")
-
 xlabel("C_{AY}")
-ylabel("C_N")
+ylabel("C_M")
 xlim([-2,2])
 ylim([-1,1])
 
@@ -266,3 +269,27 @@ end
 title( ...
      {['SA: [' num2str(min(rad2deg(SA_CG))) ',' num2str(max(rad2deg(SA_CG))) '] & Steering: [' num2str(min(rad2deg(dSteer))) ',' num2str(max(rad2deg(dSteer))) ']'], ...
       ['Expected Response: '  resp]});
+
+
+%% FINDING HIGHEST STEADY STATE AY
+zeroMz_CAy = zeros(1,length(SA_CG));
+
+% Find Change Pts of Mz from pos to negative for each SA_CG
+for j = 1:length(SA_CG)
+    for i = 1:length(dSteer)
+        diff = saveMzBody(i,j) - saveMzBody(i+1,j);
+        if diff > saveMzBody(i,j)
+            indexSS = i;
+            break
+        end
+    end
+    indexes(j) = indexSS;
+    slope = (saveMzBody(indexSS+1,j) - saveMzBody(indexSS,j)) / (saveCAyVel(indexSS+1,j) - saveCAyVel(indexSS,j));
+    b = saveMzBody(indexSS,j) - slope*saveCAyVel(indexSS,j);
+    zeroMz_CAy(j) = -b/slope;
+end
+%plot(zeroMz_CAy, zeros(length(zeroMz_CAy)), "LineStyle", "-.")
+AyMaxSS = plot(max(zeroMz_CAy), 0, "Marker", ".", "MarkerSize", 20);
+text(max(zeroMz_CAy), 0, {'','','','','C_{Ay_0} =', num2str(max(zeroMz_CAy))}, "FontSize",7 );
+
+legend([steer, slip,AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}}"}, "Location","northeast")
