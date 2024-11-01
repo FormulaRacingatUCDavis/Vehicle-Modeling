@@ -312,6 +312,7 @@ text(max(zeroMz_CAy), 0, {'','','','','C_{Ay_0} =', num2str(max(zeroMz_CAy))}, "
 legend([steer, slip,AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}}"}, "Location","northeast")
 
 %% TESTING
+
 saveTM_Fy = saveTM_Fy .* -1;
 
 close all;
