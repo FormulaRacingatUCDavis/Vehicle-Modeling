@@ -60,7 +60,7 @@ format long g
 
 g = 9.81;                   % Grav constant [m/s^2]
 m = 250;                    % Total Mass [kg]
-PFront = 20 /100;           % Percent Mass Front [0-1]
+PFront = 40 /100;           % Percent Mass Front [0-1]
 WB = 1.5;                   % Wheelbase [m]
 TWf = 1.2;                  % Trackwidth [m]
 TWr = 1.2;
@@ -310,3 +310,28 @@ AyMaxSS = plot(max(zeroMz_CAy), 0, "Marker", ".", "MarkerSize", 20);
 text(max(zeroMz_CAy), 0, {'','','','','C_{Ay_0} =', num2str(max(zeroMz_CAy))}, "FontSize",7 );
 
 legend([steer, slip,AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}}"}, "Location","northeast")
+
+%% TESTING
+saveTM_Fy = saveTM_Fy .* -1;
+
+close all;
+figure;
+hold on
+for i = 1:4
+    plot(SA_CG,saveSA_Wheel(i,:))
+end
+
+figure;
+hold on
+for i = 1:4
+    plot(SA_CG,saveTM_Fy(i,:))
+end
+legend()
+
+
+figure;
+hold on
+for i = 1:4
+    plot(SA_CG,saveFz(i,:))
+end
+legend()
