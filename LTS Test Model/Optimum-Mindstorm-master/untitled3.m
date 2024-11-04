@@ -227,7 +227,7 @@ for  i = 1:1:length(velocity) % for each velocity
         Ax(j + 1) = FX/W;
         Ax2(j + 1) = FX2/W;
         err = Ax(j+1) - Ax(j);
-        j = j + 1
+        j = j + 1;
     end
     AxSave(i) = Ax(j);
     Ax2Save(i) = Ax2(j);
