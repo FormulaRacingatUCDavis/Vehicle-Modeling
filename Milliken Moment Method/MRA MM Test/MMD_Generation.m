@@ -321,12 +321,14 @@ hold on
 for i = 1:4
     plot(SA_CG,saveSA_Wheel(i,:))
 end
+title("SA_WHeel")
 
 figure;
 hold on
 for i = 1:4
     plot(SA_CG,saveTM_Fy(i,:))
 end
+title("saveTM_Fy for last SA_CG and steer")
 legend()
 
 
@@ -335,4 +337,5 @@ hold on
 for i = 1:4
     plot(SA_CG,saveFz(i,:))
 end
+title("saveFz for last SA_CG and steer")
 legend()
