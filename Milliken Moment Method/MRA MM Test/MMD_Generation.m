@@ -60,12 +60,12 @@ format long g
 
 g = 9.81;                   % Grav constant [m/s^2]
 m = 250;                    % Total Mass [kg]
-PFront = 40 /100;           % Percent Mass Front [0-1]
+PFront = 50 /100;           % Percent Mass Front [0-1]
 WB = 1.5;                   % Wheelbase [m]
 TWf = 1.2;                  % Trackwidth [m]
 TWr = 1.2;
-toe_f = 0.5 * (pi/180);     % Toe Angles [radians]
-toe_r = 0.5 * (pi/180);
+toe_f = 2 * (pi/180);     % Toe Angles [radians] (positive is inwards)
+toe_r = 0 * (pi/180);
 hCG = 0.2;                  % CG height [m]
 
 % Tire Model Parameters
@@ -77,8 +77,8 @@ Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 load('Hoosier_R25B_16x75-10x7.mat');
 
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
-SA_CG = deg2rad(linspace(-5,5,21))';
-dSteer = deg2rad(linspace(-5,5,21))';
+SA_CG = deg2rad(linspace(-12,12,31))';
+dSteer = deg2rad(linspace(-25,25,31))';
 
 
 dSteer_W1 = toe_f + dSteer;
@@ -181,13 +181,13 @@ for i = 1:length(dSteer)
                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
                 
                 % Free Rolling MMD Assumption
-                TM_Fx = TM_Fx .* 0; 
+                TM_Fx(p) = TM_Fx(p) .* 0; 
                 
                 % Calspan TTC Data usual correction factor - 0.7
-                TM_Fx = TM_Fx .* 0.7;
+                TM_Fx(p) = TM_Fx(p) .* 0.7;
                 % Tire Model outputs in opposite Y coordinates
-                TM_Fy = (-1).* TM_Fy .* 0.7;
-
+                TM_Fy(p) = (-1).* TM_Fy(p) .* 0.7;
+                
                 FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
                 FyTire(p,1) = 1*TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
                 
@@ -315,27 +315,30 @@ legend([steer, slip,AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}
 
 saveTM_Fy = saveTM_Fy .* -1;
 
-close all;
 figure;
+subplot(1,3,1)
 hold on
 for i = 1:4
-    plot(SA_CG,saveSA_Wheel(i,:))
+    plot(rad2deg(SA_CG),rad2deg(saveSA_Wheel(i,:)))
 end
 title("SA_WHeel")
+grid on
 
-figure;
+subplot(1,3,2)
 hold on
 for i = 1:4
-    plot(SA_CG,saveTM_Fy(i,:))
+    plot(rad2deg(saveSA_Wheel(i,:)),saveTM_Fy(i,:))
 end
 title("saveTM_Fy for last SA_CG and steer")
 legend()
+grid on
 
-
-figure;
+subplot(1,3,3)
 hold on
 for i = 1:4
-    plot(SA_CG,saveFz(i,:))
+    plot(rad2deg(SA_CG),saveFz(i,:))
 end
 title("saveFz for last SA_CG and steer")
 legend()
+grid on
+
