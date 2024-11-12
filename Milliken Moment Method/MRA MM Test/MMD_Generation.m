@@ -126,7 +126,7 @@ for i = 1:length(dSteer)
         AxGuess = 0;
         AyGuess = 0;
         res = 1;
-        tol = 1e-3;
+        tol = 1e-6;
 
         itAyBody = [];
         itAyBody(1,1) = AyGuess;
@@ -140,40 +140,48 @@ for i = 1:length(dSteer)
         c = 1;
     
         while abs(res) > tol && c < 1000
-            if c == 1
-                AyCurr = itAyBody(c);
-            else
-                AyCurr = itAyBody(c);% + itAyBody(c-1).*0.01;
-            end
-
+            
+            AyCurr = itAyBody(c);
             AxCurr = itAxBody(c);
             V = sqrt(abs(AyCurr).* R); 
             
             %%%%% VEHICLE BODY YAW RATE
-            % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-            % Omega = 0;
-            %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
-            Omega = V/R;
+
+            %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+            Omega = 0;
+            % 
+            % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+            % Omega = V/R;
 
             for p = 1:4
                 
                 %%%%% WHEEL SLIP ANGLE EQUATIONS
-                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-                % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
-                % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-                % %%% Equation 1
-                % SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
-                %                     / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-                %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-                %%% Equation 2
-                SA_Wheel(p,1) = atan( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) / (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
-                                - dSteer_AllW(i,p);
+
+                %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
+
+                % if c == 1
+                %     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                %     %%% Equation 2
+                %     SA_Wheel(p,1) = atan( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) / (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
+                %                     - dSteer_AllW(i,p);
+                % else
+                %     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                %     %%% Equation 1
+                %     SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
+                %                         / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+                % 
+                % end
+                
 
                %%%%% WHEEL SPEED EQUATIONS
+
                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
                % V_Wheel(p,1) = 0;
+
                %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
                V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
+
             end
             
             dFzf_dAx = (hCG .* m)./(2.* WB);
@@ -204,7 +212,7 @@ for i = 1:length(dSteer)
                 
                 % Made it a matrix sum so its not ugly :)
                 MzTire(p,1) = sum( [coord_AllW(1,p) .* TM_Fx(p) .* sin(dSteer_AllW(i,p)) ;
-                                  - coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
+                                   -coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
                                     coord_AllW(2,p) .* TM_Fy(p) .* sin(dSteer_AllW(i,p)) ;
                                     coord_AllW(1,p) .* TM_Fy(p) .* cos(dSteer_AllW(i,p))  ] ); 
             end
