@@ -9,7 +9,7 @@ format long g
 % is: WT onto W1, off of W2( right to left ), but need to look at tire
 % forces to body forces convention to make sure dSteer is positive the way
 % I want it.
-%
+% 
 % 10/24/2024: Finished implementing for loops and while loop, but solutions
 % doesnt want to converge and is currently oscillating between two values,
 % BUT I ADDED iteration limit so oh well, seemed to be struggling at
@@ -40,6 +40,10 @@ format long g
 % Need to check again, and Vwheel is definitely 0, so something somewhere
 % is going awry
 %
+% 11/6/2024: PRoblem fixed, indexing problem that flipped the signage of
+% TM_Fy everytime it output a wheel, problem was not putting the index of
+% the value, so it multiplied the entire matrix everytime
+%
 %
 %% Constants
 %
@@ -64,7 +68,7 @@ PFront = 50 /100;           % Percent Mass Front [0-1]
 WB = 1.5;                   % Wheelbase [m]
 TWf = 1.2;                  % Trackwidth [m]
 TWr = 1.2;
-toe_f = 2 * (pi/180);     % Toe Angles [radians] (positive is inwards)
+toe_f = 0 * (pi/180);     % Toe Angles [radians] (positive is inwards)
 toe_r = 0 * (pi/180);
 hCG = 0.2;                  % CG height [m]
 
@@ -78,7 +82,7 @@ load('Hoosier_R25B_16x75-10x7.mat');
 
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
 SA_CG = deg2rad(linspace(-12,12,31))';
-dSteer = deg2rad(linspace(-25,25,31))';
+dSteer = deg2rad(linspace(-30,30,31))';
 
 
 dSteer_W1 = toe_f + dSteer;
@@ -144,26 +148,33 @@ for i = 1:length(dSteer)
 
             AxCurr = itAxBody(c);
             V = sqrt(abs(AyCurr).* R); 
-            Omega = V/R;
             
-            % Free Rolling MMD Assumption
-            Omega = 0;
+            %%%%% VEHICLE BODY YAW RATE
+            % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+            % Omega = 0;
+            %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+            Omega = V/R;
 
             for p = 1:4
                 
+                %%%%% WHEEL SLIP ANGLE EQUATIONS
+                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
+                % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                % %%% Equation 1
                 % SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
                 %                     / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-                % SA_Wheel(p,1) = atan( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) / (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
-                %                 - dSteer_AllW(i,p);
+                %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                %%% Equation 2
+                SA_Wheel(p,1) = atan( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) / (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
+                                - dSteer_AllW(i,p);
 
-                % Free Rolling MMD Assumption
-                SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
-            
-                V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
+               %%%%% WHEEL SPEED EQUATIONS
+               % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+               % V_Wheel(p,1) = 0;
+               %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+               V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
             end
-
-            % Free Rolling MMD Assumption
-            V_Wheel = V_Wheel .* 0;
             
             dFzf_dAx = (hCG .* m)./(2.* WB);
             dFzf_dAy = 1*(hCG .* m .* PFront)/TWf;
@@ -180,7 +191,7 @@ for i = 1:length(dSteer)
             for p = 1:4
                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
                 
-                % Free Rolling MMD Assumption
+                %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
                 TM_Fx(p) = TM_Fx(p) .* 0; 
                 
                 % Calspan TTC Data usual correction factor - 0.7
@@ -206,12 +217,11 @@ for i = 1:length(dSteer)
             itFyTire(:,c) =  FyTire;
             itAyBody(c+1,1) = FyBody/m;
             itAxBody(c+1,1) = FxBody/m;
+
+            % Using dimensionless G's to iteration (apparently improves
+            % stability)?
             itCAyBody(c+1,1) = itAyBody(c+1,1)/g;
             res = itCAyBody(c+1) - itCAyBody(c);
-    
-            % % Tests the weight transfer eqn
-            % plot(1:c, itFz);
-            % legend(["FzW1" "FzW2" "FzW3" "FzW4"])
             
             % Tests the c 
             plot(1:c+1, itAyBody);
@@ -251,6 +261,7 @@ saveAxVel = zeros(size(saveAyBody));
 saveAyVel = zeros(size(saveAyBody));
 saveCAyVel = zeros(size(saveAyBody));
 
+% Body to velocity coordinate transformation
 for i = 1:length(SA_CG)
     saveAxVel(:,i) = saveAxBody(:,i) .* cos(SA_CG) + saveAyBody(:,i) .* sin(SA_CG);
     saveAyVel(:,i) = saveAyBody(:,i) .* cos(SA_CG) - saveAxBody(:,i) .* sin(SA_CG);
@@ -262,10 +273,19 @@ hold on
 grid on
 for i = 1:length(dSteer)
     steer = plot(saveCAyVel(i,:),saveMzBody(i,:), "Color", "blue", 'LineStyle','--');
+    if mod(i,7) == 0
+        labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg steer'];  % Dynamic label for clarity
+        text(saveCAyVel(i,end), saveMzBody(i,end), labelText)
+    end
+
 end
 
 for i = 1:length(SA_CG)
     slip = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red");
+    if mod(i,7) == 0
+        labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg SA'];  % Dynamic label for clarity
+        text(saveCAyVel(1,i), saveMzBody(1,i), labelText)
+    end
 end
 
 xlabel("Normalized Lateral Acceleration (C_{Ay})")
@@ -313,32 +333,4 @@ legend([steer, slip,AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}
 
 %% TESTING
 
-saveTM_Fy = saveTM_Fy .* -1;
-
-figure;
-subplot(1,3,1)
-hold on
-for i = 1:4
-    plot(rad2deg(SA_CG),rad2deg(saveSA_Wheel(i,:)))
-end
-title("SA_WHeel")
-grid on
-
-subplot(1,3,2)
-hold on
-for i = 1:4
-    plot(rad2deg(saveSA_Wheel(i,:)),saveTM_Fy(i,:))
-end
-title("saveTM_Fy for last SA_CG and steer")
-legend()
-grid on
-
-subplot(1,3,3)
-hold on
-for i = 1:4
-    plot(rad2deg(SA_CG),saveFz(i,:))
-end
-title("saveFz for last SA_CG and steer")
-legend()
-grid on
 
