@@ -283,7 +283,7 @@ for i = 1:length(dSteer)
     steer = plot(saveCAyVel(i,:),saveMzBody(i,:), "Color", "blue", 'LineStyle','--');
     if mod(i,7) == 0
         labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg steer'];  % Dynamic label for clarity
-        text(saveCAyVel(i,end), saveMzBody(i,end), labelText)
+        % text(saveCAyVel(i,end), saveMzBody(i,end), labelText)
     end
 
 end
@@ -292,7 +292,7 @@ for i = 1:length(SA_CG)
     slip = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red");
     if mod(i,7) == 0
         labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg SA'];  % Dynamic label for clarity
-        text(saveCAyVel(1,i), saveMzBody(1,i), labelText)
+        % text(saveCAyVel(1,i), saveMzBody(1,i), labelText)
     end
 end
 
@@ -313,7 +313,7 @@ end
 title({ ...
        ['SA: [' num2str(min(rad2deg(SA_CG))) ',' num2str(max(rad2deg(SA_CG))) '] & Steering: [' num2str(min(rad2deg(dSteer))) ',' num2str(max(rad2deg(dSteer))) ']'], ...
        ['Expected Response: '  resp] ...
-       ['Radius: ' R]...
+       ['Radius: ' num2str(R)]...
       });
 
 
@@ -330,17 +330,22 @@ for j = 1:length(SA_CG)
             break
         end
     end
-    indexes(j) = indexSS;
+    % Interpolates for slip angle
+    % indexes(j) = indexSS;
     slope = (saveMzBody(indexSS+1,j) - saveMzBody(indexSS,j)) / (saveCAyVel(indexSS+1,j) - saveCAyVel(indexSS,j));
     b = saveMzBody(indexSS,j) - slope*saveCAyVel(indexSS,j);
-    zeroMz_CAy(j) = -b/slope;
-    SAIndex = find(zeroMz_CAy == max(zeroMz_CAy));
+    zeroMz_CAy(j) = -b/slope;    
 end
 
-AyMaxSS = plot(max(zeroMz_CAy), 0, "Marker", ".", "MarkerSize", 20);
-text(max(zeroMz_CAy), 0, {'','','','','C_{Ay_0} =', num2str(max(zeroMz_CAy))}, "FontSize",7 );
+[CAymax, indMax] = max(zeroMz_CAy);
 
-legend([steer, slip,AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}}"}, "Location","northeast")
+
+AyMaxSS = plot(CAymax, 0, "Marker", ".", "MarkerSize", 20, "Color","g");
+label = sprintf('C_{Ay_0} = %.3g\nSlip Angle = %.3g°', CAymax, SA_CG(indMax) * 180 / pi);
+% text(CAymax + .2, 0, {'','','','','C_{Ay_0} =', 'SA_CG =', num2str(CAymax), num2str(SA_CG(indMax))}, "FontSize",7 );
+text(CAymax + .025, 0, label, "FontSize", 10, 'FontWeight','bold');
+
+legend([steer, slip, AyMaxSS],{"Constant Steer", "Constant Slip", "C_{Ay_{Max SS}}"}, "Location","northeast")
 
 %% TESTING
 

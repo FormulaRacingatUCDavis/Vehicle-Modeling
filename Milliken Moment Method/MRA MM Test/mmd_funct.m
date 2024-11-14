@@ -1,4 +1,4 @@
-function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
+function [cay_max, SA] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
 %MMD_FUNCT Summary of this function goes here
 %   Function form of the MMD
 %   Need to load Tire Data & Tire Modeling into Workspace
@@ -57,19 +57,25 @@ if nargin == 0
     load('Hoosier_R25B_16x75-10x7.mat');
     tParam.Tire = Tire;
 
-    R = linspace(10,100,10)';
+    R = linspace(10,100,200)';
     SA_CG = linspace(-12,12,31);
     dSteer = linspace(-30,30,31);
-    debug = 1;
+    debug = 0;
     saveCAY = zeros(length(R),1);
+    saveSA = zeros(length(R),1);
     for i = 1:length(R)
-        [saveCAY(i)] = mmd_funct(vParam, tParam, SA_CG, dSteer, R(i), debug);
+        disp("For Radius: " + R(i))
+        [saveCAY(i), saveSA(i)] = mmd_funct(vParam, tParam, SA_CG, dSteer, R(i), debug);
     end
-    
+
     figure
     hold on
     grid()
-    plot(R, saveCAY)
+    plot(R, sqrt(saveCAY .* R .* sin(saveSA)))
+    title("Turning Radius and Vy")
+    ylabel("Vy (m/s)")
+    xlabel("Radius (m)")
+    save('MMD_DATA.mat', 'R', 'saveCAY', 'saveSA')
 
     
 end
@@ -297,21 +303,21 @@ end
     
     % Find Change Pts of Mz from pos to negative for each SA_CG
     for j = 1:length(SA_CG)
-        for i = 1:length(dSteer)
+        for i = 1:length(dSteer)-1
             diff = saveMzBody(i,j) - saveMzBody(i+1,j);
             if diff > saveMzBody(i,j)
                 indexSS = i;
                 break
             end
         end
-        indexes(j) = indexSS;
         slope = (saveMzBody(indexSS+1,j) - saveMzBody(indexSS,j)) / (saveCAyVel(indexSS+1,j) - saveCAyVel(indexSS,j));
         b = saveMzBody(indexSS,j) - slope*saveCAyVel(indexSS,j);
         zeroMz_CAy(j) = -b/slope;
     end
 
     % Stores OUTPUT
-    cay_max = max(zeroMz_CAy);
+    [cay_max, max_ind] = max(zeroMz_CAy);
+    SA = SA_CG(max_ind);
 
     % Plot if debugging
     if debug
