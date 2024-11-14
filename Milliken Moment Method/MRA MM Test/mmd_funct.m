@@ -33,8 +33,48 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
 %   Output Variables:
 %   cay_max:    The maximum cay from the mmd    (-)
 
-%   RIGHT HAND SIDE IS POSITIVE Y - RCVD Standard   
+%   RIGHT HAND SIDE IS POSITIVE Y - RCVD Standard   \
+%%  Test Case
+if nargin == 0
+    warning('Executing MMD_FUNC Test Case')
+    addpath( genpath( fileparts( which( 'mmd_funct.m' ) ) ) );
+
+    vParam.m = 250;                    % Total Mass [kg]
+    vParam.PFront = 50 /100;           % Percent Mass Front [0-1]
+    vParam.WB = 1.5;                   % Wheelbase [m]
+    vParam.TWf = 1.2;                  % Trackwidth [m]
+    vParam.TWr = 1.2;
+    vParam.toe_f = 0.5 ;     % Toe Angles [radians] (positive is inwards)
+    vParam.toe_r = 0 ;
+    vParam.hCG = 0.2;                  % CG height [m]
     
+    % Tire Model Parameters
+    tParam.Idx = 1;                    % Moment of Inertia in x for wheel
+    tParam.TirePress = 70;          % kPa
+    tParam.TireIncl = 0;        % deg 
+    tParam.TireSR = 0;                 % -
+    tParam.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
+    load('Hoosier_R25B_16x75-10x7.mat');
+    tParam.Tire = Tire;
+
+    R = linspace(10,100,10)';
+    SA_CG = linspace(-12,12,31);
+    dSteer = linspace(-30,30,31);
+    debug = 1;
+    saveCAY = zeros(length(R),1);
+    for i = 1:length(R)
+        [saveCAY(i)] = mmd_funct(vParam, tParam, SA_CG, dSteer, R(i), debug);
+    end
+    
+    figure
+    hold on
+    grid()
+    plot(R, saveCAY)
+
+    
+end
+%% Main Evaluation
+
     % Constants
     g = 9.81;                           % Grav constant [m/s^2]
     m = vParam.m;                       % Total Mass [kg]
@@ -51,8 +91,9 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
     TirePressure = tParam.TirePress;    % kPa
     TireInclination = tParam.TireIncl;  % deg 
     TireSR = tParam.TireSR;             % -
-    Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
-    load('Hoosier_R25B_16x75-10x7.mat');
+    Model = tParam.Model;
+    Tire = tParam.Tire;
+    
     
     % SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
     SA_CG = deg2rad(SA_CG)';
@@ -90,7 +131,11 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
     
     
     for i = 1:length(dSteer)
-    
+
+        if debug
+            tic
+        end
+        
         for j = 1:length(SA_CG)
     
             AxGuess = 0;
@@ -110,35 +155,52 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
             c = 1;
         
             while abs(res) > tol && c < 1000
-                if c == 1
-                    AyCurr = itAyBody(c);
-                else
-                    AyCurr = itAyBody(c);
-                end
-    
+                
+                AyCurr = itAyBody(c);
                 AxCurr = itAxBody(c);
                 V = sqrt(abs(AyCurr).* R); 
-                Omega = V/R;
                 
-                % Free Rolling MMD Assumption
-                Omega = 0;
+                %%%%% VEHICLE BODY YAW RATE
     
+                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                % Omega = 0;
+    
+                %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+                Omega = V/R;
+        
                 for p = 1:4
                     
-                    % SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
-                    %                     / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-                    % SA_Wheel(p,1) = atan( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) / (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
-                    %                 - dSteer_AllW(i,p);
+                    %%%%% WHEEL SLIP ANGLE EQUATIONS
     
-                    % Free Rolling MMD Assumption
-                    SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
-                
-                    V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
+                    % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                    % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
+    
+                    if c == 1
+                        %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                        %%% Equation 2
+                        SA_Wheel(p,1) = atan( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) / (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
+                                        - dSteer_AllW(i,p);
+                    else
+                        %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                        %%% Equation 1
+                        SA_Wheel(p,1) = atan( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
+                                            / (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+    
+                    end
+                    
+    
+                   %%%%% WHEEL SPEED EQUATIONS
+    
+                   % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                   % V_Wheel(p,1) = 0;
+    
+                   %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+                   V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
+    
                 end
-    
-                % Free Rolling MMD Assumption
-                V_Wheel = V_Wheel .* 0;
                 
+                %%%%% WEIGHT TRANSFER EQUATIONS
+
                 dFzf_dAx = (hCG .* m)./(2.* WB);
                 dFzf_dAy = 1*(hCG .* m .* PFront)/TWf;
                 dFzr_dAy = 1*(hCG .* m .* (1-PFront))/TWr;
@@ -167,7 +229,7 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
                     
                     % Made it a matrix sum so its not ugly :)
                     MzTire(p,1) = sum( [coord_AllW(1,p) .* TM_Fx(p) .* sin(dSteer_AllW(i,p)) ;
-                                      - coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
+                                       -coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
                                         coord_AllW(2,p) .* TM_Fy(p) .* sin(dSteer_AllW(i,p)) ;
                                         coord_AllW(1,p) .* TM_Fy(p) .* cos(dSteer_AllW(i,p))  ] ); 
                 end
@@ -186,9 +248,9 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
                 % % Tests the weight transfer eqn
                 % plot(1:c, itFz);
                 % legend(["FzW1" "FzW2" "FzW3" "FzW4"])
-                
-                % Tests the c 
-                plot(1:c+1, itAyBody);
+                % 
+                % % Tests the c 
+                % plot(1:c+1, itAyBody);
                 
                 c = c + 1;
         
@@ -208,12 +270,15 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
             saveItFz(:,j) = Fz;
             saveItAyBody{j,1} = itAyBody;
             
-            if debug
-                disp("Steering Angle [" + i + "] Slip Angle [" + j + "] finished, iterations: " +  c)
-            end
+            % if debug
+            %     disp("Steering Angle [" + i + "] Slip Angle [" + j + "] finished, iterations: " +  c)
+            % end
             
         end % SA_CG End
-    
+        if debug
+            disp("Steering Angle [" + i + "] for Radius [" + R + "] finished")
+            toc
+        end
     end % dSteer End
     
     % Processing results
@@ -277,6 +342,7 @@ function [cay_max] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
         title({ ...
                ['SA: [' num2str(min(rad2deg(SA_CG))) ',' num2str(max(rad2deg(SA_CG))) '] & Steering: [' num2str(min(rad2deg(dSteer))) ',' num2str(max(rad2deg(dSteer))) ']'], ...
                ['Expected Response: '  resp] ...
+               ['Radius: ' num2str(R)]...
               });
         
         

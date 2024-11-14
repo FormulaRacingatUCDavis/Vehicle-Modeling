@@ -309,9 +309,11 @@ else
     resp = 'Neutral Steer';
 end
 
+
 title({ ...
        ['SA: [' num2str(min(rad2deg(SA_CG))) ',' num2str(max(rad2deg(SA_CG))) '] & Steering: [' num2str(min(rad2deg(dSteer))) ',' num2str(max(rad2deg(dSteer))) ']'], ...
        ['Expected Response: '  resp] ...
+       ['Radius: ' R]...
       });
 
 
@@ -332,6 +334,7 @@ for j = 1:length(SA_CG)
     slope = (saveMzBody(indexSS+1,j) - saveMzBody(indexSS,j)) / (saveCAyVel(indexSS+1,j) - saveCAyVel(indexSS,j));
     b = saveMzBody(indexSS,j) - slope*saveCAyVel(indexSS,j);
     zeroMz_CAy(j) = -b/slope;
+    SAIndex = find(zeroMz_CAy == max(zeroMz_CAy));
 end
 
 AyMaxSS = plot(max(zeroMz_CAy), 0, "Marker", ".", "MarkerSize", 20);
