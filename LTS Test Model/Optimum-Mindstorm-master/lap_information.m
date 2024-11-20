@@ -1,11 +1,11 @@
-%function [lap_time time_elapsed velocity acceleration lateral_accel gear_counter path_length weights distance] = lap_information(path_positions)
+function [lap_time time_elapsed velocity acceleration lateral_accel gear_counter path_length weights distance] = lap_information(path_positions)
 global path_boundaries r_min r_max cornering accel grip deccel lateral...
     shift_points top_speed shift_time
 %% Generate vehicle trajectory
 % this is done the same way as in the main lap sim code so I will not
 % replicate that explanation here
-path_positions = load('endurance_racing_line.mat');
-path_positions = path_positions.endurance_racing_line; 
+% path_positions = load('endurance_racing_line.mat');
+% path_positions = path_positions.endurance_racing_line; 
 
 interval = 5;
 sections = 3000;

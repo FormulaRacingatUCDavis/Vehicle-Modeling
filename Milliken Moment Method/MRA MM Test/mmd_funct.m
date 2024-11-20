@@ -1,4 +1,4 @@
-function [cay_max, SA] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
+function [cay_max, SA_cayMax, saveCAyVel, saveMzBody] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
 %MMD_FUNCT Summary of this function goes here
 %   Function form of the MMD
 %   Need to load Tire Data & Tire Modeling into Workspace
@@ -38,7 +38,8 @@ function [cay_max, SA] = mmd_funct(vParam, tParam, SA_CG, dSteer, R, debug)
 if nargin == 0
     warning('Executing MMD_FUNC Test Case')
     addpath( genpath( fileparts( which( 'mmd_funct.m' ) ) ) );
-
+    
+    g = 9.81;
     vParam.m = 250;                    % Total Mass [kg]
     vParam.PFront = 50 /100;           % Percent Mass Front [0-1]
     vParam.WB = 1.5;                   % Wheelbase [m]
@@ -67,11 +68,13 @@ if nargin == 0
         disp("For Radius: " + R(i))
         [saveCAY(i), saveSA(i)] = mmd_funct(vParam, tParam, SA_CG, dSteer, R(i), debug);
     end
+    
+    saveAy = saveCAY .* g;
 
     figure
     hold on
     grid()
-    plot(R, sqrt(saveCAY .* R .* sin(saveSA)))
+    plot(R, sqrt(saveAy .* R .* sin(saveSA)))
     title("Turning Radius and Vy")
     ylabel("Vy (m/s)")
     xlabel("Radius (m)")
@@ -317,7 +320,7 @@ end
 
     % Stores OUTPUT
     [cay_max, max_ind] = max(zeroMz_CAy);
-    SA = SA_CG(max_ind);
+    SA_cayMax = SA_CG(max_ind);
 
     % Plot if debugging
     if debug

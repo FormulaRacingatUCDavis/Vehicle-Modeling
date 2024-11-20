@@ -1,15 +1,3 @@
-% clc; clear; close all
-% 
-% image = imshow('Screenshot 2024-11-04 165742.jpg')
-% [x,y] = ginput
-% hold on
-% plot(x,y, 'LineWidth',4 )
-% 
-% while exit == 0 
-% 
-% 
-% 
-% end
 
 clc;clear;close all
 f = figure;
@@ -30,7 +18,6 @@ while true
                 
             end
             
-
         end
 
         j=j+1;

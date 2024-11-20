@@ -90,8 +90,8 @@ LLTD = 51.5; % Front lateral load transfer distribution (%)
 W = SI2FREEDOM(275, "kg"); % vehicle + driver weight (lbs)
 WDF = 51; % front weight distribution (%)
 cg = 10/12; % center of gravity height (ft)
-l = SI2FREEDOM(1.567, "m"); % wheelbase (ft)
-twf = SI2FREEDOM(1.183, "m"); % front track width (ft)
+l = SI2FREEDOM(1.595, "m"); % wheelbase (ft)
+twf = SI2FREEDOM(1.193, "m"); % front track width (ft)
 twr = twf; % rear track width (ft)
 
 % some intermediary calcs you don't have to touch
@@ -284,7 +284,7 @@ for  i = 1:1:length(velocity) % for each velocity
     outPTLS = PowertrainlapsimV222(V/3.281); % Outputs in newtons for some reason
     FxOut = outPTLS(1);
     FxOut = FxOut * 0.224809 - DragF; %Convert back to pound force
-    AxPower(i) = FxOut/W
+    AxPower(i) = FxOut/W;
 end
 %A_Xr(A_Xr < 0) = 0;
 
@@ -315,7 +315,7 @@ fnplt(grip3);
 fnplt(grip4, ".");
 fnplt(drag); 
 legend(["Power Limited(Max Torque)", "Grip Limited(SRmax = 0.2)", "Final Tractive Force","Drag"],"location", "best");
-title("Velocity-G_x Spline Fit Comparisons")
+title("Driveline Model Spline Fits")
 xlabel("Velocity (ft/s)")
 ylabel("X-acceleration (g)")
 
