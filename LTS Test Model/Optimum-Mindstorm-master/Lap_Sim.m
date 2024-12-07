@@ -1784,6 +1784,309 @@ xlabel('Distance Travelled (d) [ft]')
 ylabel('Acceleration [g]')
 legend('Longitudinal','Lateral')
 disp('Analysis Complete')
+
+%%
+%%
+%%
+%% Section 1: Input Tire Model
+% this section is required, everything should be pre-loaded so no need to
+% touch any of this, unless you want to change the tire being evaluated.
+% The only things you might want to change are the scaling factors at the
+% bottom of the section
+disp('2019 Michigan Endurance Points Analysis')
+disp('Loading Tire Model')
+
+% First we load in the lateral tire force model, which is a Pacejka model
+% created by derek:
+global FZ0 LFZO LCX LMUX LEX LKX  LHX LVX LCY LMUY LEY LKY LHY LVY ...
+       LGAY Ltr LRES LGAZ LXAL LYKA LVYKA LS LSGKP  LSGAL LGYR KY
+load('A1654run21_MF52_Fy_GV12.mat')
+% then load in coefficients for Magic Formula 5.2 Tire Model:
+load('A1654run21_MF52_Fy_12.mat')
+
+% Next you load in the longitudinal tire model, which for now is just a
+% CSAPS spline fit to the TTC data
+% find your pathname and filename for the tire you want to load in
+filename = 'Hoosier_R25B_18.0x7.5-10_FX_12psi.mat';
+load(filename)
+tire_radius = 9.05/12; %ft
+tyreRadius = tire_radius/3.28; % converts to meters
+
+load('Hoosier_R25B_16x75-10x7.mat');
+Pressure    = 70;
+Inclination = -1;
+Idx         = 1;
+Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
+
+% finally, we have some scaling factors for longitudinal (x) and lateral
+% (y) friction. You can use these to tune the lap sim to correlate better 
+% to logged data 
+sf_x = 0.75;
+sf_y = 0.70;   
+%% Section 2: Input Powertrain Model
+% change whatever you want here, this is the 2018 powertrain package iirc
+% just keep your units consistent please
+disp('Loading Engine Model')
+engineSpeed = [1000:500:5000]; % RPM
+% torque should be in N-m:
+%engineTq = [115 120 125 127 127 127 125 120 115];
+engineTq = [230 230 230 230 230 225 220 215 210];
+primaryReduction = 1;
+gear = [1]; % transmission gear ratios
+finalDrive = 2.91; % large sprocket/small sprocket
+shiftpoint = 14000; % optimal shiftpoint for most gears [RPM]
+drivetrainLosses = .93; % percent of torque that makes it to the rear wheels 
+shift_time = .25; % seconds
+T_lock = 90; % differential locking torque (0 =  open, 1 = locked)
+
+% Intermediary Calcs/Save your results into the workspace
+gearTot = gear(end)*finalDrive*primaryReduction;
+VMAX = floor(3.28*shiftpoint/(gearTot/tyreRadius*60/(2*pi)));
+T_lock = T_lock/100;
+powertrainpackage = {engineSpeed engineTq primaryReduction gear finalDrive shiftpoint drivetrainLosses};
+%% Section 3: Vehicle Architecture
+disp('Loading Vehicle Characteristics')
+% These are the basic vehicle architecture primary inputs:
+LLTD = 51.5; % Front lateral load transfer distribution (%)
+W = SI2FREEDOM(275, "kg"); % vehicle + driver weight (lbs)
+WDF = 51; % front weight distribution (%)
+cg = 10/12; % center of gravity height (ft)
+l = SI2FREEDOM(1.595, "m"); % wheelbase (ft)
+twf = SI2FREEDOM(1.193, "m"); % front track width (ft)
+twr = twf; % rear track width (ft)
+
+% some intermediary calcs you don't have to touch
+LLTD = LLTD/100;
+WDF = WDF/100;
+m = W/32.2; % mass (lbm)
+WF = W*WDF; % front weight
+WR = W*(1-WDF); % rear weight
+a = l*(1-WDF); % front axle to cg
+b = l*WDF; % rear axle to cg
+tw = twf;
+%% Section 4: Input Suspension Kinematics
+disp('Loading Suspension Kinematics')
+% this section is actually optional. So if you set everything to zero, you
+% can essentially leave this portion out of the analysis. Useful if you are
+% only trying to explore some higher level relationships
+
+% Pitch and roll gradients define how much the car's gonna move around
+rg_f = 0; % front roll gradient (deg/g)
+rg_r = 0; % rear roll gradient (deg/g)
+pg = 0; % pitch gradient (deg/g)
+WRF = 180; % front and rear ride rates (lbs/in)
+WRR = 180; 
+
+% then you can select your camber alignment
+IA_staticf = -1; % front static camber angle (deg)
+IA_staticr = -1; % rear static camber angle (deg)
+IA_compensationf = 0; % front camber compensation (%)
+IA_compensationr = 0; % rear camber compensation (%)
+
+% lastly you can select your kingpin axis parameters
+casterf = 0; % front caster angle (deg)
+KPIf = 0; % front kingpin inclination angle (deg)
+casterr = 0;
+KPIr = 0;
+
+% intermediary calcs, plz ignore
+IA_staticf = deg2rad(IA_staticf); % front static camber angle (deg)
+IA_staticr = deg2rad(IA_staticr); % rear static camber angle (deg)
+IA_compensationf = IA_compensationf/100; % front camber compensation (%)
+IA_compensationr = IA_compensationr/100; % rear camber compensation (%)
+casterf = deg2rad(casterf);
+KPIf = deg2rad(KPIf);
+casterr = deg2rad(casterr);
+KPIr = deg2rad(KPIr);
+IA_roll_inducedf = asin(2/twf/12);
+IA_roll_inducedr = asin(2/twr/12);
+IA_gainf = IA_roll_inducedf*IA_compensationf;
+IA_gainr = IA_roll_inducedr*IA_compensationr;
+%% Section 5: Input Aero Parameters
+disp('Loading Aero Model')
+Cl = 3.98; %279/418
+Cd = 1.374; % .0245
+CoP = 50; % front downforce distribution (%)
+
+%%% ADDED MORE ACCURATE AERO DRAG FORCE COEFF
+rho = SI2FREEDOM(1.165, "rho"); % kg/m^3
+crossA = SI2FREEDOM(0.92, "m^2"); % m^2
+
+% Intermediary Calculations
+CoP = CoP/100;
+
+%% Testing
+
+disp('Generating g-g-V Diagram')
+
+deltar = 0;
+deltaf = 0;
+velocity = 15:5:115; % range of velocities at which sim will evaluate (ft/s)
+radii = [15:10:155]; % range of turn radii at which sim will evaluate (ft)
+
+% First we will evaluate our Acceleration Capacity
+g = 1; % g is a gear indicator, and it will start at 1
+spcount = 1; % spcount is keeping track of how many gearshifts there are
+% shift_points tracks the actual shift point velocities
+shift_points(1) = 0; 
+tol = 1e-5;
+disp('     Acceleration Envelope')
+for  i = 1:1:length(velocity) % for each velocity
+    Ax(1) = 0;
+    Ax2(1) = 0;
+    j = 1;
+    err = 1;
+    while tol < abs(err) && j < 80
+        gp = g; % Current gear = current gear (wow!)
+        V = velocity(i); % find velocity
+        DF = (1/2)*rho*crossA*Cl*V^2; % calculate downforce (lbs)
+        % calculate f/r suspension drop from downforce (in)
+        dxf = DF*CoP/2/WRF; 
+        dxr = DF*(1-CoP)/2/WRR;
+        % from rh drop, find camber gain (deg)
+        IA_0f = IA_staticf - dxf*IA_gainf;
+        IA_0r = IA_staticr - dxr*IA_gainr;
+        % find load on each tire (lbs)
+        wf = (WF+DF*CoP)/2;
+        wr = (WR+DF*(1-CoP))/2;
+        % now we actually sweep through with acceleration
+        WS = W/2; % weight of one half-car
+        pitch = -Ax(j)*pg*pi/180; % pitch angle (rad)
+        % recalculate wheel loads due to load transfer (lbs)
+        wf = wf-Ax(j)*cg*WS/l; 
+        wr = wr+Ax(j)*cg*WS/l;
+        % recalculate camber angles due to pitch
+        IA_f = -l*12*sin(pitch)/2*IA_gainf + IA_0f;
+        IA_r = l*12*sin(pitch)/2*IA_gainr + IA_0r;
+        % select a range of slip ratios (sl) [-]
+        sl = [0:.01:0.2];
+        % evaluate the tractive force capacity from each tire for the range of
+        % slip ratios
+        for k = 1:length(sl)  
+            fxf(k) = fnval([sl(k);-wf;rad2deg(-IA_f)],full_send_x)*sf_x;
+            fxr(k) = fnval([sl(k);-wr;rad2deg(-IA_r)],full_send_x)*sf_x;
+        end
+        for k = 1:length(sl)
+            [outFxf(k),~ ,~, ~, ~] = ContactPatchLoads(Tire, 0, sl(k),wf*4.44822, Pressure, Inclination, V*0.3048, Idx, Model);
+            [outFxr(k),~ ,~, ~, ~] = ContactPatchLoads(Tire, 0, sl(k),wf*4.44822, Pressure, Inclination, V*0.3048, Idx, Model);
+        end
+        outFxf = outFxf .* 0.224809 .* sf_x; %Convert fron Newtons to pound force and multiply by scaling
+        outFxr = outFxr .* 0.224809 .* sf_x;
+
+        % find max force capacity from each tire:
+        fxf(find(abs(fxf) > 1000)) = [];
+        fxr(find(abs(fxr) > 1000)) = [];
+        FXF = max(fxf);
+        FXR = max(fxr);
+        FXF2 = max(outFxf);
+        FXR2 = max(outFxr);
+        % Calculate total tire tractive force (lbs)
+        DragF = (1/2)*rho*crossA*Cd*V^2; %Calculate drag force (lbf)
+        FX = abs(2*FXR) - DragF;
+        FX2 = abs(2*FXR2) - DragF;
+        % calculate total lateral acceleration capacity (g's)
+        Ax(j + 1) = FX/W;
+        Ax2(j + 1) = FX2/W;
+        err = Ax(j+1) - Ax(j);
+        j = j + 1;
+    end
+    AxSave(i) = Ax(j);
+    Ax2Save(i) = Ax2(j);
+
+    %%% 2ND WHILE LOOP
+    j = 1;
+    err = 1;
+    Ax3(1) = 0;
+    while tol < abs(err)
+        gp = g; % Current gear = current gear (wow!)
+        V = velocity(i); % find velocity
+        DF = (1/2)*rho*crossA*Cl*V^2; % calculate downforce (lbs)
+        % calculate f/r suspension drop from downforce (in)
+        dxf = DF*CoP/2/WRF; 
+        dxr = DF*(1-CoP)/2/WRR;
+        % from rh drop, find camber gain (deg)
+        IA_0f = IA_staticf - dxf*IA_gainf;
+        IA_0r = IA_staticr - dxr*IA_gainr;
+        % find load on each tire (lbs)
+        wf = (WF+DF*CoP)/2;
+        wr = (WR+DF*(1-CoP))/2;
+        % now we actually sweep through with acceleration
+        WS = W/2; % weight of one half-car
+        pitch = -Ax3(j)*pg*pi/180; % pitch angle (rad)
+        % recalculate wheel loads due to load transfer (lbs)
+        wf = wf-Ax3(j)*cg*WS/l; 
+        wr = wr+Ax3(j)*cg*WS/l;
+        % recalculate camber angles due to pitch
+        IA_f = -l*12*sin(pitch)/2*IA_gainf + IA_0f;
+        IA_r = l*12*sin(pitch)/2*IA_gainr + IA_0r;
+        % select a range of slip ratios (sl) [-]
+        sl = [0:.01:0.2];
+        % evaluate the tractive force capacity from each tire for the range of
+        % slip ratio
+        for k = 1:length(sl)
+            [outFxf(k),~ ,~, ~, ~] = ContactPatchLoads(Tire, 0, sl(k),wf*4.44822, Pressure, Inclination, V*0.3048, Idx, Model);
+            [outFxr(k),~ ,~, ~, ~] = ContactPatchLoads(Tire, 0, sl(k),wf*4.44822, Pressure, Inclination, V*0.3048, Idx, Model);
+        end
+        outFxf = outFxf .* 0.224809 .* sf_x; %Convert fron Newtons to pound force and multiply by scaling
+        outFxr = outFxr .* 0.224809 .* sf_x;
+
+        % find max force capacity from each tire:
+        FXF3 = max(outFxf);
+        FXR3 = max(outFxr);
+        % Calculate total tire tractive force (lbs)
+        DragF = (1/2)*rho*crossA*Cd*V^2;
+        FX3 = abs(2*FXR3) - DragF;
+        % calculate total lateral acceleration capacity (g's)
+        Ax3(j+1) = FX3/W;
+        err = Ax3(j+1) - Ax3(j);
+        j = j + 1
+    end
+    Ax3Save(i) = Ax3(j);
+    outPTLS = PowertrainlapsimV222(V/3.281); % Outputs in newtons for some reason
+    FxOut = outPTLS(1);
+    FxOut = FxOut * 0.224809 - DragF; %Convert back to pound force
+    AxPower(i) = FxOut/W;
+end
+%A_Xr(A_Xr < 0) = 0;
+
+disp("acceleration package done")
+%%
+% from these results, you can create the first part of the GGV diagram
+% input for the lap sim codes:
+% accel is the maximum acceleration capacity as a function of velocity
+% (power limited) and grip is the same but (tire limited)
+accel2 = csaps(velocity,AxPower);
+%grip = csaps(velocity,AxSave);
+grip2 = csaps(velocity, Ax2Save);
+grip3 = csaps(velocity, Ax3Save);
+grip4 = csaps(velocity, min(Ax3Save,AxPower)-0.01);
+drag = csaps(velocity, ((1/2).*rho.*crossA.*Cd.*velocity.^2)/W);
+
+%% Graphing
+% close all
+% figure
+% hold on;
+% grid()
+% % First two plots: same color (blue), different line styles
+% fnplt(accel2, 'b-'); % Solid blue line
+% fnplt(grip3, 'b--', 'Marker', '.'); % Dashed blue line with markers
+% 
+% % Subsequent plots: different colors
+% fnplt(accel, 'r-'); % Solid red line
+% fnplt(grip, 'g-', 'Marker', '.'); % Solid green line with markers
+% 
+% legend(["In House Power Limit", "In House Grip Limit", "Vogel Power Limit", "Vogel Grip Limit"], "location", "best");
+% title("Driveline Model Spline Fits")
+% xlabel("Velocity (ft/s)")
+% ylabel("X-acceleration (g)")
+
+figure  
+hold on
+grid()
+fnplt(cornering)
+title('Turning Radius vs Vy (Vogel Results)')
+xlabel('Turning Radius (ft)')
+ylabel('Vy (ft/s)')
 %% Functions
 function out = SI2FREEDOM(num, input)
     if input == "kg"
@@ -1797,3 +2100,4 @@ function out = SI2FREEDOM(num, input)
     end
 
 end
+
