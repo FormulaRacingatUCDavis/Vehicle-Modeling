@@ -1,4 +1,4 @@
-clc ; clear;%close all;
+clc ; clear;close all;
 format long g
 
 %% LOGGING
@@ -605,8 +605,8 @@ for i = 1:length(dSteer)
                     %                     , (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
                      %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
                     %%% Equation 1
-                    SA_Wheel(p,1) = atan2( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
-                                        , (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+                    SA_Wheel(p,1) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
+                                        , (VxCurr - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
 
                 end
 
@@ -915,11 +915,11 @@ grid on
 
 
 for i = 1:length(dSteer)
-    steer = plot3(dSteerMesh(:,i),SAMesh(:,i),saveAxBody(:,i), "Color", "blue", 'LineStyle','--');
+    steer = plot3(dSteerMesh(:,i),SAMesh(:,i),saveAxVel(:,i), "Color", "blue", 'LineStyle','--');
     
 end
 surf(dSteerMesh, SAMesh, zeros(size(SAMesh)))
-surf(dSteerMesh, SAMesh, saveAxBody)
+surf(dSteerMesh, SAMesh, saveAxVel)
 view(3)
 xlabel("dsteer angle rads")
 ylabel("SAMesh")
