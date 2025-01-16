@@ -7,22 +7,33 @@ global path_boundaries r_min r_max cornering accel grip deccel lateral...
 % path_positions = load('endurance_racing_line.mat');
 % path_positions = path_positions.endurance_racing_line; 
 
+% Interval 
 interval = 5;
+
+% Splits the track into 3000 sections
 sections = 3000;
+
+% Puts the first two points at the end of the track (loop)
 path_positions(end+1) = path_positions(1);
 path_positions(end+1) = path_positions(2);
+
+% Top speed of vehicle
 VMAX = top_speed;
 t = 1:1:length(path_positions);
-for i = 1:1:length(path_positions)
+
+path_points = ones(length(path_positions), 2);
+
+% Calculates path_points
+for i = 1:length(path_positions)
     coeff = path_boundaries(i,1:2);
     x2 = max(path_boundaries(i,3:4));
     x1 = min(path_boundaries(i,3:4));
-    position = path_positions(i);
-    x3 = x1+position*(x2-x1);
+    x3 = x1 + path_positions(i) * (x2 - x1);
     y3 = polyval(coeff,x3);
-    path_points(i,:) = [x3 y3];             
+    path_points(i,:) = [x3 y3];          
 end
 
+% Fits the vehicle path to a spline
 x = linspace(1,t(end-1),sections);
 ppv = pchip(t,path_points');
 vehicle_path = ppval(ppv,x);
@@ -31,21 +42,22 @@ path_length = arclength(vehicle_path(1,:),vehicle_path(2,:));
 % x = linspace(1,t(end-1),1000);
 % ppv = interp1([1:length(path_points)],path_points,x,'makima');
 % vehicle_path = ppv';
+% [L,R,K] = curvature(vehicle_path');
 
-[L,R,K] = curvature(vehicle_path');
 %% Traverse the track
 track_points = vehicle_path;
-track_points = [track_points(:,length(vehicle_path)-2) track_points(:,1:end-1)];
-[LT,RT,KT] = curvature(track_points');
+track_points = [track_points(:,length(vehicle_path) - 2), track_points(:,1:end-1)];
+[~,RT,KT] = curvature(track_points');
 KT = KT(:,2);
 KT = KT(~isnan(RT));
 RT = RT(~isnan(RT));
 RT = RT(~isnan(RT));
+
 % for each point along the track, find the maximum theoretical speed
 % possible for that specific point, as well as the incremental distance
 % travelled
+segment = 1:length(RT);
 for i = 1:length(RT)
-    segment(i) = i;
     r = max(r_min,RT(i));
     r = min(r,r_max);
     RT(i) = r;
