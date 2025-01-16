@@ -1376,7 +1376,7 @@ for  i = 1:1:length(velocity)
     A_X(i) = AX;
 end
 
-velocity_y = lateralg.*32.2.*radii;
+velocity_y = lateralg .* 32.2 .* radii;
 velocity_y = sqrt(velocity_y);
 
 r_max = max(radii);
@@ -1390,7 +1390,7 @@ VMAX = top_speed;
 deccel = csaps(velocity,A_X);
 velocity = 15:5:130;
 % lateral g's as a function of velocity
-lateral = csaps(velocity_y,lateralg);
+lateral = csaps(velocity_y, lateralg);
 radii = velocity_y.^2./lateralg/32.2;
 % max velocity as a function of instantaneous turn radius
 cornering = csaps(radii,velocity_y);
