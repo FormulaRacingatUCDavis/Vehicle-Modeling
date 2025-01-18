@@ -424,9 +424,6 @@ h = colorbar;
 set(get(h,'title'),'string','Velocity (V) [ft/s]');
 set(gca,'XTick',[], 'YTick', [])
 
-
-lap_time = t_elapsed;
-
 %% Gear Counter
 % for i = 1:1:length(velocity)
 % V = velocity(i);
@@ -441,4 +438,6 @@ for i = 1:1:length(lateral_accel)
     index = floor((i-1)/interval)+1;
     axis(i) = sign(KT(index));
 end
+
+lap_time = t_elapsed;
 lateral_accel = lateral_accel.*axis;
