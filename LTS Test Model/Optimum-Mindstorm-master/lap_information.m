@@ -184,7 +184,7 @@ for i = 1:length(segment)
         if vel < vmax
             % find potential acceleration available:
             ax_f(count) = AX * (1 - (min(AY, ay_f(count)) / AY)^2);
-            tt = roots([0.5* g *ax_f(count), vel, -dd]);
+            tt = roots([0.5* g * ax_f(count), vel, -dd]);
             
             % accelerate accoding to that capacity, update speed and
             % position accordingly
@@ -372,6 +372,7 @@ for i = 1:length(VD)
         dtime(i) = dt_f(i);
         acceleration(i) = ax_f(i);
         lateral_accel(i) = ay_f(i);
+    % If VD > 0, then v_f > v_r, so we should use rear properties
     else
         velocity(i) = v_r(i);
         dtime(i) = dt_r(i);
@@ -379,11 +380,12 @@ for i = 1:length(VD)
         lateral_accel(i) = ay_r(i);
     end
 
+    % Adds to the total time
     t_elapsed = t_elapsed + dtime(i);
     time_elapsed(i) = t_elapsed;
 end
 
-
+% Gets rid of outliers, but the Vy = 116 is weird
 AY_outlier = find(lateral_accel > fnval(lateral, 116));
 lateral_accel(AY_outlier) = fnval(lateral, 116);
 
@@ -393,7 +395,7 @@ corner = 0;
 
 for i = 1:1:length(VD)
     if acceleration(i)>0
-        throttle = throttle+acceleration(i)*dtime(i);
+        throttle = throttle + acceleration(i)*dtime(i);
     elseif acceleration(i) < 0
         brake = brake-acceleration(i)*dtime(i);
     end
@@ -422,7 +424,8 @@ h = colorbar;
 set(get(h,'title'),'string','Velocity (V) [ft/s]');
 set(gca,'XTick',[], 'YTick', [])
 
-disp(time_elapsed(end))
+
+lap_time = t_elapsed;
 
 %% Gear Counter
 % for i = 1:1:length(velocity)
@@ -431,10 +434,11 @@ disp(time_elapsed(end))
 %     gear = gears(1)-1;
 % gear_counter(i) = gear;
 % end
-% lap_time = t_elapsed;
-% 
-% for i = 1:1:length(lateral_accel)
-%     index = floor((i-1)/interval)+1;
-%     axis(i) = sign(KT(index));
-% end
-% lateral_accel = lateral_accel.*axis;
+
+gear_counter = ones(1, length(velocity));
+
+for i = 1:1:length(lateral_accel)
+    index = floor((i-1)/interval)+1;
+    axis(i) = sign(KT(index));
+end
+lateral_accel = lateral_accel.*axis;

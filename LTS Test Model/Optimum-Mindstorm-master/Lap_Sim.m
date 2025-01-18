@@ -1309,7 +1309,6 @@ for turn = 1:1:length(radii)
         steering(turn) = steer;
         speed(turn) = V;
         lateralg(turn) = AY/32.2;
-        radii(turn)
         %toc
 end
 % Lateral Acceleration
@@ -1486,7 +1485,7 @@ vehicle_path_EN = vehicle_path;
 Length = arclength(vehicle_path(1,:),vehicle_path(2,:));
 %% Section 11: Simulate Endurance Lap
 disp('Plotting Vehicle Trajectory')
-[laptime time_elapsed velocity acceleration lateral_accel gear_counter path_length weights distance] = lap_information(xx);
+[laptime, time_elapsed, velocity, acceleration, lateral_accel, gear_counter, path_length, weights, distance] = lap_information(xx);
 %% Section 12: Load Autocross Track Coordinates
 disp('Loading Autocross Track Coordinates')
 [data text] = xlsread('Autocross_Coordinates_2.xlsx','Scaled');
