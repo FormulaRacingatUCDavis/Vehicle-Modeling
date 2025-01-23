@@ -63,3 +63,65 @@ Inside = plot(xv(index2), yv(index2), 'Color', 'red');
 % plot(xq(in),yq(in),'r+') % points inside
 % plot(xq(~in),yq(~in),'bo') % points outside
 
+%%
+%Coordinates section -CM
+
+% coords = [xv; yv]
+% avgxv = mean(xv,"all")
+% avgyv = mean(yv,"all")
+% newxv = xv - avgxv
+% newyv = yv - avgyv
+% newcoords = [newxv; newyv]
+
+newxv = newcoords(1,:);
+newyv = newcoords(2,:);
+
+% indexes = 1:length(newxv);
+% index = indexes(logical(mod(indexes,2)));
+% index2 = indexes(~logical(mod(indexes,2)))
+% 
+% figure;
+% hold on
+% Outside = plot(newxv(index), newyv(index), 'Color', 'blue');
+% Inside = plot(newxv(index2), newyv(index2), 'Color', 'red');
+
+%%
+%aight so I saved newcoords but newxy and newyv did NOT save >:( so here
+newxv = newcoords(1,:);
+newyv = newcoords(2,:);
+
+% %50ft = 98.49999 pixels so about 98.5 pixels, 50/98.5
+xft = newxv*50/98.5;
+yft = newyv*50/98.5;
+ft = [xft;yft];
+
+%graph plotting
+% indexes = 1:length(xft);
+% index = indexes(logical(mod(indexes,2)));
+% index2 = indexes(~logical(mod(indexes,2)));
+% 
+% figure;
+% hold on
+% Outside = plot(xft(index), yft(index), 'Color', 'blue');
+% Inside = plot(xft(index2), yft(index2), 'Color', 'red');
+% 
+% title('Graph of Track');
+% xlabel('x feet from origin');
+% ylabel('y feet from origin');
+%%
+%Corrected yft
+yfeet = -yft;
+correctft = [xft, yfeet];
+
+indexes = 1:length(xft);
+index = indexes(logical(mod(indexes,2)));
+index2 = indexes(~logical(mod(indexes,2)));
+
+figure;
+hold on
+Outside = plot(xft(index), yfeet(index), 'Color', 'blue');
+Inside = plot(xft(index2), yfeet(index2), 'Color', 'red');
+
+title('Graph of Track');
+xlabel('x feet from origin');
+ylabel('y feet from origin');
