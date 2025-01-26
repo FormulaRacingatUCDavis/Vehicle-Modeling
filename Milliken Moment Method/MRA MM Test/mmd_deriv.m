@@ -17,10 +17,10 @@ tParam.TirePress = 70;          % kPa
 tParam.TireIncl = 1;        % deg 
 tParam.TireSR = 0;                 % -
 tParam.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
-load('Hoosier_R25B_16x75-10x7.mat');
+load('Hoosier_43075_16x75-10_R20-8.mat');
 tParam.Tire = Tire;
 
-R = linspace(10,100,200)';
+R = [5:5:120]';
 SA_CG = linspace(-12,12,31);
 dSteer = linspace(-30,30,31);
 debug = 0;
@@ -33,7 +33,7 @@ for i = 1:length(R)
     [saveCAY(i), saveSA(i),matCAY(:,:,i), matMZ(:,:,i)] = mmd_funct(vParam, tParam, SA_CG, dSteer, R(i), debug);
 end
 %%
-saveAY = saveCAY .* g;
+saveAY = saveCAY .* 9.81;
 
 %% Plotting
 figure
@@ -41,19 +41,19 @@ hold on
 grid()
 plot(R.*3.28084, 3.28084.*sqrt(saveAY .* R .* sin(saveSA)))
 title("Turning Radius and Vy")
-ylabel("Vy (ft/s)")
+ylabel("Vx (ft/s)")
 xlabel("Radius (ft)")
 hold off
 
 figure
 hold on
 grid()
-plot(R.*3.28084, saveCAY)
+plot(R.*3.28084, saveAY./9.81)
 title("Turning Radius and C_{ay}")
 ylabel("C_{ay}")
 xlabel("Radius (ft)")
 hold off
 
 
-save('MMD_DATA.mat', 'R', 'saveAY', 'saveSA')
+save('MMD_DATA(R-5-5-120).mat', 'R', 'saveAY', 'saveSA')
 

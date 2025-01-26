@@ -439,5 +439,5 @@ for i = 1:1:length(lateral_accel)
     axis(i) = sign(KT(index));
 end
 
-lap_time = t_elapsed;
+lap_time = t_elapsed
 lateral_accel = lateral_accel.*axis;

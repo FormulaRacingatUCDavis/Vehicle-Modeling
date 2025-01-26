@@ -78,7 +78,7 @@ if nargin == 0
     title("Turning Radius and Vy")
     ylabel("Vy (m/s)")
     xlabel("Radius (m)")
-    save('MMD_DATA.mat', 'R', 'saveCAY', 'saveSA')
+    %save('MMD_DATA.mat', 'R', 'saveCAY', 'saveSA')
 
     
 end
