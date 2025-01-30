@@ -310,7 +310,7 @@ velocity = 15:5:115; % range of velocities at which sim will evaluate (ft/s)
 %% Graphing
 close all
 fnplt(accel); hold on;
-%fnplt(grip); fnplt(grip2); 
+% fnplt(grip); fnplt(grip2); 
 fnplt(grip3); 
 fnplt(grip4, ".");
 fnplt(drag); 

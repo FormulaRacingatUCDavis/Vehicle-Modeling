@@ -47,7 +47,7 @@ while rpm > engineSpeed(i)
     i = i + 1;
 end
 
-torque = engineTq(i-1)+(engineTq(i)-engineTq(i-1))/(engineSpeed(i)-engineSpeed(i-1))*(rpm-engineSpeed(i-1));        % calculate torque (N-m) at crank based on linear interpolation of dyno data
+torque = engineTq(i-1) + (engineTq(i)-engineTq(i-1))/(engineSpeed(i)-engineSpeed(i-1))*(rpm-engineSpeed(i-1));        % calculate torque (N-m) at crank based on linear interpolation of dyno data
 
 torque = torque* gearTot * drivetrainLosses;   % torque output at the wheels [N-m]
 Fx = torque/tyreRadius;      % force on contact patch from drivetrain [N]
