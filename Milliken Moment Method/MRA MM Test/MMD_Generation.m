@@ -85,7 +85,7 @@ hCG = hCG;
 Idx = 1;                    % Moment of Inertia in x for wheel
 TirePressure = 70;          % kPa
 TireInclination = 1;        % deg 
-TireSR = 0;                 % -
+TireSR = 0.001;                 % -
 Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 load('Hoosier_R25B_16x75-10x7.mat');
 
@@ -499,7 +499,7 @@ V = 20; % Velocity [m/s]
 
 
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
-SA_CG = deg2rad(linspace(-12,12,31))';
+SA_CG = deg2rad(linspace(-3,12,31))';
 dSteer = deg2rad(linspace(-20,20,31))';
 
 dSteer_W1 = toe_f + dSteer;
@@ -520,7 +520,7 @@ saveAyBody = zeros(length(dSteer), length(SA_CG));
 saveAxBody = zeros(length(dSteer), length(SA_CG));
 saveMzBody = zeros(length(dSteer), length(SA_CG));
 saveItFz = [];
-saveTM_Fy = zeros(4,length(SA_CG));
+saveTM_Fy = zeros(length(dSteer),length(SA_CG),4);
 
 % Yaw Rate (Omega) iteration relaxation parameter for convergence:
 % Parameter is between [0-1], is dependent upon how fast the simulation is
@@ -534,7 +534,7 @@ for i = 1:length(dSteer)
     for j = 1:length(SA_CG)
 
         AxGuess = 0;
-        AyGuess = 0.1;
+        AyGuess = 0;
         res = 1;
         tol = 1e-3;
 
@@ -582,7 +582,7 @@ for i = 1:length(dSteer)
             else
                 itOmega(c) = AyVelCurr/VxCurr * (1-pr) + itOmega(c-1)*pr;
             end
-            R =  abs(VxCurr.^2 / AyVelCurr);
+            R =  VxCurr.^2 / AyVelCurr;
             Omega = itOmega(c);
 
             for p = 1:4
@@ -592,7 +592,7 @@ for i = 1:length(dSteer)
                 % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
                 % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
                 % % 
-                if c == 1
+                if  1 == 2
                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
                     %%% Equation 2
                     SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
@@ -603,7 +603,7 @@ for i = 1:length(dSteer)
                     % %%% Equation 1
                     % SA_Wheel(p,1) = atan2( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
                     %                     , (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                    %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
                     %%% Equation 1
                     SA_Wheel(p,1) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
                                         , (VxCurr - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
@@ -685,7 +685,13 @@ for i = 1:length(dSteer)
         %     return
         % end
         %saveAyBody(i,j) = (itAyBody(end)+itAyBody(end-1))/2;
-        saveTM_Fy(:,j) = TM_Fy;
+        for p = 1:4
+        saveSA_WheelTerm(p,j) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
+                                        , (VxCurr - Omega .* coord_AllW(2,p)) );
+        end
+
+        saveOmega(i,j) = Omega;
+        saveTM_Fy(i,j,:) = TM_Fy;
         saveSA_Wheel(:,j) = SA_Wheel;
         saveFz(:,j) = Fz;
         saveAyBody(i,j) = itAyBody(end);
@@ -901,7 +907,7 @@ end
 view(3)
 ylabel("Normalized Lateral Acceleration $(C_{Ay})$",'Interpreter','latex')
 xlabel("Normalized Yaw Moment $(C_{Mz})$",'Interpreter','latex')
-zlabel("Normalized Longitudinaal Accleration $(C_{Ax})$",'Interpreter','latex')
+zlabel("Normalized Longitudinal Accleration $(C_{Ax})$",'Interpreter','latex')
 
 
 
@@ -924,3 +930,45 @@ view(3)
 xlabel("dsteer angle rads")
 ylabel("SAMesh")
 zlabel("AX")
+
+figure
+hold on
+grid on
+view(3)
+surf(dSteerMesh,SAMesh, saveTM_Fy(:,:,1));
+xlabel("dsteer angle rads")
+ylabel("SAMesh")
+zlabel("TM_Fy1")
+
+
+figure
+hold on
+grid on
+view(3)
+surf(dSteerMesh,SAMesh, saveTM_Fy(:,:,2));
+xlabel("dsteer angle rads")
+ylabel("SAMesh")
+zlabel("TM_Fy2")
+
+
+figure
+hold on
+grid on
+view(3)
+surf(dSteerMesh,SAMesh, saveTM_Fy(:,:,3));
+xlabel("dsteer angle rads")
+ylabel("SAMesh")
+zlabel("TM_Fy3")
+
+figure
+hold on
+grid on
+view(3)
+surf(dSteerMesh,SAMesh, saveTM_Fy(:,:,4));
+xlabel("dsteer angle rads")
+ylabel("SAMesh")
+zlabel("TM_Fy4")
+
+
+
+
