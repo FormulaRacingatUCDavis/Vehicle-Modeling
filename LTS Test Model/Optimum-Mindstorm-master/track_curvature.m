@@ -1,7 +1,7 @@
 function [c,ceq] = track_curvature(path_positions)
 global path_boundaries track_width
 tw = track_width;
-r_min = 14.75*2/tw;
+r_min = 14.75*2./tw;
 path_positions(end+1) = path_positions(1);
 path_positions(end+1) = path_positions(2);
 t = 1:1:length(path_positions);
@@ -36,6 +36,6 @@ end
 
 [L,R,K] = curvature(path_points);
 R = R(~isnan(R));
-R = -R+.75*r_min;
+R = -R + .75 .* r_min;
 c = R;     % Compute nonlinear inequalities at x.
 ceq = zeros(length(R),1);   % Compute nonlinear equalities at x.

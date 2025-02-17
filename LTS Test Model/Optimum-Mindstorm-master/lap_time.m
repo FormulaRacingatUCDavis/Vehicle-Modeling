@@ -6,7 +6,7 @@ sections = 3000;
 path_positions(end+1) = path_positions(1);
 path_positions(end+1) = path_positions(2);
 
-VMAX = top_speed.top_speed;
+VMAX = top_speed;
 
 t = 1:1:length(path_positions);
 for i = 1:1:length(path_positions)
@@ -288,7 +288,7 @@ for i = 1:1:length(segment)
     end
 end
 
-err = mean(ts/shift_time);
+% err = mean(ts/shift_time);
 % disp(err)
 %% combine results
 VD = v_f-v_r;
