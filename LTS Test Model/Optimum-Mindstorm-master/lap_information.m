@@ -415,6 +415,7 @@ weights = [t_t/summ t_b/summ t_c/summ];
 
 %% Plot Results
 figure
+length(track_points)
 for i = 1:length(track_points)-2
     V_plot(i) = mean(velocity(i*interval-interval+1:i*interval));
 end

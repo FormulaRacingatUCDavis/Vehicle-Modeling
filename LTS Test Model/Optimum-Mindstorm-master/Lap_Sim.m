@@ -1396,6 +1396,7 @@ cornering = csaps(radii,velocity_y);
 %% Section 7: Load Endurance Track Coordinates
 disp('Loading Endurance Track Coordinates')
 [data text] = xlsread('Endurance_Coordinates_1.xlsx','Scaled');
+load('maxar_coords.mat');
 
 % the coordinates are now contained within 'data'. This is a 5 column
 % matrix that contains a set of defined 'gates' that the car must mavigate
@@ -1437,14 +1438,17 @@ for i = 1:1:length(outside)
 end
 %% Seciton 8: Load Endurance Racing Line
 disp('Loading Endurance Racing Line')
-xx = load('endurance_racing_line.mat');
-xx = xx.endurance_racing_line;
+% xx = load('endurance_racing_line.mat');
+% xx = xx.endurance_racing_line;
+
+load('maxar_racing_line_opt.mat');
+xx = racing_line;
 %% Section 9: Optimize Endurance Racing Line
 % The pre-loaded racing line should work for most applications; however,
 % if you have the need to re-evaluate or generate a new optimized racing
 % line, simply un-comment the code below:
 
-
+% track_width = tw;
 % disp('Optimizing Endurance Racing Line')
 % A = eye(length(xx));
 % b = ones(length(xx),1);
@@ -1454,10 +1458,12 @@ xx = xx.endurance_racing_line;
 %     'Algorithm','sqp','Display','iter','ConstraintTolerance',1e-12);
 % options = optimoptions(options,'MaxIter', 10000, 'MaxFunEvals', 1000000,'ConstraintTolerance',1e-12,'DiffMaxChange',.1);
 % 
+% 
+% 
 % x = fmincon(@lap_time,xx,[],[],[],[],lb,ub,@track_curvature,options);
 % xx = x;
 % x(end+1) = x(1);
-%x(end+1) = x(2);
+% x(end+1) = x(2);
 %% Section 10: Generate Final Endurance Trajectory
 x = xx;
 % Plot finished line
@@ -1473,7 +1479,7 @@ for i = 1:1:length(x)
     % place the car within via linear interpolation
     x3 = x1+position*(x2-x1);
     y3 = polyval(coeff,x3);
-    %plot(x3,y3,'og')
+    plot(x3,y3,'og')
     % the actual car's trajectory defined in x-y coordinates:
     path_points(i,:) = [x3 y3];
 end
