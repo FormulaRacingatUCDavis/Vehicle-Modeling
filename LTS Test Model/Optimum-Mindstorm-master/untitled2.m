@@ -1,9 +1,10 @@
 % Load stuff
 track_data = load('maxar_coords.mat');
-percentages_data = load('maxar_racing_line_opt.mat');
+percentages_data = load('maxar_racing_line_opt_3.mat');
 
 % Extract info
 data_matrix = track_data.data;
+% data_matrix = data(1:(end-2), :);
 percentages = percentages_data.x;
 
 % Make it a column vector
@@ -31,15 +32,15 @@ optimized_y = inside_y + percentages .* (outside_y - inside_y);
 % smoothing optimized line
 t_original = 1:length(optimized_x);
 t_smooth = linspace(1, length(optimized_x), 50000); % More points for smoothness
-smooth_x = spline(t_original, optimized_x, t_smooth);
-smooth_y = spline(t_original, optimized_y, t_smooth);
+% smooth_x = spline(t_original, optimized_x, t_smooth);
+% smooth_y = spline(t_original, optimized_y, t_smooth);
 
 % Plot everything
 figure;
 plot(outside_x, outside_y, 'b-', 'LineWidth', 2);
 hold on;
 plot(inside_x, inside_y, 'r-', 'LineWidth', 2);
-plot(smooth_x, smooth_y, 'g-', 'LineWidth', 2);
+plot(optimized_x, optimized_y, 'g-', 'LineWidth', 2);
 
 % Labels and legend
 title('💀');

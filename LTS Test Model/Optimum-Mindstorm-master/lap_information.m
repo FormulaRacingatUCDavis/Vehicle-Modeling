@@ -17,13 +17,15 @@ sections = 3000;
 % Splits each section into n intervals
 interval = 5;
 
-% Puts the first two points at the end of the track (loop)
-path_positions(end+1) = path_positions(1);
-path_positions(end+1) = path_positions(2);
+% % Puts the first two points at the end of the track (loop)
+% path_positions(end+1) = path_positions(1);
+% path_positions(end+1) = path_positions(2);
 
 % Top speed of vehicle
 VMAX = top_speed;
 t = 1:length(path_positions);
+
+disp(length(path_positions))
 
 % Calculates path_points
 path_points = ones(length(path_positions), 2);

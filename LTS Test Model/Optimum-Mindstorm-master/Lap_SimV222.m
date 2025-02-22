@@ -1330,13 +1330,6 @@ outside = data(:,2:3);
 inside = data(:,4:5);
 t = [1:length(outside)];
 
-% Plotting for testing
-figure
-plot(outside(:, 1), outside(:, 2))
-hold on
-plot(inside(:, 1), inside(:, 2))
-hold off
-
 % define the minimum turn radius of the car
 r_min = 4.5*3.28;
 r_min = r_min-tw/2;
