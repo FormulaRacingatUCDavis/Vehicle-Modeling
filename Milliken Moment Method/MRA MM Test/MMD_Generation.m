@@ -499,7 +499,7 @@ V = 20; % Velocity [m/s]
 
 
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
-SA_CG = deg2rad(linspace(-3,12,31))';
+SA_CG = deg2rad(linspace(-12,12,31))';
 dSteer = deg2rad(linspace(-20,20,31))';
 
 dSteer_W1 = toe_f + dSteer;
@@ -595,8 +595,8 @@ for i = 1:length(dSteer)
                 if  1 == 2
                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
                     %%% Equation 2
-                    SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , (R.*cos(SA_CG(j)) - coord_AllW(2,p)) )...
-                                    - dSteer_AllW(i,p);
+                    SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , ...
+                        (R.*cos(SA_CG(j)) - coord_AllW(2,p)) ) - dSteer_AllW(i,p);
 
                 else
                     % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -

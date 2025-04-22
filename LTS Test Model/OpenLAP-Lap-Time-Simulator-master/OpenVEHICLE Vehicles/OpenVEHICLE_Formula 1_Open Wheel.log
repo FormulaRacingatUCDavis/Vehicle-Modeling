@@ -1,0 +1,24 @@
+_______                    ___    ________________  ________________________________
+__  __ \_____________________ |  / /__  ____/__  / / /___  _/_  ____/__  /___  ____/
+_  / / /__  __ \  _ \_  __ \_ | / /__  __/  __  /_/ / __  / _  /    __  / __  __/   
+/ /_/ /__  /_/ /  __/  / / /_ |/ / _  /___  _  __  / __/ /  / /___  _  /___  /___   
+\____/ _  .___/\___//_/ /_/_____/  /_____/  /_/ /_/  /___/  \____/  /_____/_____/   
+       /_/                                                                          
+====================================================================================
+Formula 1.xlsx
+File read successfully
+====================================================================================
+Name: Formula 1
+Type: Open Wheel
+Date: 03/04/2025
+Time: 14:46:36
+====================================================================================
+Vehicle generation started.
+Braking model generated successfully.
+Steering model generated successfully.
+Driveline model generated successfully.
+Shift points calculated successfully.
+Forces calculated successfully.
+GGV map generated successfully.
+Plots created and saved.
+Vehicle generated successfully.

@@ -1,0 +1,2412 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>OpenLAP Laptime Simulation Project</title>
+<meta name="generator" content="MATLAB 24.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2025-04-04">
+<meta name="DC.source" content="OpenLAP.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>OpenLAP Laptime Simulation Project</h1>
+<!--introduction-->
+<p>OpenLAP</p>
+<p>Lap time simulation using a simple point mass model for a racing vehicle. Instructions: 1) Select a vehicle file created by OpenVEHICLE by assigning the full path to the variable "vehiclefile". 2) Select a track file created by OpenTRACK by assigning the full path to the variable "trackfile". 3) Select an export frequency in [Hz] by setting the variable "freq" to the desired value. 4) Run the script. 5) The results will appear on the command window and inside the folder "OpenLAP Sims". You can choose to include the date and time of each simulation in the result file name by changing the "use_date_time_in_name" variable to true.</p>
+<p>More information can be found in the "OpenLAP Laptime Simulator" videos on YouTube.</p>
+<p>This software is licensed under the GPL V3 Open Source License.</p>
+<p>Open Source MATLAB project created by:</p>
+<p>Michael Halkiopoulos Cranfield University MSc Advanced Motorsport Engineer National Technical University of Athens MEng Mechanical Engineer</p>
+<p>LinkedIn: <a href="https://www.linkedin.com/in/michael-halkiopoulos/">https://www.linkedin.com/in/michael-halkiopoulos/</a> email: <a href="mailto:halkiopoulos_michalis@hotmail.com">halkiopoulos_michalis@hotmail.com</a> MATLAB file exchange: <a href="https://uk.mathworks.com/matlabcentral/fileexchange/">https://uk.mathworks.com/matlabcentral/fileexchange/</a> GitHub: <a href="https://github.com/mc12027">https://github.com/mc12027</a>
+</p>
+<p>April 2020.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Clearing memory</a>
+</li>
+<li>
+<a href="#2">Starting timer</a>
+</li>
+<li>
+<a href="#3">Filenames</a>
+</li>
+<li>
+<a href="#4">Loading circuit</a>
+</li>
+<li>
+<a href="#5">Loading car</a>
+</li>
+<li>
+<a href="#6">Export frequency</a>
+</li>
+<li>
+<a href="#7">Simulation name</a>
+</li>
+<li>
+<a href="#8">HUD</a>
+</li>
+<li>
+<a href="#9">Lap Simulation</a>
+</li>
+<li>
+<a href="#10">Displaying laptime</a>
+</li>
+<li>
+<a href="#11">Ploting results</a>
+</li>
+<li>
+<a href="#12">Report generation</a>
+</li>
+<li>
+<a href="#13">Functions</a>
+</li>
+<li>
+<a href="#15">initialisation</a>
+</li>
+<li>
+<a href="#16">maximum speed curve (assuming pure lateral condition)</a>
+</li>
+<li>
+<a href="#17">finding apexes</a>
+</li>
+<li>
+<a href="#18">simulation</a>
+</li>
+<li>
+<a href="#19">post-processing resutls</a>
+</li>
+<li>
+<a href="#20">saving results in sim structure</a>
+</li>
+<li>
+<a href="#23">initialisation</a>
+</li>
+<li>
+<a href="#24">speed solution</a>
+</li>
+<li>
+<a href="#25">initial speed solution</a>
+</li>
+<li>
+<a href="#26">adjusting speed for drag force compensation</a>
+</li>
+<li>
+<a href="#30">initialisation</a>
+</li>
+<li>
+<a href="#31">external forces</a>
+</li>
+<li>
+<a href="#32">overshoot acceleration</a>
+</li>
+<li>
+<a href="#33">current lat acc</a>
+</li>
+<li>
+<a href="#34">tyre forces</a>
+</li>
+<li>
+<a href="#35">calculating driver inputs</a>
+</li>
+<li>
+<a href="#36">final results</a>
+</li>
+<li>
+<a href="#37">checking for overshoot</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Clearing memory</h2>
+<pre class="codeinput">clear
+clc
+close <span class="string">all</span> <span class="string">force</span>
+diary(<span class="string">'off'</span>)
+fclose(<span class="string">'all'</span>) ;
+</pre>
+<h2 id="2">Starting timer</h2>
+<pre class="codeinput">tic
+</pre>
+<h2 id="3">Filenames</h2>
+<pre class="codeinput">trackfile = <span class="string">'OpenTRACK Tracks/OpenTRACK_Donington Park_Closed_Forward.mat'</span> ;
+vehiclefile = <span class="string">'OpenVEHICLE Vehicles/OpenVEHICLE_Formula 1_Open Wheel.mat'</span> ;
+</pre>
+<h2 id="4">Loading circuit</h2>
+<pre class="codeinput">tr = load(trackfile) ;
+</pre>
+<h2 id="5">Loading car</h2>
+<pre class="codeinput">veh = load(vehiclefile) ;
+</pre>
+<h2 id="6">Export frequency</h2>
+<pre class="codeinput">freq = 50 ; <span class="comment">% [Hz]</span>
+</pre>
+<h2 id="7">Simulation name</h2>
+<pre class="codeinput">use_date_time_in_name = false ;
+<span class="keyword">if</span> use_date_time_in_name
+    date_time = <span class="string">"_"</span>+datestr(now,<span class="string">'yyyy_mm_dd'</span>)+<span class="string">"_"</span>+datestr(now,<span class="string">'HH_MM_SS'</span>) ; <span class="comment">%#ok&lt;UNRCH&gt;</span>
+<span class="keyword">else</span>
+    date_time = <span class="string">""</span> ;
+<span class="keyword">end</span>
+simname = <span class="string">"OpenLAP Sims/OpenLAP_"</span>+char(veh.name)+<span class="string">"_"</span>+tr.info.name+date_time ;
+logfile = simname+<span class="string">".log"</span> ;
+</pre>
+<h2 id="8">HUD</h2>
+<pre class="codeinput">[folder_status,folder_msg] = mkdir(<span class="string">'OpenLAP Sims'</span>) ;
+delete(simname+<span class="string">".log"</span>) ;
+logid = fopen(logfile,<span class="string">'w'</span>) ;
+disp_logo(logid)
+disp(<span class="string">'================================================='</span>)
+disp(<span class="string">"Vehicle: "</span>+veh.name)
+disp(<span class="string">"Track:   "</span>+tr.info.name)
+disp(<span class="string">"Date:    "</span>+datestr(now,<span class="string">'dd/mm/yyyy'</span>))
+disp(<span class="string">"Time:    "</span>+datestr(now,<span class="string">'HH:MM:SS'</span>))
+disp(<span class="string">'================================================='</span>)
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'================================================='</span>) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">"Vehicle: "</span>+veh.name) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">"Track:   "</span>+tr.info.name) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">"Date:    "</span>+datestr(now,<span class="string">'dd/mm/yyyy'</span>)) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">"Time:    "</span>+datestr(now,<span class="string">'HH:MM:SS'</span>)) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'================================================='</span>) ;
+</pre>
+<pre class="codeoutput">_______                    _____________________ 
+__  __ \______________________  /___    |__  __ \
+_  / / /__  __ \  _ \_  __ \_  / __  /| |_  /_/ /
+/ /_/ /__  /_/ /  __/  / / /  /___  ___ |  ____/ 
+\____/ _  .___/\___//_/ /_//_____/_/  |_/_/      
+       /_/                                       
+=================================================
+Vehicle: Formula 1
+Track:   Donington Park
+Date:    04/04/2025
+Time:    12:39:36
+=================================================
+</pre>
+<h2 id="9">Lap Simulation</h2>
+<pre class="codeinput">[sim] = simulate(veh,tr,simname,logid) ;
+</pre>
+<h2 id="10">Displaying laptime</h2>
+<pre class="codeinput">disp([<span class="string">'Laptime:  '</span>,num2str(sim.laptime.data,<span class="string">'%3.3f'</span>),<span class="string">' [s]'</span>])
+fprintf(logid,<span class="string">'%s'</span>,<span class="string">'Laptime   : '</span>) ;
+fprintf(logid,<span class="string">'%7.3f'</span>,sim.laptime.data) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">' [s]'</span>) ;
+<span class="keyword">for</span> i=1:max(tr.sector)
+    disp([<span class="string">'Sector '</span>,num2str(i),<span class="string">': '</span>,num2str(sim.sector_time.data(i),<span class="string">'%3.3f'</span>),<span class="string">' [s]'</span>])
+    fprintf(logid,<span class="string">'%s'</span>,<span class="string">'Sector '</span>) ;
+    fprintf(logid,<span class="string">'%3d'</span>,i) ;
+    fprintf(logid,<span class="string">'%s'</span>,<span class="string">': '</span>) ;
+    fprintf(logid,<span class="string">'%7.3f'</span>,sim.sector_time.data(i)) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">' [s]'</span>) ;
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Laptime:  64.307 [s]
+Sector 1: 13.620 [s]
+Sector 2: 24.342 [s]
+Sector 3: 26.306 [s]
+</pre>
+<h2 id="11">Ploting results</h2>
+<pre class="codeinput">
+<span class="comment">% figure window</span>
+set(0,<span class="string">'units'</span>,<span class="string">'pixels'</span>) ;
+SS = get(0,<span class="string">'screensize'</span>) ;
+H = 900-90 ;
+W = 900 ;
+Xpos = floor((SS(3)-W)/2) ;
+Ypos = floor((SS(4)-H)/2) ;
+f = figure(<span class="string">'Name'</span>,<span class="string">'OpenLAP Simulation Results'</span>,<span class="string">'Position'</span>,[Xpos,Ypos,W,H]) ;
+figname = [<span class="string">"OpenLAP: "</span>+char(veh.name)+<span class="string">" @ "</span>+tr.info.name,<span class="string">"Date &amp; Time: "</span>+datestr(now,<span class="string">'yyyy/mm/dd'</span>)+<span class="string">" "</span>+datestr(now,<span class="string">'HH:MM:SS'</span>)] ;
+sgtitle(figname)
+
+<span class="comment">% setting rows &amp; columns</span>
+rows = 7 ;
+cols = 2 ;
+<span class="comment">% x axis limits</span>
+xlimit = [tr.x(1),tr.x(end)] ;
+<span class="comment">% xlimit = [4000,4500] ;</span>
+<span class="comment">% setting legend location</span>
+loc = <span class="string">'east'</span> ;
+
+<span class="comment">% speed</span>
+subplot(rows,cols,[1,2])
+hold <span class="string">on</span>
+plot(tr.x,sim.speed.data*3.6)
+legend({<span class="string">'Speed'</span>},<span class="string">'Location'</span>,loc)
+xlabel(<span class="string">'Distance [m]'</span>)
+xlim(xlimit)
+ylabel(<span class="string">'Speed [m/s]'</span>)
+ylabel(<span class="string">'Speed [km/h]'</span>)
+grid <span class="string">on</span>
+
+<span class="comment">% elevation and curvature</span>
+subplot(rows,cols,[3,4])
+yyaxis <span class="string">left</span>
+plot(tr.x,tr.Z)
+xlabel(<span class="string">'Distance [m]'</span>)
+xlim(xlimit)
+ylabel(<span class="string">'Elevation [m]'</span>)
+grid <span class="string">on</span>
+yyaxis <span class="string">right</span>
+plot(tr.x,tr.r)
+legend({<span class="string">'Elevation'</span>,<span class="string">'Curvature'</span>},<span class="string">'Location'</span>,loc)
+ylabel(<span class="string">'Curvature [m^-^1]'</span>)
+
+<span class="comment">% accelerations</span>
+subplot(rows,cols,[5,6])
+hold <span class="string">on</span>
+plot(tr.x,sim.long_acc.data)
+plot(tr.x,sim.lat_acc.data)
+plot(tr.x,sim.sum_acc.data,<span class="string">'k:'</span>)
+legend({<span class="string">'LonAcc'</span>,<span class="string">'LatAcc'</span>,<span class="string">'GSum'</span>},<span class="string">'Location'</span>,loc)
+xlabel(<span class="string">'Distance [m]'</span>)
+xlim(xlimit)
+ylabel(<span class="string">'Acceleration [m/s^2]'</span>)
+grid <span class="string">on</span>
+
+<span class="comment">% drive inputs</span>
+subplot(rows,cols,[7,8])
+hold <span class="string">on</span>
+plot(tr.x,sim.throttle.data*100)
+plot(tr.x,sim.brake_pres.data/10^5)
+legend({<span class="string">'tps'</span>,<span class="string">'bps'</span>},<span class="string">'Location'</span>,loc)
+xlabel(<span class="string">'Distance [m]'</span>)
+xlim(xlimit)
+ylabel(<span class="string">'input [%]'</span>)
+grid <span class="string">on</span>
+ylim([-10,110])
+
+<span class="comment">% steering inputs</span>
+subplot(rows,cols,[9,10])
+hold <span class="string">on</span>
+plot(tr.x,sim.steering.data)
+plot(tr.x,sim.delta.data)
+plot(tr.x,sim.beta.data)
+legend({<span class="string">'Steering wheel'</span>,<span class="string">'Steering \delta'</span>,<span class="string">'Vehicle slip angle \beta'</span>},<span class="string">'Location'</span>,loc)
+xlabel(<span class="string">'Distance [m]'</span>)
+xlim(xlimit)
+ylabel(<span class="string">'angle [deg]'</span>)
+grid <span class="string">on</span>
+
+<span class="comment">% ggv circle</span>
+subplot(rows,cols,[11,13])
+hold <span class="string">on</span>
+scatter3(sim.lat_acc.data,sim.long_acc.data,sim.speed.data*3.6,50,<span class="string">'ro'</span>,<span class="string">'filled'</span>,<span class="string">'MarkerEdgeColor'</span>,[0,0,0])
+surf(veh.GGV(:,:,2),veh.GGV(:,:,1),veh.GGV(:,:,3)*3.6,<span class="string">'EdgeAlpha'</span>,0.3,<span class="string">'FaceAlpha'</span>,0.8)
+legend(<span class="string">'OpenLAP'</span>,<span class="string">'GGV'</span>,<span class="string">'Location'</span>,<span class="string">'northeast'</span>)
+xlabel(<span class="string">'LatAcc [m/s^2]'</span>)
+ylabel(<span class="string">'LonAcc [m/s^2]'</span>)
+zlabel(<span class="string">'Speed [km/h]'</span>)
+grid <span class="string">on</span>
+set(gca,<span class="string">'DataAspectRatio'</span>,[1 1 3])
+axis <span class="string">tight</span>
+
+<span class="comment">% track map</span>
+subplot(rows,cols,[12,14])
+hold <span class="string">on</span>
+scatter(tr.X,tr.Y,5,sim.speed.data*3.6)
+plot(tr.arrow(:,1),tr.arrow(:,2),<span class="string">'k'</span>,<span class="string">'LineWidth'</span>,2)
+legend(<span class="string">'Track Map'</span>,<span class="string">'Location'</span>,<span class="string">'northeast'</span>)
+xlabel(<span class="string">'X [m]'</span>)
+ylabel(<span class="string">'Y [m]'</span>)
+colorbar
+grid <span class="string">on</span>
+axis <span class="string">equal</span>
+
+<span class="comment">% saving figure</span>
+savefig(simname+<span class="string">".fig"</span>)
+
+<span class="comment">% HUD</span>
+disp(<span class="string">'Plots created and saved.'</span>)
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Plots created and saved.'</span>) ;
+</pre>
+<pre class="codeoutput">Plots created and saved.
+</pre>
+<img vspace="5" hspace="5" src="OpenLAP_01.png" alt=""> <h2 id="12">Report generation</h2>
+<pre class="codeinput">
+<span class="comment">% csv report generation</span>
+export_report(veh,tr,sim,freq,logid) ;
+<span class="comment">% saving .mat file</span>
+save(simname+<span class="string">".mat"</span>,<span class="string">'veh'</span>,<span class="string">'tr'</span>,<span class="string">'sim'</span>)
+<span class="comment">% HUD</span>
+toc
+fprintf(logid,<span class="string">'%s'</span>,<span class="string">'Elapsed time is: '</span>) ;
+fprintf(logid,<span class="string">'%f'</span>,toc) ;
+fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">' [s]'</span>) ;
+fclose(<span class="string">'all'</span>) ;
+</pre>
+<pre class="codeoutput">Export initialised.
+Exported .csv file successfully.
+Elapsed time is 224.112665 seconds.
+</pre>
+<h2 id="13">Functions</h2>
+<pre class="codeinput">
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [sim] = simulate(veh,tr,simname,logid)
+</pre>
+<h2 id="15">initialisation</h2>
+<pre class="codeinput">    <span class="comment">% solver timer</span>
+    timer_solver_start = tic ;
+
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Simulation started.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Simulation started.'</span>) ;
+</pre>
+<pre class="codeoutput">Simulation started.
+</pre>
+<h2 id="16">maximum speed curve (assuming pure lateral condition)</h2>
+<pre class="codeinput">    v_max = single(zeros(tr.n,1)) ;
+    bps_v_max = single(zeros(tr.n,1)) ;
+    tps_v_max = single(zeros(tr.n,1)) ;
+    <span class="keyword">for</span> i=1:tr.n
+        [v_max(i),tps_v_max(i),bps_v_max(i)] = vehicle_model_lat(veh,tr,i) ;
+    <span class="keyword">end</span>
+
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Maximum speed calculated at all points.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Maximum speed calculated at all points.'</span>) ;
+</pre>
+<pre class="codeoutput">Maximum speed calculated at all points.
+</pre>
+<h2 id="17">finding apexes</h2>
+<pre class="codeinput">    [v_apex,apex] = findpeaks(-v_max) ; <span class="comment">% findpeaks works for maxima, so need to flip values</span>
+    v_apex = -v_apex ; <span class="comment">% flipping to get positive values</span>
+    <span class="comment">% setting up standing start for open track configuration</span>
+    <span class="keyword">if</span> strcmp(tr.info.config,<span class="string">'Open'</span>)
+        <span class="keyword">if</span> apex(1)~=1 <span class="comment">% if index 1 is not already an apex</span>
+            apex = [1;apex] ; <span class="comment">% inject index 1 as apex</span>
+            v_apex = [0;v_apex] ; <span class="comment">% inject standing start</span>
+        <span class="keyword">else</span> <span class="comment">% index 1 is already an apex</span>
+            v_apex(1) = 0 ; <span class="comment">% set standing start at index 1</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% checking if no apexes found and adding one if needed</span>
+    <span class="keyword">if</span> isempty(apex)
+        [v_apex,apex] = min(v_max) ;
+    <span class="keyword">end</span>
+    <span class="comment">% reordering apexes for solver time optimisation</span>
+    apex_table = sortrows([v_apex,apex],1) ;
+    v_apex = apex_table(:,1) ;
+    apex = apex_table(:,2) ;
+    <span class="comment">% getting driver inputs at apexes</span>
+    tps_apex = tps_v_max(apex) ;
+    bps_apex = bps_v_max(apex) ;
+
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Found all apexes on track.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Found all apexes on track.'</span>) ;
+</pre>
+<pre class="codeoutput">Found all apexes on track.
+</pre>
+<h2 id="18">simulation</h2>
+<pre class="codeinput">    <span class="comment">% memory preallocation</span>
+    N = uint32((length(apex))) ; <span class="comment">% number of apexes</span>
+    flag = false(tr.n,2) ; <span class="comment">% flag for checking that speed has been correctly evaluated</span>
+    <span class="comment">% 1st matrix dimension equal to number of points in track mesh</span>
+    <span class="comment">% 2nd matrix dimension equal to number of apexes</span>
+    <span class="comment">% 3rd matrix dimension equal to 2 if needed (1 copy for acceleration and 1 for deceleration)</span>
+    v = single(inf*ones(tr.n,N,2)) ;
+    ax = single(zeros(tr.n,N,2)) ;
+    ay = single(zeros(tr.n,N,2)) ;
+    tps = single(zeros(tr.n,N,2)) ;
+    bps = single(zeros(tr.n,N,2)) ;
+
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Starting acceleration and deceleration.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Starting acceleration and deceleration.'</span>) ;
+    prg_size = 30 ;
+    prg_pos = ftell(logid) ;
+    fprintf([<span class="string">'Running: ['</span>,repmat(<span class="string">' '</span>,1,prg_size),<span class="string">'] '</span>])
+    fprintf(<span class="string">'% 3.0f'</span>,0)
+    fprintf(<span class="string">' [%%]'</span>)
+    fprintf(logid,<span class="string">'%s'</span>,[<span class="string">'Running: ['</span>,repmat(<span class="string">' '</span>,1,prg_size),<span class="string">'] '</span>]) ;
+    fprintf(logid,<span class="string">'% 3.0f'</span>,0) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">' [%]'</span>) ;
+    fprintf(logid,<span class="string">'________________________________________________\n'</span>) ;
+    fprintf(logid,<span class="string">'|_Apex__|_Point_|_Mode__|___x___|___v___|_vmax_|\n'</span>) ;
+
+    <span class="comment">% running simulation</span>
+    <span class="keyword">for</span> i=1:N <span class="comment">% apex number</span>
+        <span class="keyword">for</span> k=uint8(1:2) <span class="comment">% mode number</span>
+            <span class="keyword">switch</span> k
+                <span class="keyword">case</span> 1 <span class="comment">% acceleration</span>
+                    mode = 1 ;
+                    k_rest = 2 ;
+                <span class="keyword">case</span> 2 <span class="comment">% deceleration</span>
+                    mode = -1 ;
+                    k_rest = 1 ;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> ~(strcmp(tr.info.config,<span class="string">'Open'</span>) &amp;&amp; mode==-1 &amp;&amp; i==1) <span class="comment">% does not run in decel mode at standing start in open track</span>
+                <span class="comment">% getting other apex for later checking</span>
+                [i_rest] = other_points(i,N) ;
+                <span class="keyword">if</span> isempty(i_rest)
+                    i_rest = i ;
+                <span class="keyword">end</span>
+                <span class="comment">% getting apex index</span>
+                j = uint32(apex(i)) ;
+                <span class="comment">% saving speed &amp; latacc &amp; driver inputs from presolved apex</span>
+                v(j,i,k) = v_apex(i) ;
+                ay(j,i,k) = v_apex(i)^2*tr.r(j) ;
+                tps(j,:,1) = tps_apex(i)*ones(1,N) ;
+                bps(j,:,1) = bps_apex(i)*ones(1,N) ;
+                tps(j,:,2) = tps_apex(i)*ones(1,N) ;
+                bps(j,:,2) = bps_apex(i)*ones(1,N) ;
+                <span class="comment">% setting apex flag</span>
+                flag(j,k) = true ;
+                <span class="comment">% getting next point index</span>
+                [~,j_next] = next_point(j,tr.n,mode,tr.info.config) ;
+                <span class="keyword">if</span> ~(strcmp(tr.info.config,<span class="string">'Open'</span>) &amp;&amp; mode==1 &amp;&amp; i==1) <span class="comment">% if not in standing start</span>
+                    <span class="comment">% assuming same speed right after apex</span>
+                    v(j_next,i,k) = v(j,i,k) ;
+                    <span class="comment">% moving to next point index</span>
+                    [j_next,j] = next_point(j,tr.n,mode,tr.info.config) ;
+                <span class="keyword">end</span>
+                <span class="keyword">while</span> 1
+                    <span class="comment">% writing to log file</span>
+                    fprintf(logid,<span class="string">'%7d\t%7d\t%7d\t%7.1f\t%7.2f\t%7.2f\n'</span>,i,j,k,tr.x(j),v(j,i,k),v_max(j)) ;
+                    <span class="comment">% calculating speed, accelerations and driver inputs from vehicle model</span>
+                    [v(j_next,i,k),ax(j,i,k),ay(j,i,k),tps(j,i,k),bps(j,i,k),overshoot] = vehicle_model_comb(veh,tr,v(j,i,k),v_max(j_next),j,mode) ;
+                    <span class="comment">% checking for limit</span>
+                    <span class="keyword">if</span> overshoot
+                        <span class="keyword">break</span>
+                    <span class="keyword">end</span>
+                    <span class="comment">% checking if point is already solved in other apex iteration</span>
+                    <span class="keyword">if</span> flag(j,k) || flag(j,k_rest)
+                        <span class="keyword">if</span> max(v(j_next,i,k)&gt;=v(j_next,i_rest,k)) || max(v(j_next,i,k)&gt;v(j_next,i_rest,k_rest))
+                            <span class="keyword">break</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    <span class="comment">% updating flag and grogress bar</span>
+                    flag = flag_update(flag,j,k,prg_size,logid,prg_pos) ;
+                    <span class="comment">% moving to next point index</span>
+                    [j_next,j] = next_point(j,tr.n,mode,tr.info.config) ;
+                    <span class="comment">% checking if lap is completed</span>
+                    <span class="keyword">switch</span> tr.info.config
+                        <span class="keyword">case</span> <span class="string">'Closed'</span>
+                            <span class="keyword">if</span> j==apex(i) <span class="comment">% made it to the same apex</span>
+                                <span class="keyword">break</span>
+                            <span class="keyword">end</span>
+                        <span class="keyword">case</span> <span class="string">'Open'</span>
+                            <span class="keyword">if</span> j==tr.n <span class="comment">% made it to the end</span>
+                                flag = flag_update(flag,j,k,prg_size,logid,prg_pos) ;
+                                <span class="keyword">break</span>
+                            <span class="keyword">end</span>
+                            <span class="keyword">if</span> j==1 <span class="comment">% made it to the start</span>
+                                <span class="keyword">break</span>
+                            <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% HUD</span>
+    progress_bar(max(flag,[],2),prg_size,logid,prg_pos) ;
+    fprintf(<span class="string">'\n'</span>)
+    disp(<span class="string">'Velocity profile calculated.'</span>)
+    disp([<span class="string">'Solver time is: '</span>,num2str(toc(timer_solver_start)),<span class="string">' [s]'</span>]) ;
+    disp(<span class="string">'Post-processing initialised.'</span>)
+    fprintf(logid,<span class="string">'________________________________________________\n'</span>) ;
+    <span class="keyword">if</span> sum(flag)&lt;size(flag,1)/size(flag,2)
+        fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Velocity profile calculation error.'</span>) ;
+        fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Points not calculated.'</span>) ;
+        p = (1:tr.n)' ;
+        fprintf(logid,<span class="string">'%d\n'</span>,p(min(flag,[],2))) ;
+    <span class="keyword">else</span>
+        fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Velocity profile calculated successfully.'</span>) ;
+    <span class="keyword">end</span>
+    fprintf(logid,<span class="string">'%s'</span>,<span class="string">'Solver time is: '</span>) ;
+    fprintf(logid,<span class="string">'%f'</span>,toc(timer_solver_start)) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">' [s]'</span>) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Post-processing initialised.'</span>) ;
+</pre>
+<pre class="codeoutput">Starting acceleration and deceleration.
+Running: [                              ]   0 [%]</pre>
+<h2 id="19">post-processing resutls</h2>
+<pre class="codeinput">    <span class="comment">% result preallocation</span>
+    V = zeros(tr.n,1) ;
+    AX = zeros(tr.n,1) ;
+    AY = zeros(tr.n,1) ;
+    TPS = zeros(tr.n,1) ;
+    BPS = zeros(tr.n,1) ;
+    <span class="comment">% solution selection</span>
+    <span class="keyword">for</span> i=1:tr.n
+        IDX = length(v(i,:,1)) ;
+        [V(i),idx] = min([v(i,:,1),v(i,:,2)]) ; <span class="comment">% order of k in v(i,:,k) inside min() must be the same as mode order to not miss correct values</span>
+        <span class="keyword">if</span> idx&lt;=IDX <span class="comment">% solved in acceleration</span>
+            AX(i) = ax(i,idx,1) ;
+            AY(i) = ay(i,idx,1) ;
+            TPS(i) = tps(i,idx,1) ;
+            BPS(i) = bps(i,idx,1) ;
+        <span class="keyword">else</span> <span class="comment">% solved in deceleration</span>
+            AX(i) = ax(i,idx-IDX,2) ;
+            AY(i) = ay(i,idx-IDX,2) ;
+            TPS(i) = tps(i,idx-IDX,2) ;
+            BPS(i) = bps(i,idx-IDX,2) ;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Correct solution selected from modes.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Correct solution selected from modes.'</span>) ;
+
+    <span class="comment">% laptime calculation</span>
+    <span class="keyword">if</span> strcmp(tr.info.config,<span class="string">'Open'</span>)
+        time = cumsum([tr.dx(2)./V(2);tr.dx(2:end)./V(2:end)]) ;
+    <span class="keyword">else</span>
+        time = cumsum(tr.dx./V) ;
+    <span class="keyword">end</span>
+    sector_time = zeros(max(tr.sector),1) ;
+    <span class="keyword">for</span> i=1:max(tr.sector)
+        sector_time(i) = max(time(tr.sector==i))-min(time(tr.sector==i)) ;
+    <span class="keyword">end</span>
+    laptime = time(end) ;
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Laptime calculated.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Laptime calculated.'</span>) ;
+
+    <span class="comment">% calculating forces</span>
+    M = veh.M ;
+    g = 9.81 ;
+    A = sqrt(AX.^2+AY.^2) ;
+    Fz_mass = -M*g*cosd(tr.bank).*cosd(tr.incl) ;
+    Fz_aero = 1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A*V.^2 ;
+    Fz_total = Fz_mass+Fz_aero ;
+    Fx_aero = 1/2*veh.rho*veh.factor_Cd*veh.Cd*veh.A*V.^2 ;
+    Fx_roll = veh.Cr*abs(Fz_total) ;
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Forces calculated.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Forces calculated.'</span>) ;
+
+    <span class="comment">% calculating yaw motion, vehicle slip angle and steering input</span>
+    yaw_rate = V.*tr.r ;
+    delta = zeros(tr.n,1) ;
+    beta = zeros(tr.n,1) ;
+    <span class="keyword">for</span> i=1:tr.n
+        B = [M*V(i)^2*tr.r(i)+M*g*sind(tr.bank(i));0] ;
+        sol = veh.C\B ;
+        delta(i) = sol(1)+atand(veh.L*tr.r(i)) ;
+        beta(i) = sol(2) ;
+    <span class="keyword">end</span>
+    steer = delta*veh.rack ;
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Yaw motion calculated.'</span>)
+    disp(<span class="string">'Steering angles calculated.'</span>)
+    disp(<span class="string">'Vehicle slip angles calculated.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Yaw motion calculated.'</span>) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Steering angles calculated.'</span>) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Vehicle slip angles calculated.'</span>) ;
+
+    <span class="comment">% calculating engine metrics</span>
+    wheel_torque = TPS.*interp1(veh.vehicle_speed,veh.wheel_torque,V,<span class="string">'linear'</span>,<span class="string">'extrap'</span>) ;
+    Fx_eng = wheel_torque/veh.tyre_radius ;
+    engine_torque = TPS.*interp1(veh.vehicle_speed,veh.engine_torque,V,<span class="string">'linear'</span>,<span class="string">'extrap'</span>) ;
+    engine_power = TPS.*interp1(veh.vehicle_speed,veh.engine_power,V,<span class="string">'linear'</span>,<span class="string">'extrap'</span>) ;
+    engine_speed = interp1(veh.vehicle_speed,veh.engine_speed,V,<span class="string">'linear'</span>,<span class="string">'extrap'</span>) ;
+    gear = interp1(veh.vehicle_speed,veh.gear,V,<span class="string">'nearest'</span>,<span class="string">'extrap'</span>) ;
+    fuel_cons = cumsum(wheel_torque/veh.tyre_radius.*tr.dx/veh.n_primary/veh.n_gearbox/veh.n_final/veh.n_thermal/veh.fuel_LHV) ;
+    fuel_cons_total = fuel_cons(end) ;
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Engine metrics calculated.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Engine metrics calculated.'</span>) ;
+
+    <span class="comment">% calculating kpis</span>
+    percent_in_corners = sum(tr.r~=0)/tr.n*100 ;
+    percent_in_accel = sum(TPS&gt;0)/tr.n*100 ;
+    percent_in_decel = sum(BPS&gt;0)/tr.n*100 ;
+    percent_in_coast = sum(and(BPS==0,TPS==0))/tr.n*100 ;
+    percent_in_full_tps = sum(tps==1)/tr.n*100 ;
+    percent_in_gear = zeros(veh.nog,1) ;
+    <span class="keyword">for</span> i=1:veh.nog
+        percent_in_gear(i) = sum(gear==i)/tr.n*100 ;
+    <span class="keyword">end</span>
+    energy_spent_fuel = fuel_cons*veh.fuel_LHV ;
+    energy_spent_mech = energy_spent_fuel*veh.n_thermal ;
+    gear_shifts = sum(abs(diff(gear))) ;
+    [~,i] = max(abs(AY)) ;
+    ay_max = AY(i) ;
+    ax_max = max(AX) ;
+    ax_min = min(AX) ;
+    sector_v_max = zeros(max(tr.sector),1) ;
+    sector_v_min = zeros(max(tr.sector),1) ;
+    <span class="keyword">for</span> i=1:max(tr.sector)
+        sector_v_max(i) = max(V(tr.sector==i)) ;
+        sector_v_min(i) = min(V(tr.sector==i)) ;
+    <span class="keyword">end</span>
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'KPIs calculated.'</span>)
+    disp(<span class="string">'Post-processing finished.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'KPIs calculated.'</span>) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Post-processing finished.'</span>) ;
+</pre>
+<pre class="codeoutput">Correct solution selected from modes.
+Laptime calculated.
+Forces calculated.
+Yaw motion calculated.
+Steering angles calculated.
+Vehicle slip angles calculated.
+Engine metrics calculated.
+KPIs calculated.
+Post-processing finished.
+</pre>
+<h2 id="20">saving results in sim structure</h2>
+<pre class="codeinput">    sim.sim_name.data = simname ;
+    sim.distance.data = tr.x ;
+    sim.distance.unit = <span class="string">'m'</span> ;
+    sim.time.data = time ;
+    sim.time.unit = <span class="string">'s'</span> ;
+    sim.N.data = N ;
+    sim.N.unit = [] ;
+    sim.apex.data = apex ;
+    sim.apex.unit = [] ;
+    sim.speed_max.data = v_max ;
+    sim.speed_max.unit = <span class="string">'m/s'</span> ;
+    sim.flag.data = flag ;
+    sim.flag.unit = [] ;
+    sim.v.data = v ;
+    sim.v.unit = <span class="string">'m/s'</span> ;
+    sim.Ax.data = ax ;
+    sim.Ax.unit = <span class="string">'m/s/s'</span> ;
+    sim.Ay.data = ay ;
+    sim.Ay.unit = <span class="string">'m/s/s'</span> ;
+    sim.tps.data = tps ;
+    sim.tps.unit = [] ;
+    sim.bps.data = bps ;
+    sim.bps.unit = [] ;
+    sim.elevation.data = tr.Z ;
+    sim.elevation.unit = <span class="string">'m'</span> ;
+    sim.speed.data = V ;
+    sim.speed.unit = <span class="string">'m/s'</span> ;
+    sim.yaw_rate.data = yaw_rate ;
+    sim.yaw_rate.unit = <span class="string">'rad/s'</span> ;
+    sim.long_acc.data = AX ;
+    sim.long_acc.unit = <span class="string">'m/s/s'</span> ;
+    sim.lat_acc.data = AY ;
+    sim.lat_acc.unit = <span class="string">'m/s/s'</span> ;
+    sim.sum_acc.data = A ;
+    sim.sum_acc.unit = <span class="string">'m/s/s'</span> ;
+    sim.throttle.data = TPS ;
+    sim.throttle.unit = <span class="string">'ratio'</span> ;
+    sim.brake_pres.data = BPS ;
+    sim.brake_pres.unit = <span class="string">'Pa'</span> ;
+    sim.brake_force.data = BPS*veh.phi ;
+    sim.brake_force.unit = <span class="string">'N'</span> ;
+    sim.steering.data = steer ;
+    sim.steering.unit = <span class="string">'deg'</span> ;
+    sim.delta.data = delta ;
+    sim.delta.unit = <span class="string">'deg'</span> ;
+    sim.beta.data = beta ;
+    sim.beta.unit = <span class="string">'deg'</span> ;
+    sim.Fz_aero.data = Fz_aero ;
+    sim.Fz_aero.unit = <span class="string">'N'</span> ;
+    sim.Fx_aero.data = Fx_aero ;
+    sim.Fx_aero.unit = <span class="string">'N'</span> ;
+    sim.Fx_eng.data = Fx_eng ;
+    sim.Fx_eng.unit = <span class="string">'N'</span> ;
+    sim.Fx_roll.data = Fx_roll ;
+    sim.Fx_roll.unit = <span class="string">'N'</span> ;
+    sim.Fz_mass.data = Fz_mass ;
+    sim.Fz_mass.unit = <span class="string">'N'</span> ;
+    sim.Fz_total.data = Fz_total ;
+    sim.Fz_total.unit = <span class="string">'N'</span> ;
+    sim.wheel_torque.data = wheel_torque ;
+    sim.wheel_torque.unit = <span class="string">'N.m'</span> ;
+    sim.engine_torque.data = engine_torque ;
+    sim.engine_torque.unit = <span class="string">'N.m'</span> ;
+    sim.engine_power.data = engine_power ;
+    sim.engine_power.unit = <span class="string">'W'</span> ;
+    sim.engine_speed.data = engine_speed ;
+    sim.engine_speed.unit = <span class="string">'rpm'</span> ;
+    sim.gear.data = gear ;
+    sim.gear.unit = [] ;
+    sim.fuel_cons.data = fuel_cons ;
+    sim.fuel_cons.unit = <span class="string">'kg'</span> ;
+    sim.fuel_cons_total.data = fuel_cons_total ;
+    sim.fuel_cons_total.unit = <span class="string">'kg'</span> ;
+    sim.laptime.data = laptime ;
+    sim.laptime.unit = <span class="string">'s'</span> ;
+    sim.sector_time.data = sector_time ;
+    sim.sector_time.unit = <span class="string">'s'</span> ;
+    sim.percent_in_corners.data = percent_in_corners ;
+    sim.percent_in_corners.unit = <span class="string">'%'</span> ;
+    sim.percent_in_accel.data = percent_in_accel ;
+    sim.percent_in_accel.unit = <span class="string">'%'</span> ;
+    sim.percent_in_decel.data = percent_in_decel ;
+    sim.percent_in_decel.unit = <span class="string">'%'</span> ;
+    sim.percent_in_coast.data = percent_in_coast ;
+    sim.percent_in_coast.unit = <span class="string">'%'</span> ;
+    sim.percent_in_full_tps.data = percent_in_full_tps ;
+    sim.percent_in_full_tps.unit = <span class="string">'%'</span> ;
+    sim.percent_in_gear.data = percent_in_gear ;
+    sim.percent_in_gear.unit = <span class="string">'%'</span> ;
+    sim.v_min.data = min(V) ;
+    sim.v_min.unit = <span class="string">'m/s'</span> ;
+    sim.v_max.data = max(V) ;
+    sim.v_max.unit = <span class="string">'m/s'</span> ;
+    sim.v_ave.data = mean(V) ;
+    sim.v_ave.unit = <span class="string">'m/s'</span> ;
+    sim.energy_spent_fuel.data = energy_spent_fuel ;
+    sim.energy_spent_fuel.unit = <span class="string">'J'</span> ;
+    sim.energy_spent_mech.data = energy_spent_mech ;
+    sim.energy_spent_mech.unit = <span class="string">'J'</span> ;
+    sim.gear_shifts.data = gear_shifts ;
+    sim.gear_shifts.unit = [] ;
+    sim.lat_acc_max.data = ay_max ;
+    sim.lat_acc_max.unit = <span class="string">'m/s/s'</span> ;
+    sim.long_acc_max.data = ax_max ;
+    sim.long_acc_max.unit = <span class="string">'m/s/s'</span> ;
+    sim.long_acc_min.data = ax_min ;
+    sim.long_acc_min.unit = <span class="string">'m/s/s'</span> ;
+    sim.sector_v_max.data = sector_v_max ;
+    sim.sector_v_max.unit = <span class="string">'m/s'</span> ;
+    sim.sector_v_min.data = sector_v_min ;
+    sim.sector_v_min.unit = <span class="string">'m/s'</span> ;
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Simulation results saved.'</span>)
+    disp(<span class="string">'Simulation completed.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Simulation results saved.'</span>) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Simulation completed.'</span>) ;
+</pre>
+<pre class="codeoutput">Simulation results saved.
+Simulation completed.
+</pre>
+<pre class="codeinput">
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [v,tps,bps] = vehicle_model_lat(veh,tr,p)
+</pre>
+<h2 id="23">initialisation</h2>
+<p>getting track data</p>
+<pre class="codeinput">    g = 9.81 ;
+    r = tr.r(p) ;
+    incl = tr.incl(p) ;
+    bank = tr.bank(p) ;
+    factor_grip = tr.factor_grip(p)*veh.factor_grip ;
+    <span class="comment">% getting vehicle data</span>
+    factor_drive = veh.factor_drive ;
+    factor_aero = veh.factor_aero ;
+    driven_wheels = veh.driven_wheels ;
+    <span class="comment">% Mass</span>
+    M = veh.M ;
+    <span class="comment">% normal load on all wheels</span>
+    Wz = M*g*cosd(bank)*cosd(incl) ;
+    <span class="comment">% induced weight from banking and inclination</span>
+    Wy = -M*g*sind(bank) ;
+    Wx = M*g*sind(incl) ;
+</pre>
+<h2 id="24">speed solution</h2>
+<pre class="codeinput">    <span class="keyword">if</span> r==0 <span class="comment">% straight (limited by engine speed limit or drag)</span>
+        <span class="comment">% checking for engine speed limit</span>
+        v = veh.v_max ;
+        tps = 1 ; <span class="comment">% full throttle</span>
+        bps = 0 ; <span class="comment">% 0 brake</span>
+    <span class="keyword">else</span> <span class="comment">% corner (may be limited by engine, drag or cornering ability)</span>
+</pre>
+<h2 id="25">initial speed solution</h2>
+<p>downforce coefficient</p>
+<pre class="codeinput">        D = -1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A ;
+        <span class="comment">% longitudinal tyre coefficients</span>
+        dmy = factor_grip*veh.sens_y ;
+        muy = factor_grip*veh.mu_y ;
+        Ny = veh.mu_y_M*g ;
+        <span class="comment">% longitudinal tyre coefficients</span>
+        dmx = factor_grip*veh.sens_x ;
+        mux = factor_grip*veh.mu_x ;
+        Nx = veh.mu_x_M*g ;
+        <span class="comment">% 2nd degree polynomial coefficients ( a*x^2+b*x+c = 0 )</span>
+        a = -sign(r)*dmy/4*D^2 ;
+        b = sign(r)*(muy*D+(dmy/4)*(Ny*4)*D-2*(dmy/4)*Wz*D)-M*r ;
+        c = sign(r)*(muy*Wz+(dmy/4)*(Ny*4)*Wz-(dmy/4)*Wz^2)+Wy ;
+        <span class="comment">% calculating 2nd degree polynomial roots</span>
+        <span class="keyword">if</span> a==0
+            v = sqrt(-c/b) ;
+        <span class="keyword">elseif</span> b^2-4*a*c&gt;=0
+            <span class="keyword">if</span> (-b+sqrt(b^2-4*a*c))/2/a&gt;=0
+                v = sqrt((-b+sqrt(b^2-4*a*c))/2/a) ;
+            <span class="keyword">elseif</span> (-b-sqrt(b^2-4*a*c))/2/a&gt;=0
+                v = sqrt((-b-sqrt(b^2-4*a*c))/2/a) ;
+            <span class="keyword">else</span>
+                error([<span class="string">'No real roots at point index: '</span>,num2str(p)])
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            error([<span class="string">'Discriminant &lt;0 at point index: '</span>,num2str(p)])
+        <span class="keyword">end</span>
+        <span class="comment">% checking for engine speed limit</span>
+        v = min([v,veh.v_max]) ;
+</pre>
+<h2 id="26">adjusting speed for drag force compensation</h2>
+<pre class="codeinput">        adjust_speed = true ;
+        <span class="keyword">while</span> adjust_speed
+            <span class="comment">% aero forces</span>
+            Aero_Df = 1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A*v^2 ;
+            Aero_Dr = 1/2*veh.rho*veh.factor_Cd*veh.Cd*veh.A*v^2 ;
+            <span class="comment">% rolling resistance</span>
+            Roll_Dr = veh.Cr*(-Aero_Df+Wz) ;
+            <span class="comment">% normal load on driven wheels</span>
+            Wd = (factor_drive*Wz+(-factor_aero*Aero_Df))/driven_wheels ;
+            <span class="comment">% drag acceleration</span>
+            ax_drag = (Aero_Dr+Roll_Dr+Wx)/M ;
+            <span class="comment">% maximum lat acc available from tyres</span>
+            ay_max = sign(r)/M*(muy+dmy*(Ny-(Wz-Aero_Df)/4))*(Wz-Aero_Df) ;
+            <span class="comment">% needed lat acc make turn</span>
+            ay_needed = v^2*r+g*sind(bank) ; <span class="comment">% circular motion and track banking</span>
+            <span class="comment">% calculating driver inputs</span>
+            <span class="keyword">if</span> ax_drag&lt;=0 <span class="comment">% need throttle to compensate for drag</span>
+                <span class="comment">% max long acc available from tyres</span>
+                ax_tyre_max_acc = 1/M*(mux+dmx*(Nx-Wd))*Wd*driven_wheels ;
+                <span class="comment">% getting power limit from engine</span>
+                ax_power_limit = 1/M*(interp1(veh.vehicle_speed,veh.factor_power*veh.fx_engine,v)) ;
+                <span class="comment">% available combined lat acc at ax_net==0 =&gt; ax_tyre==-ax_drag</span>
+                ay = ay_max*sqrt(1-(ax_drag/ax_tyre_max_acc)^2) ; <span class="comment">% friction ellipse</span>
+                <span class="comment">% available combined long acc at ay_needed</span>
+                ax_acc = ax_tyre_max_acc*sqrt(1-(ay_needed/ay_max)^2) ; <span class="comment">% friction ellipse</span>
+                <span class="comment">% getting tps value</span>
+                scale = min([-ax_drag,ax_acc])/ax_power_limit ;
+                tps = max([min([1,scale]),0]) ; <span class="comment">% making sure its positive</span>
+                bps = 0 ; <span class="comment">% setting brake pressure to 0</span>
+            <span class="keyword">else</span> <span class="comment">% need brake to compensate for drag</span>
+                <span class="comment">% max long acc available from tyres</span>
+                ax_tyre_max_dec = -1/M*(mux+dmx*(Nx-(Wz-Aero_Df)/4))*(Wz-Aero_Df) ;
+                <span class="comment">% available combined lat acc at ax_net==0 =&gt; ax_tyre==-ax_drag</span>
+                ay = ay_max*sqrt(1-(ax_drag/ax_tyre_max_dec)^2) ; <span class="comment">% friction ellipse</span>
+                <span class="comment">% available combined long acc at ay_needed</span>
+                ax_dec = ax_tyre_max_dec*sqrt(1-(ay_needed/ay_max)^2) ; <span class="comment">% friction ellipse</span>
+                <span class="comment">% getting brake input</span>
+                fx_tyre = max([ax_drag,-ax_dec])*M ;
+                bps = max([fx_tyre,0])*veh.beta ; <span class="comment">% making sure its positive</span>
+                tps = 0 ; <span class="comment">% setting throttle to 0</span>
+            <span class="keyword">end</span>
+            <span class="comment">% checking if tyres can produce the available combined lat acc</span>
+            <span class="keyword">if</span> ay/ay_needed&lt;1 <span class="comment">% not enough grip</span>
+                v = sqrt((ay-g*sind(bank))/r)-1E-3 ; <span class="comment">% the (-1E-3 factor is there for convergence speed)</span>
+            <span class="keyword">else</span> <span class="comment">% enough grip</span>
+                adjust_speed = false ;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">    <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [v_next,ax,ay,tps,bps,overshoot] = vehicle_model_comb(veh,tr,v,v_max_next,j,mode)
+</pre>
+<h2 id="30">initialisation</h2>
+<pre class="codeinput">    <span class="comment">% assuming no overshoot</span>
+    overshoot = false ;
+    <span class="comment">% getting track data</span>
+    dx = tr.dx(j) ;
+    r = tr.r(j) ;
+    incl = tr.incl(j) ;
+    bank = tr.bank(j) ;
+    factor_grip = tr.factor_grip(j)*veh.factor_grip ;
+    g = 9.81 ;
+    <span class="comment">% getting vehicle data</span>
+    <span class="keyword">if</span> mode==1
+        factor_drive = veh.factor_drive ;
+        factor_aero = veh.factor_aero ;
+        driven_wheels = veh.driven_wheels ;
+    <span class="keyword">else</span>
+        factor_drive = 1 ;
+        factor_aero = 1 ;
+        driven_wheels = 4 ;
+    <span class="keyword">end</span>
+</pre>
+<h2 id="31">external forces</h2>
+<pre class="codeinput">    <span class="comment">% Mass</span>
+    M = veh.M ;
+    <span class="comment">% normal load on all wheels</span>
+    Wz = M*g*cosd(bank)*cosd(incl) ;
+    <span class="comment">% induced weight from banking and inclination</span>
+    Wy = -M*g*sind(bank) ;
+    Wx = M*g*sind(incl) ;
+    <span class="comment">% aero forces</span>
+    Aero_Df = 1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A*v^2 ;
+    Aero_Dr = 1/2*veh.rho*veh.factor_Cd*veh.Cd*veh.A*v^2 ;
+    <span class="comment">% rolling resistance</span>
+    Roll_Dr = veh.Cr*(-Aero_Df+Wz) ;
+    <span class="comment">% normal load on driven wheels</span>
+    Wd = (factor_drive*Wz+(-factor_aero*Aero_Df))/driven_wheels ;
+</pre>
+<h2 id="32">overshoot acceleration</h2>
+<pre class="codeinput">    <span class="comment">% maximum allowed long acc to not overshoot at next point</span>
+    ax_max = mode*(v_max_next^2-v^2)/2/dx ;
+    <span class="comment">% drag acceleration</span>
+    ax_drag = (Aero_Dr+Roll_Dr+Wx)/M ;
+    <span class="comment">% ovesrhoot acceleration limit</span>
+	ax_needed = ax_max-ax_drag ;
+</pre>
+<h2 id="33">current lat acc</h2>
+<pre class="codeinput">    ay = v^2*r+g*sind(bank) ;
+</pre>
+<h2 id="34">tyre forces</h2>
+<pre class="codeinput">    <span class="comment">% longitudinal tyre coefficients</span>
+    dmy = factor_grip*veh.sens_y ;
+    muy = factor_grip*veh.mu_y ;
+    Ny = veh.mu_y_M*g ;
+    <span class="comment">% longitudinal tyre coefficients</span>
+    dmx = factor_grip*veh.sens_x ;
+    mux = factor_grip*veh.mu_x ;
+    Nx = veh.mu_x_M*g ;
+    <span class="comment">% friction ellipse multiplier</span>
+    <span class="keyword">if</span> sign(ay)~=0 <span class="comment">% in corner or compensating for banking</span>
+        <span class="comment">% max lat acc available from tyres</span>
+        ay_max = 1/M*(sign(ay)*(muy+dmy*(Ny-(Wz-Aero_Df)/4))*(Wz-Aero_Df)+Wy) ;
+        <span class="comment">% max combined long acc available from tyres</span>
+        <span class="keyword">if</span> abs(ay/ay_max)&gt;1 <span class="comment">% checking if vehicle overshot (should not happen, but check exists to exclude complex numbers in solution from friction ellipse)</span>
+            ellipse_multi = 0 ;
+        <span class="keyword">else</span>
+            ellipse_multi = sqrt(1-(ay/ay_max)^2) ; <span class="comment">% friction ellipse</span>
+        <span class="keyword">end</span>
+    <span class="keyword">else</span> <span class="comment">% in straight or no compensation for banking needed</span>
+        ellipse_multi = 1 ;
+    <span class="keyword">end</span>
+</pre>
+<h2 id="35">calculating driver inputs</h2>
+<pre class="codeinput">    <span class="keyword">if</span> ax_needed&gt;=0 <span class="comment">% need tps</span>
+        <span class="comment">% max pure long acc available from driven tyres</span>
+        ax_tyre_max = 1/M*(mux+dmx*(Nx-Wd))*Wd*driven_wheels ;
+        <span class="comment">% max combined long acc available from driven tyres</span>
+        ax_tyre = ax_tyre_max*ellipse_multi ;
+        <span class="comment">% getting power limit from engine</span>
+        ax_power_limit = 1/M*(interp1(veh.vehicle_speed,veh.factor_power*veh.fx_engine,v,<span class="string">'linear'</span>,0)) ;
+        <span class="comment">% getting tps value</span>
+        scale = min([ax_tyre,ax_needed]/ax_power_limit) ;
+        tps = max([min([1,scale]),0]) ; <span class="comment">% making sure its positive</span>
+        bps = 0 ; <span class="comment">% setting brake pressure to 0</span>
+        <span class="comment">% final long acc command</span>
+        ax_com = tps*ax_power_limit ;
+    <span class="keyword">else</span> <span class="comment">% need braking</span>
+        <span class="comment">% max pure long acc available from all tyres</span>
+        ax_tyre_max = -1/M*(mux+dmx*(Nx-(Wz-Aero_Df)/4))*(Wz-Aero_Df) ;
+        <span class="comment">% max comb long acc available from all tyres</span>
+        ax_tyre = ax_tyre_max*ellipse_multi ;
+        <span class="comment">% tyre braking force</span>
+        fx_tyre = min(-[ax_tyre,ax_needed])*M ;
+        <span class="comment">% getting brake input</span>
+        bps = max([fx_tyre,0])*veh.beta ; <span class="comment">% making sure its positive</span>
+        tps = 0 ; <span class="comment">% seting throttle to 0</span>
+        <span class="comment">% final long acc command</span>
+        ax_com = -min(-[ax_tyre,ax_needed]) ;
+    <span class="keyword">end</span>
+</pre>
+<h2 id="36">final results</h2>
+<pre class="codeinput">    <span class="comment">% total vehicle long acc</span>
+    ax = ax_com+ax_drag ;
+    <span class="comment">% next speed value</span>
+    v_next = sqrt(v^2+2*mode*ax*tr.dx(j)) ;
+    <span class="comment">% correcting tps for full throttle when at v_max on straights</span>
+    <span class="keyword">if</span> tps&gt;0 &amp;&amp; v/veh.v_max&gt;=0.999
+        tps = 1 ;
+    <span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">WDEavRCxr34Z307|                             ]   3 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z402||                            ]   7 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z444|||                           ]  10 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z486||||                          ]  13 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z528|||||                         ]  17 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z570||||||                        ]  20 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z612|||||||                       ]  23 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z654||||||||                      ]  27 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z696|||||||||                     ]  30 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z739||||||||||                    ]  33 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z781|||||||||||                   ]  37 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z823||||||||||||                  ]  40 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z865|||||||||||||                 ]  43 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z907||||||||||||||                ]  47 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z949|||||||||||||||               ]  50 [%]</pre>
+<pre class="codeoutput">WDEavRCxr34Z978||||||||||||||||||||||||||||||] 100 [%]
+Velocity profile calculated.
+Solver time is: 212.9571 [s]
+Post-processing initialised.
+</pre>
+<h2 id="37">checking for overshoot</h2>
+<pre class="codeinput">    <span class="keyword">if</span> v_next/v_max_next&gt;1
+        <span class="comment">% setting overshoot flag</span>
+        overshoot = true ;
+        <span class="comment">% resetting values for overshoot</span>
+        v_next = inf ;
+        ax = 0 ;
+        ay = 0 ;
+        tps = -1 ;
+        bps = -1 ;
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [j_next,j] = next_point(j,j_max,mode,tr_config)
+    <span class="keyword">switch</span> mode
+        <span class="keyword">case</span> 1 <span class="comment">% acceleration</span>
+            <span class="keyword">switch</span> tr_config
+                <span class="keyword">case</span> <span class="string">'Closed'</span>
+                    <span class="keyword">if</span> j==j_max-1
+                        j = j_max ;
+                        j_next = 1 ;
+                    <span class="keyword">elseif</span> j==j_max
+                        j = 1 ;
+                        j_next = j+1 ;
+                    <span class="keyword">else</span>
+                        j = j+1 ;
+                        j_next = j+1 ;
+                    <span class="keyword">end</span>
+                <span class="keyword">case</span> <span class="string">'Open'</span>
+                    j = j+1 ;
+                    j_next = j+1 ;
+            <span class="keyword">end</span>
+        <span class="keyword">case</span> -1 <span class="comment">% deceleration</span>
+            <span class="keyword">switch</span> tr_config
+                <span class="keyword">case</span> <span class="string">'Closed'</span>
+                    <span class="keyword">if</span> j==2
+                        j = 1 ;
+                        j_next = j_max ;
+                    <span class="keyword">elseif</span> j==1
+                        j = j_max ;
+                        j_next = j-1 ;
+                    <span class="keyword">else</span>
+                        j = j-1 ;
+                        j_next = j-1 ;
+                    <span class="keyword">end</span>
+                <span class="keyword">case</span> <span class="string">'Open'</span>
+                    j = j-1 ;
+                    j_next = j-1 ;
+            <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [i_rest] = other_points(i,i_max)
+    i_rest = (1:i_max)' ;
+    i_rest(i) = [] ;
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [flag] = flag_update(flag,j,k,prg_size,logid,prg_pos)
+    <span class="comment">% current flag state</span>
+    p = sum(flag,<span class="string">'all'</span>)/size(flag,1)/size(flag,2) ;
+    n_old = floor(p*prg_size) ; <span class="comment">% old number of lines</span>
+    <span class="comment">% new flag state</span>
+    flag(j,k) = true ;
+    p = sum(flag,<span class="string">'all'</span>)/size(flag,1)/size(flag,2) ;
+    n = floor(p*prg_size) ; <span class="comment">% new number of lines</span>
+    <span class="comment">% checking if state has changed enough to update progress bar</span>
+    <span class="keyword">if</span> n&gt;n_old
+        progress_bar(flag,prg_size,logid,prg_pos) ;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [] = progress_bar(flag,prg_size,logid,prg_pos)
+    <span class="comment">% current flag state</span>
+    p = sum(flag,<span class="string">'all'</span>)/size(flag,1)/size(flag,2) ; <span class="comment">% progress percentage</span>
+    n = floor(p*prg_size) ; <span class="comment">% new number of lines</span>
+    e = prg_size-n ; <span class="comment">% number of spaces</span>
+    <span class="comment">% updating progress bar in command window</span>
+    fprintf(repmat(<span class="string">'\b'</span>,1,prg_size+1+8)) <span class="comment">% backspace to start of bar</span>
+    fprintf(repmat(<span class="string">'|'</span>,1,n)) <span class="comment">% writing lines</span>
+    fprintf(repmat(<span class="string">' '</span>,1,e)) <span class="comment">% writing spaces</span>
+    fprintf(<span class="string">']'</span>) <span class="comment">% closing bar</span>
+    fprintf(<span class="string">'%4.0f'</span>,p*100) <span class="comment">% writing percentage</span>
+    fprintf(<span class="string">' [%%]'</span>) <span class="comment">% writing % symbol</span>
+    <span class="comment">% updating progress bar in log file</span>
+    fseek(logid,prg_pos,<span class="string">'bof'</span>) ; <span class="comment">% start of progress bar position in log file</span>
+    fprintf(logid,<span class="string">'%s'</span>,<span class="string">'Running: ['</span>) ;
+    fprintf(logid,<span class="string">'%s'</span>,repmat(<span class="string">'|'</span>,1,n)) ;
+    fprintf(logid,<span class="string">'%s'</span>,repmat(<span class="string">' '</span>,1,e)) ;
+    fprintf(logid,<span class="string">'%s'</span>,<span class="string">'] '</span>) ;
+    fprintf(logid,<span class="string">'%3.0f'</span>,p*100) ;
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">' [%]'</span>) ;
+    fseek(logid,0,<span class="string">'eof'</span>) ; <span class="comment">% continue at end of file</span>
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [] = disp_logo(logid)
+    lg = [<span class="keyword">...</span>
+        <span class="string">'_______                    _____________________ '</span>;<span class="keyword">...</span>
+        <span class="string">'__  __ \______________________  /___    |__  __ \'</span>;<span class="keyword">...</span>
+        <span class="string">'_  / / /__  __ \  _ \_  __ \_  / __  /| |_  /_/ /'</span>;<span class="keyword">...</span>
+        <span class="string">'/ /_/ /__  /_/ /  __/  / / /  /___  ___ |  ____/ '</span>;<span class="keyword">...</span>
+        <span class="string">'\____/ _  .___/\___//_/ /_//_____/_/  |_/_/      '</span>;<span class="keyword">...</span>
+        <span class="string">'       /_/                                       '</span><span class="keyword">...</span>
+        ] ;
+    disp(lg) <span class="comment">% command window</span>
+    fprintf(logid,<span class="string">'%s'</span>,[lg,repmat(newline,size(lg,1),1)].') ; <span class="comment">% log file</span>
+<span class="keyword">end</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="keyword">function</span> [] = export_report(veh,tr,sim,freq,logid)
+    <span class="comment">% frequency</span>
+    freq = round(freq) ;
+    <span class="comment">% channel names</span>
+    all_names = fieldnames(sim) ;
+    <span class="comment">% number of channels to export</span>
+    S = 0 ;
+    <span class="comment">% channel id vector</span>
+    I = (1:length(all_names))' ;
+    <span class="comment">% getting only vector channels (excluding matrices)</span>
+    <span class="keyword">for</span> i=1:length(all_names)
+        <span class="comment">% getting size for each channel</span>
+        s = size(eval([<span class="string">'sim.'</span>,all_names{i},<span class="string">'.data'</span>])) ;
+        <span class="comment">% checking if channel is a vector</span>
+        <span class="keyword">if</span> length(s)==2 &amp;&amp; s(1)==tr.n &amp;&amp; s(2)==1 <span class="comment">% is vector</span>
+            S = S+1 ;
+        <span class="keyword">else</span> <span class="comment">% is not vector</span>
+            I(i) = 0 ;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% keeping only vector channel ids</span>
+    I(I==0) = [] ;
+    <span class="comment">% getting channel names</span>
+    channel_names = all_names(I)' ;
+    <span class="comment">% memory preallocation</span>
+    <span class="comment">% data matrix</span>
+    data = single(zeros(tr.n,S)) ;
+    <span class="comment">% units vector</span>
+    channel_units = cell(1,length(I)) ;
+    <span class="comment">% getting data and units</span>
+    <span class="keyword">for</span> i=1:length(I)
+        data(:,i) = eval([<span class="string">'sim.'</span>,all_names{I(i)},<span class="string">'.data'</span>]) ;
+        channel_units(i) = eval([<span class="string">'{sim.'</span>,all_names{I(i)},<span class="string">'.unit}'</span>]) ;
+    <span class="keyword">end</span>
+    <span class="comment">% new time vector for specified frequency</span>
+    t = (0:1/freq:sim.laptime.data)' ;
+    <span class="comment">% getting time channel id vector</span>
+    j = strcmp(string(channel_names),<span class="string">"time"</span>) ;
+    <span class="comment">% time data memory preallocation</span>
+    time_data = single(zeros(length(t),length(I))) ;
+    <span class="comment">% getting</span>
+    <span class="keyword">for</span> i=1:length(I)
+         <span class="comment">% checking if channel corresponds to time</span>
+        <span class="keyword">if</span> i==j <span class="comment">% time channel</span>
+            time_data(:,i) = t ;
+        <span class="keyword">else</span> <span class="comment">% all other channels</span>
+            <span class="comment">% checking for integer channel</span>
+            <span class="keyword">if</span> strcmp(string(channel_names(i)),<span class="string">"gear"</span>) <span class="comment">% gear needs to be integer</span>
+                time_data(:,i) = interp1(data(:,j),data(:,i),t,<span class="string">'nearest'</span>,<span class="string">'extrap'</span>) ;
+            <span class="keyword">else</span> <span class="comment">% all other channels are linearly interpolated</span>
+                time_data(:,i) = interp1(data(:,j),data(:,i),t,<span class="string">'linear'</span>,<span class="string">'extrap'</span>) ;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% opening and writing .csv file</span>
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Export initialised.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Export initialised.'</span>) ;
+    <span class="comment">% filename</span>
+    filename = sim.sim_name.data+<span class="string">".csv"</span> ;
+    <span class="comment">% opening file</span>
+    fid = fopen(filename,<span class="string">'w'</span>) ;
+    <span class="comment">% writing file header</span>
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Format"</span>,<span class="string">"OpenLAP Export"</span>]) ;
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Venue"</span>,tr.info.name]) ;
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Vehicle"</span>,veh.name]) ;
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Driver"</span>,<span class="string">'OpenLap'</span>]) ;
+    fprintf(fid,<span class="string">'%s\n'</span>,<span class="string">"Device"</span>) ;
+    fprintf(fid,<span class="string">'%s\n'</span>,<span class="string">"Comment"</span>) ;
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Date"</span>,datestr(now,<span class="string">'dd/mm/yyyy'</span>)]) ;
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Time"</span>,datestr(now,<span class="string">'HH:MM:SS'</span>)]) ;
+    fprintf(fid,<span class="string">'%s,%s\n'</span>,[<span class="string">"Frequency"</span>,num2str(freq,<span class="string">'%d'</span>)]) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    <span class="comment">% writing channels</span>
+    form = [repmat(<span class="string">'%s,'</span>,1,length(I)-1),<span class="string">'%s\n'</span>] ;
+    fprintf(fid,form,channel_names{:}) ;
+    fprintf(fid,form,channel_names{:}) ;
+    fprintf(fid,form,channel_units{:}) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    fprintf(fid,<span class="string">'\n'</span>) ;
+    form = [repmat(<span class="string">'%f,'</span>,1,length(I)-1),<span class="string">'%f\n'</span>] ;
+    <span class="keyword">for</span> i=1:length(t)
+        fprintf(fid,form,time_data(i,:)) ;
+    <span class="keyword">end</span>
+    <span class="comment">% closing file</span>
+    fclose(fid) ;
+    <span class="comment">% HUD</span>
+    disp(<span class="string">'Exported .csv file successfully.'</span>)
+    fprintf(logid,<span class="string">'%s\n'</span>,<span class="string">'Exported .csv file successfully.'</span>) ;
+<span class="keyword">end</span>
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% OpenLAP Laptime Simulation Project
+%
+% OpenLAP
+%
+% Lap time simulation using a simple point mass model for a racing vehicle.
+% Instructions:
+% 1) Select a vehicle file created by OpenVEHICLE by assigning the full
+%    path to the variable "vehiclefile".
+% 2) Select a track file created by OpenTRACK by assigning the full path to
+%    the variable "trackfile".
+% 3) Select an export frequency in [Hz] by setting the variable "freq" to
+%    the desired value.
+% 4) Run the script.
+% 5) The results will appear on the command window and inside the folder
+%    "OpenLAP Sims". You can choose to include the date and time of each
+%    simulation in the result file name by changing the
+%    "use_date_time_in_name" variable to true.
+%
+% More information can be found in the "OpenLAP Laptime Simulator"
+% videos on YouTube.
+%
+% This software is licensed under the GPL V3 Open Source License.
+%
+% Open Source MATLAB project created by:
+%
+% Michael Halkiopoulos
+% Cranfield University MSc Advanced Motorsport Engineer
+% National Technical University of Athens MEng Mechanical Engineer
+%
+% LinkedIn: https://www.linkedin.com/in/michael-halkiopoulos/
+% email: halkiopoulos_michalis@hotmail.com
+% MATLAB file exchange: https://uk.mathworks.com/matlabcentral/fileexchange/
+% GitHub: https://github.com/mc12027
+%
+% April 2020.
+
+%% Clearing memory
+
+clear
+clc
+close all force
+diary('off')
+fclose('all') ;
+
+%% Starting timer
+
+tic
+
+%% Filenames
+
+trackfile = 'OpenTRACK Tracks/OpenTRACK_Donington Park_Closed_Forward.mat' ;
+vehiclefile = 'OpenVEHICLE Vehicles/OpenVEHICLE_Formula 1_Open Wheel.mat' ;
+
+%% Loading circuit
+
+tr = load(trackfile) ;
+
+%% Loading car
+
+veh = load(vehiclefile) ;
+
+%% Export frequency
+
+freq = 50 ; % [Hz]
+
+%% Simulation name
+
+use_date_time_in_name = false ;
+if use_date_time_in_name
+    date_time = "_"+datestr(now,'yyyy_mm_dd')+"_"+datestr(now,'HH_MM_SS') ; %#ok<UNRCH>
+else
+    date_time = "" ;
+end
+simname = "OpenLAP Sims/OpenLAP_"+char(veh.name)+"_"+tr.info.name+date_time ;
+logfile = simname+".log" ;
+
+%% HUD
+
+[folder_status,folder_msg] = mkdir('OpenLAP Sims') ;
+delete(simname+".log") ;
+logid = fopen(logfile,'w') ;
+disp_logo(logid)
+disp('=================================================')
+disp("Vehicle: "+veh.name)
+disp("Track:   "+tr.info.name)
+disp("Date:    "+datestr(now,'dd/mm/yyyy'))
+disp("Time:    "+datestr(now,'HH:MM:SS'))
+disp('=================================================')
+fprintf(logid,'%s\n','=================================================') ;
+fprintf(logid,'%s\n',"Vehicle: "+veh.name) ;
+fprintf(logid,'%s\n',"Track:   "+tr.info.name) ;
+fprintf(logid,'%s\n',"Date:    "+datestr(now,'dd/mm/yyyy')) ;
+fprintf(logid,'%s\n',"Time:    "+datestr(now,'HH:MM:SS')) ;
+fprintf(logid,'%s\n','=================================================') ;
+
+%% Lap Simulation
+
+[sim] = simulate(veh,tr,simname,logid) ;
+
+%% Displaying laptime
+
+disp(['Laptime:  ',num2str(sim.laptime.data,'%3.3f'),' [s]'])
+fprintf(logid,'%s','Laptime   : ') ;
+fprintf(logid,'%7.3f',sim.laptime.data) ;
+fprintf(logid,'%s\n',' [s]') ;
+for i=1:max(tr.sector)
+    disp(['Sector ',num2str(i),': ',num2str(sim.sector_time.data(i),'%3.3f'),' [s]'])
+    fprintf(logid,'%s','Sector ') ;
+    fprintf(logid,'%3d',i) ;
+    fprintf(logid,'%s',': ') ;
+    fprintf(logid,'%7.3f',sim.sector_time.data(i)) ;
+    fprintf(logid,'%s\n',' [s]') ;
+end
+
+%% Ploting results
+
+% figure window
+set(0,'units','pixels') ;
+SS = get(0,'screensize') ;
+H = 900-90 ;
+W = 900 ;
+Xpos = floor((SS(3)-W)/2) ;
+Ypos = floor((SS(4)-H)/2) ;
+f = figure('Name','OpenLAP Simulation Results','Position',[Xpos,Ypos,W,H]) ;
+figname = ["OpenLAP: "+char(veh.name)+" @ "+tr.info.name,"Date & Time: "+datestr(now,'yyyy/mm/dd')+" "+datestr(now,'HH:MM:SS')] ;
+sgtitle(figname)
+
+% setting rows & columns
+rows = 7 ;
+cols = 2 ;
+% x axis limits
+xlimit = [tr.x(1),tr.x(end)] ;
+% xlimit = [4000,4500] ;
+% setting legend location
+loc = 'east' ;
+
+% speed
+subplot(rows,cols,[1,2])
+hold on
+plot(tr.x,sim.speed.data*3.6)
+legend({'Speed'},'Location',loc)
+xlabel('Distance [m]')
+xlim(xlimit)
+ylabel('Speed [m/s]')
+ylabel('Speed [km/h]')
+grid on
+
+% elevation and curvature
+subplot(rows,cols,[3,4])
+yyaxis left
+plot(tr.x,tr.Z)
+xlabel('Distance [m]')
+xlim(xlimit)
+ylabel('Elevation [m]')
+grid on
+yyaxis right
+plot(tr.x,tr.r)
+legend({'Elevation','Curvature'},'Location',loc)
+ylabel('Curvature [m^-^1]')
+
+% accelerations
+subplot(rows,cols,[5,6])
+hold on
+plot(tr.x,sim.long_acc.data)
+plot(tr.x,sim.lat_acc.data)
+plot(tr.x,sim.sum_acc.data,'k:')
+legend({'LonAcc','LatAcc','GSum'},'Location',loc)
+xlabel('Distance [m]')
+xlim(xlimit)
+ylabel('Acceleration [m/s^2]')
+grid on
+
+% drive inputs
+subplot(rows,cols,[7,8])
+hold on
+plot(tr.x,sim.throttle.data*100)
+plot(tr.x,sim.brake_pres.data/10^5)
+legend({'tps','bps'},'Location',loc)
+xlabel('Distance [m]')
+xlim(xlimit)
+ylabel('input [%]')
+grid on
+ylim([-10,110])
+
+% steering inputs
+subplot(rows,cols,[9,10])
+hold on
+plot(tr.x,sim.steering.data)
+plot(tr.x,sim.delta.data)
+plot(tr.x,sim.beta.data)
+legend({'Steering wheel','Steering \delta','Vehicle slip angle \beta'},'Location',loc)
+xlabel('Distance [m]')
+xlim(xlimit)
+ylabel('angle [deg]')
+grid on
+
+% ggv circle
+subplot(rows,cols,[11,13])
+hold on
+scatter3(sim.lat_acc.data,sim.long_acc.data,sim.speed.data*3.6,50,'ro','filled','MarkerEdgeColor',[0,0,0])
+surf(veh.GGV(:,:,2),veh.GGV(:,:,1),veh.GGV(:,:,3)*3.6,'EdgeAlpha',0.3,'FaceAlpha',0.8)
+legend('OpenLAP','GGV','Location','northeast')
+xlabel('LatAcc [m/s^2]')
+ylabel('LonAcc [m/s^2]')
+zlabel('Speed [km/h]')
+grid on
+set(gca,'DataAspectRatio',[1 1 3])
+axis tight
+
+% track map
+subplot(rows,cols,[12,14])
+hold on
+scatter(tr.X,tr.Y,5,sim.speed.data*3.6)
+plot(tr.arrow(:,1),tr.arrow(:,2),'k','LineWidth',2)
+legend('Track Map','Location','northeast')
+xlabel('X [m]')
+ylabel('Y [m]')
+colorbar
+grid on
+axis equal
+
+% saving figure
+savefig(simname+".fig")
+
+% HUD
+disp('Plots created and saved.')
+fprintf(logid,'%s\n','Plots created and saved.') ;
+
+%% Report generation
+
+% csv report generation
+export_report(veh,tr,sim,freq,logid) ;
+% saving .mat file
+save(simname+".mat",'veh','tr','sim')
+% HUD
+toc
+fprintf(logid,'%s','Elapsed time is: ') ;
+fprintf(logid,'%f',toc) ;
+fprintf(logid,'%s\n',' [s]') ;
+fclose('all') ;
+
+%% Functions
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [sim] = simulate(veh,tr,simname,logid)
+    
+    %% initialisation
+    
+    % solver timer
+    timer_solver_start = tic ;
+    
+    % HUD
+    disp('Simulation started.')
+    fprintf(logid,'%s\n','Simulation started.') ;
+    
+    %% maximum speed curve (assuming pure lateral condition)
+    
+    v_max = single(zeros(tr.n,1)) ;
+    bps_v_max = single(zeros(tr.n,1)) ;
+    tps_v_max = single(zeros(tr.n,1)) ;
+    for i=1:tr.n
+        [v_max(i),tps_v_max(i),bps_v_max(i)] = vehicle_model_lat(veh,tr,i) ;
+    end
+    
+    % HUD
+    disp('Maximum speed calculated at all points.')
+    fprintf(logid,'%s\n','Maximum speed calculated at all points.') ;
+    
+    %% finding apexes
+    
+    [v_apex,apex] = findpeaks(-v_max) ; % findpeaks works for maxima, so need to flip values
+    v_apex = -v_apex ; % flipping to get positive values
+    % setting up standing start for open track configuration
+    if strcmp(tr.info.config,'Open')
+        if apex(1)~=1 % if index 1 is not already an apex
+            apex = [1;apex] ; % inject index 1 as apex
+            v_apex = [0;v_apex] ; % inject standing start
+        else % index 1 is already an apex
+            v_apex(1) = 0 ; % set standing start at index 1
+        end
+    end
+    % checking if no apexes found and adding one if needed
+    if isempty(apex)
+        [v_apex,apex] = min(v_max) ;
+    end
+    % reordering apexes for solver time optimisation
+    apex_table = sortrows([v_apex,apex],1) ;
+    v_apex = apex_table(:,1) ;
+    apex = apex_table(:,2) ;
+    % getting driver inputs at apexes
+    tps_apex = tps_v_max(apex) ;
+    bps_apex = bps_v_max(apex) ;
+    
+    % HUD
+    disp('Found all apexes on track.')
+    fprintf(logid,'%s\n','Found all apexes on track.') ;
+    
+    %% simulation
+    
+    % memory preallocation
+    N = uint32((length(apex))) ; % number of apexes
+    flag = false(tr.n,2) ; % flag for checking that speed has been correctly evaluated
+    % 1st matrix dimension equal to number of points in track mesh
+    % 2nd matrix dimension equal to number of apexes
+    % 3rd matrix dimension equal to 2 if needed (1 copy for acceleration and 1 for deceleration)
+    v = single(inf*ones(tr.n,N,2)) ;
+    ax = single(zeros(tr.n,N,2)) ;
+    ay = single(zeros(tr.n,N,2)) ;
+    tps = single(zeros(tr.n,N,2)) ;
+    bps = single(zeros(tr.n,N,2)) ;
+    
+    % HUD
+    disp('Starting acceleration and deceleration.')
+    fprintf(logid,'%s\n','Starting acceleration and deceleration.') ;
+    prg_size = 30 ;
+    prg_pos = ftell(logid) ;
+    fprintf(['Running: [',repmat(' ',1,prg_size),'] '])
+    fprintf('% 3.0f',0)
+    fprintf(' [%%]')
+    fprintf(logid,'%s',['Running: [',repmat(' ',1,prg_size),'] ']) ;
+    fprintf(logid,'% 3.0f',0) ;
+    fprintf(logid,'%s\n',' [%]') ;
+    fprintf(logid,'________________________________________________\n') ;
+    fprintf(logid,'|_Apex__|_Point_|_Mode__|___x___|___v___|_vmax_|\n') ;
+    
+    % running simulation
+    for i=1:N % apex number
+        for k=uint8(1:2) % mode number
+            switch k
+                case 1 % acceleration
+                    mode = 1 ;
+                    k_rest = 2 ;
+                case 2 % deceleration
+                    mode = -1 ;
+                    k_rest = 1 ;
+            end
+            if ~(strcmp(tr.info.config,'Open') && mode==-1 && i==1) % does not run in decel mode at standing start in open track
+                % getting other apex for later checking
+                [i_rest] = other_points(i,N) ;
+                if isempty(i_rest)
+                    i_rest = i ;
+                end
+                % getting apex index
+                j = uint32(apex(i)) ;
+                % saving speed & latacc & driver inputs from presolved apex
+                v(j,i,k) = v_apex(i) ;
+                ay(j,i,k) = v_apex(i)^2*tr.r(j) ;
+                tps(j,:,1) = tps_apex(i)*ones(1,N) ;
+                bps(j,:,1) = bps_apex(i)*ones(1,N) ;
+                tps(j,:,2) = tps_apex(i)*ones(1,N) ;
+                bps(j,:,2) = bps_apex(i)*ones(1,N) ;
+                % setting apex flag
+                flag(j,k) = true ;
+                % getting next point index
+                [~,j_next] = next_point(j,tr.n,mode,tr.info.config) ;
+                if ~(strcmp(tr.info.config,'Open') && mode==1 && i==1) % if not in standing start
+                    % assuming same speed right after apex
+                    v(j_next,i,k) = v(j,i,k) ;
+                    % moving to next point index
+                    [j_next,j] = next_point(j,tr.n,mode,tr.info.config) ;
+                end
+                while 1
+                    % writing to log file
+                    fprintf(logid,'%7d\t%7d\t%7d\t%7.1f\t%7.2f\t%7.2f\n',i,j,k,tr.x(j),v(j,i,k),v_max(j)) ;
+                    % calculating speed, accelerations and driver inputs from vehicle model
+                    [v(j_next,i,k),ax(j,i,k),ay(j,i,k),tps(j,i,k),bps(j,i,k),overshoot] = vehicle_model_comb(veh,tr,v(j,i,k),v_max(j_next),j,mode) ;
+                    % checking for limit
+                    if overshoot
+                        break
+                    end
+                    % checking if point is already solved in other apex iteration
+                    if flag(j,k) || flag(j,k_rest)
+                        if max(v(j_next,i,k)>=v(j_next,i_rest,k)) || max(v(j_next,i,k)>v(j_next,i_rest,k_rest))
+                            break
+                        end
+                    end
+                    % updating flag and grogress bar
+                    flag = flag_update(flag,j,k,prg_size,logid,prg_pos) ;
+                    % moving to next point index
+                    [j_next,j] = next_point(j,tr.n,mode,tr.info.config) ;
+                    % checking if lap is completed
+                    switch tr.info.config
+                        case 'Closed'
+                            if j==apex(i) % made it to the same apex
+                                break
+                            end
+                        case 'Open'
+                            if j==tr.n % made it to the end
+                                flag = flag_update(flag,j,k,prg_size,logid,prg_pos) ;
+                                break
+                            end
+                            if j==1 % made it to the start
+                                break
+                            end
+                    end
+                end
+            end
+        end
+    end
+    
+    % HUD
+    progress_bar(max(flag,[],2),prg_size,logid,prg_pos) ;
+    fprintf('\n')
+    disp('Velocity profile calculated.')
+    disp(['Solver time is: ',num2str(toc(timer_solver_start)),' [s]']) ;
+    disp('Post-processing initialised.')
+    fprintf(logid,'________________________________________________\n') ;
+    if sum(flag)<size(flag,1)/size(flag,2)
+        fprintf(logid,'%s\n','Velocity profile calculation error.') ;
+        fprintf(logid,'%s\n','Points not calculated.') ;
+        p = (1:tr.n)' ;
+        fprintf(logid,'%d\n',p(min(flag,[],2))) ;
+    else
+        fprintf(logid,'%s\n','Velocity profile calculated successfully.') ;
+    end
+    fprintf(logid,'%s','Solver time is: ') ;
+    fprintf(logid,'%f',toc(timer_solver_start)) ;
+    fprintf(logid,'%s\n',' [s]') ;
+    fprintf(logid,'%s\n','Post-processing initialised.') ;
+    
+    %% post-processing resutls
+    
+    % result preallocation
+    V = zeros(tr.n,1) ;
+    AX = zeros(tr.n,1) ;
+    AY = zeros(tr.n,1) ;
+    TPS = zeros(tr.n,1) ;
+    BPS = zeros(tr.n,1) ;
+    % solution selection
+    for i=1:tr.n
+        IDX = length(v(i,:,1)) ;
+        [V(i),idx] = min([v(i,:,1),v(i,:,2)]) ; % order of k in v(i,:,k) inside min() must be the same as mode order to not miss correct values
+        if idx<=IDX % solved in acceleration
+            AX(i) = ax(i,idx,1) ;
+            AY(i) = ay(i,idx,1) ;
+            TPS(i) = tps(i,idx,1) ;
+            BPS(i) = bps(i,idx,1) ;
+        else % solved in deceleration
+            AX(i) = ax(i,idx-IDX,2) ;
+            AY(i) = ay(i,idx-IDX,2) ;
+            TPS(i) = tps(i,idx-IDX,2) ;
+            BPS(i) = bps(i,idx-IDX,2) ;
+        end
+    end
+    % HUD
+    disp('Correct solution selected from modes.')
+    fprintf(logid,'%s\n','Correct solution selected from modes.') ;
+    
+    % laptime calculation
+    if strcmp(tr.info.config,'Open')
+        time = cumsum([tr.dx(2)./V(2);tr.dx(2:end)./V(2:end)]) ;
+    else
+        time = cumsum(tr.dx./V) ;
+    end
+    sector_time = zeros(max(tr.sector),1) ;
+    for i=1:max(tr.sector)
+        sector_time(i) = max(time(tr.sector==i))-min(time(tr.sector==i)) ;
+    end
+    laptime = time(end) ;
+    % HUD
+    disp('Laptime calculated.')
+    fprintf(logid,'%s\n','Laptime calculated.') ;
+    
+    % calculating forces
+    M = veh.M ;
+    g = 9.81 ;
+    A = sqrt(AX.^2+AY.^2) ;
+    Fz_mass = -M*g*cosd(tr.bank).*cosd(tr.incl) ;
+    Fz_aero = 1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A*V.^2 ;
+    Fz_total = Fz_mass+Fz_aero ;
+    Fx_aero = 1/2*veh.rho*veh.factor_Cd*veh.Cd*veh.A*V.^2 ;
+    Fx_roll = veh.Cr*abs(Fz_total) ;
+    % HUD
+    disp('Forces calculated.')
+    fprintf(logid,'%s\n','Forces calculated.') ;
+    
+    % calculating yaw motion, vehicle slip angle and steering input
+    yaw_rate = V.*tr.r ;
+    delta = zeros(tr.n,1) ;
+    beta = zeros(tr.n,1) ;
+    for i=1:tr.n
+        B = [M*V(i)^2*tr.r(i)+M*g*sind(tr.bank(i));0] ;
+        sol = veh.C\B ;
+        delta(i) = sol(1)+atand(veh.L*tr.r(i)) ;
+        beta(i) = sol(2) ;
+    end
+    steer = delta*veh.rack ;
+    % HUD
+    disp('Yaw motion calculated.')
+    disp('Steering angles calculated.')
+    disp('Vehicle slip angles calculated.')
+    fprintf(logid,'%s\n','Yaw motion calculated.') ;
+    fprintf(logid,'%s\n','Steering angles calculated.') ;
+    fprintf(logid,'%s\n','Vehicle slip angles calculated.') ;
+    
+    % calculating engine metrics
+    wheel_torque = TPS.*interp1(veh.vehicle_speed,veh.wheel_torque,V,'linear','extrap') ;
+    Fx_eng = wheel_torque/veh.tyre_radius ;
+    engine_torque = TPS.*interp1(veh.vehicle_speed,veh.engine_torque,V,'linear','extrap') ;
+    engine_power = TPS.*interp1(veh.vehicle_speed,veh.engine_power,V,'linear','extrap') ;
+    engine_speed = interp1(veh.vehicle_speed,veh.engine_speed,V,'linear','extrap') ;
+    gear = interp1(veh.vehicle_speed,veh.gear,V,'nearest','extrap') ;
+    fuel_cons = cumsum(wheel_torque/veh.tyre_radius.*tr.dx/veh.n_primary/veh.n_gearbox/veh.n_final/veh.n_thermal/veh.fuel_LHV) ;
+    fuel_cons_total = fuel_cons(end) ;
+    % HUD
+    disp('Engine metrics calculated.')
+    fprintf(logid,'%s\n','Engine metrics calculated.') ;
+    
+    % calculating kpis
+    percent_in_corners = sum(tr.r~=0)/tr.n*100 ;
+    percent_in_accel = sum(TPS>0)/tr.n*100 ;
+    percent_in_decel = sum(BPS>0)/tr.n*100 ;
+    percent_in_coast = sum(and(BPS==0,TPS==0))/tr.n*100 ;
+    percent_in_full_tps = sum(tps==1)/tr.n*100 ;
+    percent_in_gear = zeros(veh.nog,1) ;
+    for i=1:veh.nog
+        percent_in_gear(i) = sum(gear==i)/tr.n*100 ;
+    end
+    energy_spent_fuel = fuel_cons*veh.fuel_LHV ;
+    energy_spent_mech = energy_spent_fuel*veh.n_thermal ;
+    gear_shifts = sum(abs(diff(gear))) ;
+    [~,i] = max(abs(AY)) ;
+    ay_max = AY(i) ;
+    ax_max = max(AX) ;
+    ax_min = min(AX) ;
+    sector_v_max = zeros(max(tr.sector),1) ;
+    sector_v_min = zeros(max(tr.sector),1) ;
+    for i=1:max(tr.sector)
+        sector_v_max(i) = max(V(tr.sector==i)) ;
+        sector_v_min(i) = min(V(tr.sector==i)) ;
+    end
+    % HUD
+    disp('KPIs calculated.')
+    disp('Post-processing finished.')
+    fprintf(logid,'%s\n','KPIs calculated.') ;
+    fprintf(logid,'%s\n','Post-processing finished.') ;
+    
+    %% saving results in sim structure
+    sim.sim_name.data = simname ;
+    sim.distance.data = tr.x ;
+    sim.distance.unit = 'm' ;
+    sim.time.data = time ;
+    sim.time.unit = 's' ;
+    sim.N.data = N ;
+    sim.N.unit = [] ;
+    sim.apex.data = apex ;
+    sim.apex.unit = [] ;
+    sim.speed_max.data = v_max ;
+    sim.speed_max.unit = 'm/s' ;
+    sim.flag.data = flag ;
+    sim.flag.unit = [] ;
+    sim.v.data = v ;
+    sim.v.unit = 'm/s' ;
+    sim.Ax.data = ax ;
+    sim.Ax.unit = 'm/s/s' ;
+    sim.Ay.data = ay ;
+    sim.Ay.unit = 'm/s/s' ;
+    sim.tps.data = tps ;
+    sim.tps.unit = [] ;
+    sim.bps.data = bps ;
+    sim.bps.unit = [] ;
+    sim.elevation.data = tr.Z ;
+    sim.elevation.unit = 'm' ;
+    sim.speed.data = V ;
+    sim.speed.unit = 'm/s' ;
+    sim.yaw_rate.data = yaw_rate ;
+    sim.yaw_rate.unit = 'rad/s' ;
+    sim.long_acc.data = AX ;
+    sim.long_acc.unit = 'm/s/s' ;
+    sim.lat_acc.data = AY ;
+    sim.lat_acc.unit = 'm/s/s' ;
+    sim.sum_acc.data = A ;
+    sim.sum_acc.unit = 'm/s/s' ;
+    sim.throttle.data = TPS ;
+    sim.throttle.unit = 'ratio' ;
+    sim.brake_pres.data = BPS ;
+    sim.brake_pres.unit = 'Pa' ;
+    sim.brake_force.data = BPS*veh.phi ;
+    sim.brake_force.unit = 'N' ;
+    sim.steering.data = steer ;
+    sim.steering.unit = 'deg' ;
+    sim.delta.data = delta ;
+    sim.delta.unit = 'deg' ;
+    sim.beta.data = beta ;
+    sim.beta.unit = 'deg' ;
+    sim.Fz_aero.data = Fz_aero ;
+    sim.Fz_aero.unit = 'N' ;
+    sim.Fx_aero.data = Fx_aero ;
+    sim.Fx_aero.unit = 'N' ;
+    sim.Fx_eng.data = Fx_eng ;
+    sim.Fx_eng.unit = 'N' ;
+    sim.Fx_roll.data = Fx_roll ;
+    sim.Fx_roll.unit = 'N' ;
+    sim.Fz_mass.data = Fz_mass ;
+    sim.Fz_mass.unit = 'N' ;
+    sim.Fz_total.data = Fz_total ;
+    sim.Fz_total.unit = 'N' ;
+    sim.wheel_torque.data = wheel_torque ;
+    sim.wheel_torque.unit = 'N.m' ;
+    sim.engine_torque.data = engine_torque ;
+    sim.engine_torque.unit = 'N.m' ;
+    sim.engine_power.data = engine_power ;
+    sim.engine_power.unit = 'W' ;
+    sim.engine_speed.data = engine_speed ;
+    sim.engine_speed.unit = 'rpm' ;
+    sim.gear.data = gear ;
+    sim.gear.unit = [] ;
+    sim.fuel_cons.data = fuel_cons ;
+    sim.fuel_cons.unit = 'kg' ;
+    sim.fuel_cons_total.data = fuel_cons_total ;
+    sim.fuel_cons_total.unit = 'kg' ;
+    sim.laptime.data = laptime ;
+    sim.laptime.unit = 's' ;
+    sim.sector_time.data = sector_time ;
+    sim.sector_time.unit = 's' ;
+    sim.percent_in_corners.data = percent_in_corners ;
+    sim.percent_in_corners.unit = '%' ;
+    sim.percent_in_accel.data = percent_in_accel ;
+    sim.percent_in_accel.unit = '%' ;
+    sim.percent_in_decel.data = percent_in_decel ;
+    sim.percent_in_decel.unit = '%' ;
+    sim.percent_in_coast.data = percent_in_coast ;
+    sim.percent_in_coast.unit = '%' ;
+    sim.percent_in_full_tps.data = percent_in_full_tps ;
+    sim.percent_in_full_tps.unit = '%' ;
+    sim.percent_in_gear.data = percent_in_gear ;
+    sim.percent_in_gear.unit = '%' ;
+    sim.v_min.data = min(V) ;
+    sim.v_min.unit = 'm/s' ;
+    sim.v_max.data = max(V) ;
+    sim.v_max.unit = 'm/s' ;
+    sim.v_ave.data = mean(V) ;
+    sim.v_ave.unit = 'm/s' ;
+    sim.energy_spent_fuel.data = energy_spent_fuel ;
+    sim.energy_spent_fuel.unit = 'J' ;
+    sim.energy_spent_mech.data = energy_spent_mech ;
+    sim.energy_spent_mech.unit = 'J' ;
+    sim.gear_shifts.data = gear_shifts ;
+    sim.gear_shifts.unit = [] ;
+    sim.lat_acc_max.data = ay_max ;
+    sim.lat_acc_max.unit = 'm/s/s' ;
+    sim.long_acc_max.data = ax_max ;
+    sim.long_acc_max.unit = 'm/s/s' ;
+    sim.long_acc_min.data = ax_min ;
+    sim.long_acc_min.unit = 'm/s/s' ;
+    sim.sector_v_max.data = sector_v_max ;
+    sim.sector_v_max.unit = 'm/s' ;
+    sim.sector_v_min.data = sector_v_min ;
+    sim.sector_v_min.unit = 'm/s' ;
+    % HUD
+    disp('Simulation results saved.')
+    disp('Simulation completed.')
+    fprintf(logid,'%s\n','Simulation results saved.') ;
+    fprintf(logid,'%s\n','Simulation completed.') ;
+    
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [v,tps,bps] = vehicle_model_lat(veh,tr,p)
+    
+    %% initialisation
+    % getting track data
+    g = 9.81 ;
+    r = tr.r(p) ;
+    incl = tr.incl(p) ;
+    bank = tr.bank(p) ;
+    factor_grip = tr.factor_grip(p)*veh.factor_grip ;
+    % getting vehicle data
+    factor_drive = veh.factor_drive ;
+    factor_aero = veh.factor_aero ;
+    driven_wheels = veh.driven_wheels ;
+    % Mass
+    M = veh.M ;
+    % normal load on all wheels
+    Wz = M*g*cosd(bank)*cosd(incl) ;
+    % induced weight from banking and inclination
+    Wy = -M*g*sind(bank) ;
+    Wx = M*g*sind(incl) ;
+    
+    %% speed solution
+    if r==0 % straight (limited by engine speed limit or drag)
+        % checking for engine speed limit
+        v = veh.v_max ;
+        tps = 1 ; % full throttle
+        bps = 0 ; % 0 brake
+    else % corner (may be limited by engine, drag or cornering ability)
+        %% initial speed solution
+        % downforce coefficient
+        D = -1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A ;
+        % longitudinal tyre coefficients
+        dmy = factor_grip*veh.sens_y ;
+        muy = factor_grip*veh.mu_y ;
+        Ny = veh.mu_y_M*g ;
+        % longitudinal tyre coefficients
+        dmx = factor_grip*veh.sens_x ;
+        mux = factor_grip*veh.mu_x ;
+        Nx = veh.mu_x_M*g ;
+        % 2nd degree polynomial coefficients ( a*x^2+b*x+c = 0 )
+        a = -sign(r)*dmy/4*D^2 ;
+        b = sign(r)*(muy*D+(dmy/4)*(Ny*4)*D-2*(dmy/4)*Wz*D)-M*r ;
+        c = sign(r)*(muy*Wz+(dmy/4)*(Ny*4)*Wz-(dmy/4)*Wz^2)+Wy ;
+        % calculating 2nd degree polynomial roots
+        if a==0
+            v = sqrt(-c/b) ;
+        elseif b^2-4*a*c>=0
+            if (-b+sqrt(b^2-4*a*c))/2/a>=0
+                v = sqrt((-b+sqrt(b^2-4*a*c))/2/a) ;
+            elseif (-b-sqrt(b^2-4*a*c))/2/a>=0
+                v = sqrt((-b-sqrt(b^2-4*a*c))/2/a) ;
+            else
+                error(['No real roots at point index: ',num2str(p)])
+            end
+        else
+            error(['Discriminant <0 at point index: ',num2str(p)])
+        end
+        % checking for engine speed limit
+        v = min([v,veh.v_max]) ;
+        %% adjusting speed for drag force compensation
+        adjust_speed = true ;
+        while adjust_speed
+            % aero forces
+            Aero_Df = 1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A*v^2 ;
+            Aero_Dr = 1/2*veh.rho*veh.factor_Cd*veh.Cd*veh.A*v^2 ;
+            % rolling resistance
+            Roll_Dr = veh.Cr*(-Aero_Df+Wz) ;
+            % normal load on driven wheels
+            Wd = (factor_drive*Wz+(-factor_aero*Aero_Df))/driven_wheels ;
+            % drag acceleration
+            ax_drag = (Aero_Dr+Roll_Dr+Wx)/M ;
+            % maximum lat acc available from tyres
+            ay_max = sign(r)/M*(muy+dmy*(Ny-(Wz-Aero_Df)/4))*(Wz-Aero_Df) ;
+            % needed lat acc make turn
+            ay_needed = v^2*r+g*sind(bank) ; % circular motion and track banking
+            % calculating driver inputs
+            if ax_drag<=0 % need throttle to compensate for drag
+                % max long acc available from tyres
+                ax_tyre_max_acc = 1/M*(mux+dmx*(Nx-Wd))*Wd*driven_wheels ;
+                % getting power limit from engine
+                ax_power_limit = 1/M*(interp1(veh.vehicle_speed,veh.factor_power*veh.fx_engine,v)) ;
+                % available combined lat acc at ax_net==0 => ax_tyre==-ax_drag
+                ay = ay_max*sqrt(1-(ax_drag/ax_tyre_max_acc)^2) ; % friction ellipse
+                % available combined long acc at ay_needed
+                ax_acc = ax_tyre_max_acc*sqrt(1-(ay_needed/ay_max)^2) ; % friction ellipse
+                % getting tps value
+                scale = min([-ax_drag,ax_acc])/ax_power_limit ;
+                tps = max([min([1,scale]),0]) ; % making sure its positive
+                bps = 0 ; % setting brake pressure to 0
+            else % need brake to compensate for drag
+                % max long acc available from tyres
+                ax_tyre_max_dec = -1/M*(mux+dmx*(Nx-(Wz-Aero_Df)/4))*(Wz-Aero_Df) ;
+                % available combined lat acc at ax_net==0 => ax_tyre==-ax_drag
+                ay = ay_max*sqrt(1-(ax_drag/ax_tyre_max_dec)^2) ; % friction ellipse
+                % available combined long acc at ay_needed
+                ax_dec = ax_tyre_max_dec*sqrt(1-(ay_needed/ay_max)^2) ; % friction ellipse
+                % getting brake input
+                fx_tyre = max([ax_drag,-ax_dec])*M ;
+                bps = max([fx_tyre,0])*veh.beta ; % making sure its positive
+                tps = 0 ; % setting throttle to 0
+            end
+            % checking if tyres can produce the available combined lat acc
+            if ay/ay_needed<1 % not enough grip
+                v = sqrt((ay-g*sind(bank))/r)-1E-3 ; % the (-1E-3 factor is there for convergence speed)
+            else % enough grip
+                adjust_speed = false ;
+            end
+        end
+    end
+    
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [v_next,ax,ay,tps,bps,overshoot] = vehicle_model_comb(veh,tr,v,v_max_next,j,mode)
+    
+    %% initialisation
+    
+    % assuming no overshoot
+    overshoot = false ;
+    % getting track data
+    dx = tr.dx(j) ;
+    r = tr.r(j) ;
+    incl = tr.incl(j) ;
+    bank = tr.bank(j) ;
+    factor_grip = tr.factor_grip(j)*veh.factor_grip ;
+    g = 9.81 ;
+    % getting vehicle data
+    if mode==1
+        factor_drive = veh.factor_drive ;
+        factor_aero = veh.factor_aero ;
+        driven_wheels = veh.driven_wheels ;
+    else
+        factor_drive = 1 ;
+        factor_aero = 1 ;
+        driven_wheels = 4 ;
+    end
+    
+    %% external forces
+    
+    % Mass
+    M = veh.M ;
+    % normal load on all wheels
+    Wz = M*g*cosd(bank)*cosd(incl) ;
+    % induced weight from banking and inclination
+    Wy = -M*g*sind(bank) ;
+    Wx = M*g*sind(incl) ;
+    % aero forces
+    Aero_Df = 1/2*veh.rho*veh.factor_Cl*veh.Cl*veh.A*v^2 ;
+    Aero_Dr = 1/2*veh.rho*veh.factor_Cd*veh.Cd*veh.A*v^2 ;
+    % rolling resistance
+    Roll_Dr = veh.Cr*(-Aero_Df+Wz) ;
+    % normal load on driven wheels
+    Wd = (factor_drive*Wz+(-factor_aero*Aero_Df))/driven_wheels ;
+    
+    %% overshoot acceleration
+    
+    % maximum allowed long acc to not overshoot at next point
+    ax_max = mode*(v_max_next^2-v^2)/2/dx ;
+    % drag acceleration
+    ax_drag = (Aero_Dr+Roll_Dr+Wx)/M ;
+    % ovesrhoot acceleration limit
+	ax_needed = ax_max-ax_drag ;
+    
+    %% current lat acc
+    
+    ay = v^2*r+g*sind(bank) ;
+    
+    %% tyre forces
+    
+    % longitudinal tyre coefficients
+    dmy = factor_grip*veh.sens_y ;
+    muy = factor_grip*veh.mu_y ;
+    Ny = veh.mu_y_M*g ;
+    % longitudinal tyre coefficients
+    dmx = factor_grip*veh.sens_x ;
+    mux = factor_grip*veh.mu_x ;
+    Nx = veh.mu_x_M*g ;
+    % friction ellipse multiplier
+    if sign(ay)~=0 % in corner or compensating for banking
+        % max lat acc available from tyres
+        ay_max = 1/M*(sign(ay)*(muy+dmy*(Ny-(Wz-Aero_Df)/4))*(Wz-Aero_Df)+Wy) ;
+        % max combined long acc available from tyres
+        if abs(ay/ay_max)>1 % checking if vehicle overshot (should not happen, but check exists to exclude complex numbers in solution from friction ellipse)
+            ellipse_multi = 0 ;
+        else
+            ellipse_multi = sqrt(1-(ay/ay_max)^2) ; % friction ellipse
+        end
+    else % in straight or no compensation for banking needed
+        ellipse_multi = 1 ;
+    end
+    
+    %% calculating driver inputs
+    
+    if ax_needed>=0 % need tps
+        % max pure long acc available from driven tyres
+        ax_tyre_max = 1/M*(mux+dmx*(Nx-Wd))*Wd*driven_wheels ;
+        % max combined long acc available from driven tyres
+        ax_tyre = ax_tyre_max*ellipse_multi ;
+        % getting power limit from engine
+        ax_power_limit = 1/M*(interp1(veh.vehicle_speed,veh.factor_power*veh.fx_engine,v,'linear',0)) ;
+        % getting tps value
+        scale = min([ax_tyre,ax_needed]/ax_power_limit) ;
+        tps = max([min([1,scale]),0]) ; % making sure its positive
+        bps = 0 ; % setting brake pressure to 0
+        % final long acc command
+        ax_com = tps*ax_power_limit ;
+    else % need braking
+        % max pure long acc available from all tyres
+        ax_tyre_max = -1/M*(mux+dmx*(Nx-(Wz-Aero_Df)/4))*(Wz-Aero_Df) ;
+        % max comb long acc available from all tyres
+        ax_tyre = ax_tyre_max*ellipse_multi ;
+        % tyre braking force
+        fx_tyre = min(-[ax_tyre,ax_needed])*M ;
+        % getting brake input
+        bps = max([fx_tyre,0])*veh.beta ; % making sure its positive
+        tps = 0 ; % seting throttle to 0
+        % final long acc command
+        ax_com = -min(-[ax_tyre,ax_needed]) ;
+    end
+    
+    %% final results
+    
+    % total vehicle long acc
+    ax = ax_com+ax_drag ;
+    % next speed value
+    v_next = sqrt(v^2+2*mode*ax*tr.dx(j)) ;
+    % correcting tps for full throttle when at v_max on straights
+    if tps>0 && v/veh.v_max>=0.999
+        tps = 1 ;
+    end
+    
+    %% checking for overshoot
+    
+    if v_next/v_max_next>1
+        % setting overshoot flag
+        overshoot = true ;
+        % resetting values for overshoot
+        v_next = inf ;
+        ax = 0 ;
+        ay = 0 ;
+        tps = -1 ;
+        bps = -1 ;
+        return
+    end
+    
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [j_next,j] = next_point(j,j_max,mode,tr_config)
+    switch mode
+        case 1 % acceleration
+            switch tr_config
+                case 'Closed'
+                    if j==j_max-1
+                        j = j_max ;
+                        j_next = 1 ;
+                    elseif j==j_max
+                        j = 1 ;
+                        j_next = j+1 ;
+                    else
+                        j = j+1 ;
+                        j_next = j+1 ;
+                    end
+                case 'Open'
+                    j = j+1 ;
+                    j_next = j+1 ;
+            end
+        case -1 % deceleration
+            switch tr_config
+                case 'Closed'
+                    if j==2
+                        j = 1 ;
+                        j_next = j_max ;
+                    elseif j==1
+                        j = j_max ;
+                        j_next = j-1 ;
+                    else
+                        j = j-1 ;
+                        j_next = j-1 ;
+                    end
+                case 'Open'
+                    j = j-1 ;
+                    j_next = j-1 ;
+            end
+    end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [i_rest] = other_points(i,i_max)
+    i_rest = (1:i_max)' ;
+    i_rest(i) = [] ;
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [flag] = flag_update(flag,j,k,prg_size,logid,prg_pos)
+    % current flag state
+    p = sum(flag,'all')/size(flag,1)/size(flag,2) ;
+    n_old = floor(p*prg_size) ; % old number of lines
+    % new flag state
+    flag(j,k) = true ;
+    p = sum(flag,'all')/size(flag,1)/size(flag,2) ;
+    n = floor(p*prg_size) ; % new number of lines
+    % checking if state has changed enough to update progress bar
+    if n>n_old
+        progress_bar(flag,prg_size,logid,prg_pos) ;
+    end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [] = progress_bar(flag,prg_size,logid,prg_pos)
+    % current flag state
+    p = sum(flag,'all')/size(flag,1)/size(flag,2) ; % progress percentage
+    n = floor(p*prg_size) ; % new number of lines
+    e = prg_size-n ; % number of spaces
+    % updating progress bar in command window
+    fprintf(repmat('\b',1,prg_size+1+8)) % backspace to start of bar
+    fprintf(repmat('|',1,n)) % writing lines
+    fprintf(repmat(' ',1,e)) % writing spaces
+    fprintf(']') % closing bar
+    fprintf('%4.0f',p*100) % writing percentage
+    fprintf(' [%%]') % writing % symbol
+    % updating progress bar in log file
+    fseek(logid,prg_pos,'bof') ; % start of progress bar position in log file
+    fprintf(logid,'%s','Running: [') ;
+    fprintf(logid,'%s',repmat('|',1,n)) ;
+    fprintf(logid,'%s',repmat(' ',1,e)) ;
+    fprintf(logid,'%s','] ') ;
+    fprintf(logid,'%3.0f',p*100) ;
+    fprintf(logid,'%s\n',' [%]') ;
+    fseek(logid,0,'eof') ; % continue at end of file
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [] = disp_logo(logid)
+    lg = [...
+        '_______                    _____________________ ';...
+        '__  __ \______________________  /___    |__  __ \';...
+        '_  / / /__  __ \  _ \_  __ \_  / __  /| |_  /_/ /';...
+        '/ /_/ /__  /_/ /  __/  / / /  /___  ___ |  ____/ ';...
+        '\____/ _  .___/\___//_/ /_//_____/_/  |_/_/      ';...
+        '       /_/                                       '...
+        ] ;
+    disp(lg) % command window
+    fprintf(logid,'%s',[lg,repmat(newline,size(lg,1),1)].') ; % log file
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [] = export_report(veh,tr,sim,freq,logid)
+    % frequency
+    freq = round(freq) ;
+    % channel names
+    all_names = fieldnames(sim) ;
+    % number of channels to export
+    S = 0 ;
+    % channel id vector
+    I = (1:length(all_names))' ;
+    % getting only vector channels (excluding matrices)
+    for i=1:length(all_names)
+        % getting size for each channel
+        s = size(eval(['sim.',all_names{i},'.data'])) ;
+        % checking if channel is a vector
+        if length(s)==2 && s(1)==tr.n && s(2)==1 % is vector
+            S = S+1 ;
+        else % is not vector
+            I(i) = 0 ;
+        end
+    end
+    % keeping only vector channel ids
+    I(I==0) = [] ;
+    % getting channel names
+    channel_names = all_names(I)' ;
+    % memory preallocation
+    % data matrix
+    data = single(zeros(tr.n,S)) ;
+    % units vector
+    channel_units = cell(1,length(I)) ;
+    % getting data and units
+    for i=1:length(I)
+        data(:,i) = eval(['sim.',all_names{I(i)},'.data']) ;
+        channel_units(i) = eval(['{sim.',all_names{I(i)},'.unit}']) ;
+    end
+    % new time vector for specified frequency
+    t = (0:1/freq:sim.laptime.data)' ;
+    % getting time channel id vector
+    j = strcmp(string(channel_names),"time") ;
+    % time data memory preallocation
+    time_data = single(zeros(length(t),length(I))) ;
+    % getting 
+    for i=1:length(I)
+         % checking if channel corresponds to time
+        if i==j % time channel
+            time_data(:,i) = t ;
+        else % all other channels
+            % checking for integer channel
+            if strcmp(string(channel_names(i)),"gear") % gear needs to be integer
+                time_data(:,i) = interp1(data(:,j),data(:,i),t,'nearest','extrap') ;
+            else % all other channels are linearly interpolated
+                time_data(:,i) = interp1(data(:,j),data(:,i),t,'linear','extrap') ;
+            end
+        end
+    end
+    % opening and writing .csv file
+    % HUD
+    disp('Export initialised.')
+    fprintf(logid,'%s\n','Export initialised.') ;
+    % filename
+    filename = sim.sim_name.data+".csv" ;
+    % opening file
+    fid = fopen(filename,'w') ;
+    % writing file header
+    fprintf(fid,'%s,%s\n',["Format","OpenLAP Export"]) ;
+    fprintf(fid,'%s,%s\n',["Venue",tr.info.name]) ;
+    fprintf(fid,'%s,%s\n',["Vehicle",veh.name]) ;
+    fprintf(fid,'%s,%s\n',["Driver",'OpenLap']) ;
+    fprintf(fid,'%s\n',"Device") ;
+    fprintf(fid,'%s\n',"Comment") ;
+    fprintf(fid,'%s,%s\n',["Date",datestr(now,'dd/mm/yyyy')]) ;
+    fprintf(fid,'%s,%s\n',["Time",datestr(now,'HH:MM:SS')]) ;
+    fprintf(fid,'%s,%s\n',["Frequency",num2str(freq,'%d')]) ;
+    fprintf(fid,'\n') ;
+    fprintf(fid,'\n') ;
+    fprintf(fid,'\n') ;
+    fprintf(fid,'\n') ;
+    fprintf(fid,'\n') ;
+    % writing channels
+    form = [repmat('%s,',1,length(I)-1),'%s\n'] ;
+    fprintf(fid,form,channel_names{:}) ;
+    fprintf(fid,form,channel_names{:}) ;
+    fprintf(fid,form,channel_units{:}) ;
+    fprintf(fid,'\n') ;
+    fprintf(fid,'\n') ;
+    form = [repmat('%f,',1,length(I)-1),'%f\n'] ;
+    for i=1:length(t)
+        fprintf(fid,form,time_data(i,:)) ;
+    end
+    % closing file
+    fclose(fid) ;
+    % HUD
+    disp('Exported .csv file successfully.')
+    fprintf(logid,'%s\n','Exported .csv file successfully.') ;
+end
+
+##### SOURCE END #####
+-->
+</body>
+</html>
