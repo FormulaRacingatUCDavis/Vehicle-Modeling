@@ -647,6 +647,8 @@ function [sim] = simulate(veh,tr,simname,logid)
     sim.sector_v_max.unit = 'm/s' ;
     sim.sector_v_min.data = sector_v_min ;
     sim.sector_v_min.unit = 'm/s' ;
+
+    sim.data2 = v_max;
     % HUD
     disp('Simulation results saved.')
     disp('Simulation completed.')

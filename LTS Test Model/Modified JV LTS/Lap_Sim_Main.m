@@ -333,55 +333,58 @@ for i = 1:length(tr.r)
     % Initializing Constants
     g = 9.81;
     r = tr.r(i); % CURVATURE NOT RADIUS
+    %r = 1/20;
     VmaxEngine = engineSpeed(end) * (2*pi*tyreRadius) / 60 / gearTot;
-    
+    i
     
     if r == 0
         Vmax(i) = VmaxEngine;
         tpsCurr = 1;
         bpsCurr = 0;
     else
-        VGuess = 0; % Initial Guess velocity (m/s)
+        VGuess = 1; % Initial Guess velocity (m/s)
         tol = 1e-6;
         err = tol * 2;
         iteration = 1;
         VIteration = [];
 
         % Finding a initial guess point
-        % while tol < err
-        %     VIter = VGuess;
-        %     FzAero = (1/2)*rho*crossA*Cl*VIter^2; % calculate downforce (N) 
-        %     FxDrag = (1/2)*rho*crossA*Cd*VIter^2;
-        % 
-        %     FzFront = (WeightFront+FzAero*CoP)/2;
-        %     FzRear = (WeightRear+FzAero*(1-CoP))/2;
-        %     SlipAngle = linspace(0,20,31)';
-        %     SlipRatio = 0;
-        % 
-        %     FzVector = [FzFront ; FzFront; FzRear; FzRear]';
-        %     [~ , FyTire, ~, ~ ,~] = ContactPatchLoads...
-        %         (Tire, SlipAngle, 0 , FzVector, Pressure, Inclination, VIter, Idx, Model);
-        %     FyTireTot = sum(max(abs(FyTire), [], 2)); 
-        %     FyTireTot = FyTireTot * sign(r);
-        %     VIter = sqrt(FyTireTot/( mass * r));
-        %     err = abs(VIter - VGuess);
-        % 
-        %     if VIter > VmaxEngine
-        %         VGuess = VIter - VGuess * 1;
-        %     else
-        %         VGuess = VIter - VGuess * 0.01;
-        %     end
-        % 
-        %     VIteration(iteration) = VGuess;
-        %     plot(1:iteration, VIteration);
-        %     iteration = iteration + 1;
-        % 
-        % end
-        % 
-        % V = min(VIter, VmaxEngine);
-        % Vsave(i) = V;
+        while tol < err
+            VIter = VGuess;
+            FzAero = (1/2)*rho*crossA*Cl*VIter^2; % calculate downforce (N) 
+            FxDrag = (1/2)*rho*crossA*Cd*VIter^2;
 
-        V = 0;
+            FzFront = (WeightFront+FzAero*CoP)/2;
+            FzRear = (WeightRear+FzAero*(1-CoP))/2;
+            SlipAngle = linspace(0,20,31)';
+            SlipRatio = 0;
+
+            FzVector = [FzFront ; FzFront; FzRear; FzRear]';
+            [~ , FyTire, ~, ~ ,~] = ContactPatchLoads...
+                (Tire, SlipAngle, 0 , FzVector, Pressure, Inclination, VIter, Idx, Model);
+            FyTireTot = sum(max(abs(FyTire), [], 2)); 
+            FyTireTot = FyTireTot * sign(r);
+            VIter = sqrt(FyTireTot/( mass * r));
+            err = abs(VIter - VGuess);
+
+            % if VIter > VmaxEngine
+            %     VGuess = VIter - VGuess * 1;
+            % else
+            %     VGuess = VIter - VGuess * 0.01;
+            % end
+
+            VGuess = VIter;
+
+            VIteration(iteration) = VGuess;
+            plot(1:iteration, VIteration);
+            iteration = iteration + 1;
+
+        end
+
+        V = min(VIter, VmaxEngine);
+        Vsave(i) = V;
+        
+        % V = 0;
         adjust_Velocity = true;
         iteration = 1;
         VIteration = [];
@@ -399,11 +402,12 @@ for i = 1:length(tr.r)
             FzVector = [FzFront ; FzFront; FzRear; FzRear]';
             [~ , FyTire, ~, ~ ,~] = ContactPatchLoads...
                 (Tire, SlipAngle, SlipRatio , FzVector, Pressure, Inclination, 0, Idx, Model);
+
             % FyTire outputs 31x4 matrix, max( , ,2) takes max of columns
             FyTireTot = sum(max(abs(FyTire), [], 2));
             FyTireTot = FyTireTot * sign(r);
 
-            AyTireMax = FyTireTot/mass * sign(r);
+            AyTireMax = FyTireTot/mass;
             AyNeed = V^2 * r;
             AxDrag = FxDrag / mass ;
             
@@ -418,7 +422,7 @@ for i = 1:length(tr.r)
 
                 AxTireMax = FxTireAccelTot/ mass;
                 RPM = V * gearTot / (2*pi*tyreRadius) * 60;
-                RPM = min(RPM, max(engineSpeed));
+                RPM = min(RPM, max(engineSpeed)); 
                 AxPowerMax = interp1(engineSpeed, engineTq, RPM, "linear") / tyreRadius;
                 
                 Ay = AyTireMax * sqrt(1 - (AxDrag/AxTireMax)^2);
@@ -433,30 +437,31 @@ for i = 1:length(tr.r)
                 elseif scale >= 1
                     disp("Problem");
                 end
-            else
-                disp("Yurrr")
-                SlipAngle = 0;
-                SlipRatio = linspace(0,0.3,31)';
-                
-                FzVector = [FzFront ; FzFront; FzRear; FzRear]';
-                [FxTire , ~, ~, ~ ,~] = ContactPatchLoads...
-                    (Tire, SlipAngle, SlipRatio , FzVector, Pressure, Inclination, 0, Idx, Model);
-                FxTireDeccelTot = sum(max(abs(FxTire), [], 2));
-                
-                AxTireMax = FxTireDeccelTot/ mass;
-                
-                Ay = AyTireMax * sqrt(1 - (AxDrag/AxTireMax)^2);
-                AxDeccel = AxTireMax * sqrt(1 - (AyNeed/AyTireMax)^2);
-                
-                bpsCurr = min(AxDrag, AxDeccel);
-                tpsCurr = 0;
-
-                if AyNeed/AyTireMax > 1
-                    disp("Problem");
-                end
+            % else
+            %     disp("Yurrr")
+            %     SlipAngle = 0;
+            %     SlipRatio = linspace(0,0.3,31)';
+            % 
+            %     FzVector = [FzFront ; FzFront; FzRear; FzRear]';
+            %     [FxTire , ~, ~, ~ ,~] = ContactPatchLoads...
+            %         (Tire, SlipAngle, SlipRatio , FzVector, Pressure, Inclination, 0, Idx, Model);
+            %     FxTireDeccelTot = sum(max(abs(FxTire), [], 2));
+            % 
+            %     AxTireMax = FxTireDeccelTot/ mass;
+            % 
+            %     Ay = AyTireMax * sqrt(1 - (AxDrag/AxTireMax)^2);
+            %     AxDeccel = AxTireMax * sqrt(1 - (AyNeed/AyTireMax)^2);
+            % 
+            %     bpsCurr = min(AxDrag, AxDeccel);
+            %     tpsCurr = 0;
+            % 
+            %     if AyNeed/AyTireMax > 1
+            %         disp("Problem");
+            %     end
             end
             
-            if abs(Ay/AyNeed) <= 1
+            err = sqrt(Ay/r) - V;
+            if abs(Ay/AyNeed) <= 1 || err > tol
                 V = sqrt(Ay/r) ;
             else
                 adjust_Velocity = false;
@@ -475,6 +480,7 @@ for i = 1:length(tr.r)
         DataNeed(i,1) = AxTireMax;
 
     end
+
 end
 
 close all;
