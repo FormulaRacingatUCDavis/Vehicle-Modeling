@@ -1,13 +1,4 @@
-%% SIM Tuning
-% Used for simulation tuning
-sim.Vlong               = 0.1;        % Initial longitudinal velocity [m/s]
-sim.VGoal               =100;       
-sim.rearsteer_tune      = 0;                  % Rearsteering intensity tuning [-]
-%Coping that the PID is turning it into a Newton force (~Works)
-Kp = m.total/5
-Ki = m.total/25
-Kd = m.total/10
-FilterCoefN = 100
+
 %% Geometry and mass distribution
 perc_front              = 0.543;              % Front weight distribution [%] (with driver)
 W                       = 1.582;              % Wheelbase [m]
