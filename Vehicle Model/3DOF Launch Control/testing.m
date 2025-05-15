@@ -1,47 +1,25 @@
-function runLaunchControl(SlipAngle, SlipRatio, NormalLoad, Pressure, Inclination, Velocity, Idx, Model)
-% runLaunchControl  Wrapper to execute 3DOF Launch Control tests
-%   Uses external tire data and ContactPatchLoads from separate repos.
+%% Input Conditions
+Input.SlipRatio = 0.1;                 % Example Slip Ratio [unitless]
+Input.NormalLoad_Fz = 272*(1-0.543)*9.8;            % Example Normal Load [N]
+Input.Velocity = 0;                   % Example Vehicle Longitudinal Velocity [m/s]
 
-    % Determine this script's directory
-    thisDir = fileparts(mfilename('fullpath'));
-    % --- Run local constants script ---
-    run(fullfile(thisDir, 'vehcileConstants2025.m'));
+%% Load Tire Parameters
+load('Hoosier_R25B_16x75-10x7.mat');   % Loads "Tire" struct
+Tire.Pacejka.L.mu.x = 2/3;             % Modify friction if needed
 
-    % --- Constants and SIM tuning  ---
-    sim.Vlong    = 0;    % Initial vehicle velocity [m/s]
-    sim.VGoal    = 100;
-    Kp           = m.total/5;
-    Ki           = m.total/25;
-    Kd           = m.total/10;
-    FilterCoefN  = 100;
-    %% I am not liable for how cooked these enxt few lines are
-    SlipAngle    = 0.5;  
-    SlipRatio    = 0.1;
-    NormalLoad   = 1;
-    Pressure     = 70;
-    Inclination  = 1;
-    Velocity     = 10;
-    Idx          = 1;
-    Model        = struct('Pure','Pacejka','Combined','MNC');
+%% Define Parameters Struct
+Parameter.Tire = Tire;                 % Store tire data
+Parameter.Pressure = 70;               % Inflation Pressure [psi]
+Parameter.Inclination = 1;             % Inclination Angle [deg]
+Parameter.Model = 'Pacejka';           % Model type
 
-    % --- External resources ---
-    tireMatFile = 'C:\Users\nhola\OneDrive\Documents\GitHub\Tire-Data\Models\Hoosier_R25B_16x75-10x7.mat';
-    tireModelingRepo = 'C:\Users\nhola\OneDrive\Documents\GitHub\Tire-Modeling';
+%% Run Simulink Model
+simOut = sim('tire2model.slx', ...
+    'SimulationMode', 'normal', ...
+    'SrcWorkspace', 'current');
 
-    % Load tire data from .mat
-    tireData = load(tireMatFile);
+%% Extract Simulink Output
+Fx_max = simOut.logsout.getElement('Fx_max').Values.Data;
 
-    % Add the entire Tire-Modeling repo to path (includes ContactPatchLoads and all subroutines)
-    addpath(genpath(tireModelingRepo));
-
-    % Call ContactPatchLoads (now all dependencies are on the path)
-    [Fx, Fy, Mz, Mx, My] = ContactPatchLoads(...
-        tireData.Tire, SlipAngle, SlipRatio, NormalLoad, ...
-        Pressure, Inclination, Velocity, Idx, Model);
-
-    % Display results
-    fprintf('Fx: %g, Fy: %g, Mz: %g, Mx: %g, My: %g\n', Fx, Fy, Mz, Mx, My);
-
-    % Clean up path
-    rmpath(genpath(tireModelingRepo));
-end
+%% Display Results
+fprintf('Computed Max Longitudinal Force: %.2f N\n', Fx_max);
