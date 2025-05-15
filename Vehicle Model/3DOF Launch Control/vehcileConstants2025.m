@@ -1,3 +1,9 @@
+%% Tuning
+%PID Loop
+PID.Kp = m.total/5;
+PID.Ki = m.total/25;
+PID.Kd = m.total/10;
+
 %% Short cuts
 RPM_to_radS = 2*pi/60;
 

@@ -9,17 +9,27 @@ Tire.Pacejka.L.mu.x = 2/3;             % Modify friction if needed
 
 %% Define Parameters Struct
 Parameter.Tire = Tire;                 % Store tire data
-Parameter.Pressure = 70;               % Inflation Pressure [psi]
-Parameter.Inclination = 1;             % Inclination Angle [deg]
+Parameter.Pressure = Pressure;               % Inflation Pressure [psi]
+Parameter.Inclination = Inclination;             % Inclination Angle [deg]
 Parameter.Model = 'Pacejka';           % Model type
 
-%% Run Simulink Model
-simOut = sim('tire2model.slx', ...
-    'SimulationMode', 'normal', ...
-    'SrcWorkspace', 'current');
 
-%% Extract Simulink Output
+%% Simulik Inputs
+SimulinkInput = Simulink.SimulationInput('tire2model');
+SimulinkInput = SimulinkInput.setVariable('SlipRatio', Input.SlipRatio);
+SimulinkInput = SimulinkInput.setVariable('NormalLoad_Fz', Input.NormalLoad_Fz);
+SimulinkInput = SimulinkInput.setVariable('Velocity', Input.Velocity);
+SimulinkInput = SimulinkInput.setVariable('Tire', Parameter.Tire);
+SimulinkInput = SimulinkInput.setVariable('Pressure', Parameter.Pressure);
+SimulinkInput = SimulinkInput.setVariable('Inclination', Parameter.Inclination);
+SimulinkInput = SimulinkInput.setVariable('Model', Parameter.Model);
+
+%% Run Simulation
+simOut = sim(SimulinkInput);
+
+%% Retrieve output (ensure Fx_max is logged)
 Fx_max = simOut.logsout.getElement('Fx_max').Values.Data;
 
-%% Display Results
 fprintf('Computed Max Longitudinal Force: %.2f N\n', Fx_max);
+
+
