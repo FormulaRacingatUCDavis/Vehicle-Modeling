@@ -1,35 +1,36 @@
-%% Input Conditions
-Input.SlipRatio = 0.1;                 % Example Slip Ratio [unitless]
-Input.NormalLoad_Fz = 272*(1-0.543)*9.8;            % Example Normal Load [N]
-Input.Velocity = 0;                   % Example Vehicle Longitudinal Velocity [m/s]
+% Load tire parameter structure from .mat file
+data = load('Hoosier_R25B_16x75-10x7.mat');        % e.g., 'TireData.mat' contains a struct named Tire
+Tire = data.Tire;                   % extract the tire struct (ensure the field name matches)
 
-%% Load Tire Parameters
-load('Hoosier_R25B_16x75-10x7.mat');   % Loads "Tire" struct
-Tire.Pacejka.L.mu.x = 2/3;             % Modify friction if needed
+% Define the tire struct as a Simulink parameter for robust linking
+Tire = Simulink.Parameter(Tire);
+Tire.CoderInfo.StorageClass = 'SimulinkGlobal';
 
-%% Define Parameters Struct
-Parameter.Tire = Tire;                 % Store tire data
-Parameter.Pressure = Pressure;               % Inflation Pressure [psi]
-Parameter.Inclination = Inclination;             % Inclination Angle [deg]
-Parameter.Model = 'Pacejka';           % Model type
+SlipRatio_in = 0.1;   % example slip ratio
+Fz_in        = 1500;  % example normal load [N]
+V_in         = 15;    % example velocity [m/s]
 
+% Assign inputs to base workspace 
+SlipRatio = SlipRatio_in;
+NormalLoad = Fz_in;
+Velocity = V_in;
 
-%% Simulik Inputs
-SimulinkInput = Simulink.SimulationInput('tire2model');
-SimulinkInput = SimulinkInput.setVariable('SlipRatio', Input.SlipRatio);
-SimulinkInput = SimulinkInput.setVariable('NormalLoad_Fz', Input.NormalLoad_Fz);
-SimulinkInput = SimulinkInput.setVariable('Velocity', Input.Velocity);
-SimulinkInput = SimulinkInput.setVariable('Tire', Parameter.Tire);
-SimulinkInput = SimulinkInput.setVariable('Pressure', Parameter.Pressure);
-SimulinkInput = SimulinkInput.setVariable('Inclination', Parameter.Inclination);
-SimulinkInput = SimulinkInput.setVariable('Model', Parameter.Model);
-
-%% Run Simulation
-simOut = sim(SimulinkInput);
-
-%% Retrieve output (ensure Fx_max is logged)
-Fx_max = simOut.logsout.getElement('Fx_max').Values.Data;
-
-fprintf('Computed Max Longitudinal Force: %.2f N\n', Fx_max);
+modelName = "tire2model";        
+load_system(modelName);            % ensure the model is loaded
 
 
+simIn = Simulink.SimulationInput(modelName);
+simIn = simIn.setVariable('Tire', Tire.Value);       % pass the Tire struct value
+simIn = simIn.setVariable('SlipRatio', SlipRatio_in);
+simIn = simIn.setVariable('NormalLoad', Fz_in);
+simIn = simIn.setVariable('Velocity', V_in);
+simOut = sim(simIn);
+
+% Retrieve output from simulation
+logsout = simOut.logsout;                    % SimulationOutput logs
+Fx_signal = logsout.get("Fx_max");           % get the logged signal (assuming signal name 'Fx_max')
+Fx_max_time = Fx_signal.Values.Time;         % time points (if any dynamic variation; for static calc this might be just [0])
+Fx_max_data = Fx_signal.Values.Data;         % the computed Fx_max value(s)
+
+% Display or use the result
+disp("Computed Fx_max = " + Fx_max_data + " N");
