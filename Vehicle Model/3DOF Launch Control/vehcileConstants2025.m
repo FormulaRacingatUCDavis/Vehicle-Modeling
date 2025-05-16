@@ -1,9 +1,3 @@
-%% Tuning
-%PID Loop
-PID.Kp = m.total/5;
-PID.Ki = m.total/25;
-PID.Kd = m.total/10;
-
 %% Short cuts
 RPM_to_radS = 2*pi/60;
 
@@ -164,3 +158,10 @@ Drag_80kph           = 0.5 * rho * V_calc^2 * A_ref * Cd; % Drag force at 80 kph
 
 %% Gravitational constant
 g                     = 9.81;               % Gravitational acceleration [m/s^2]
+
+ %%% Nominal Test Case Conditions
+    Pressure    = 70;
+    Inclination = 1;
+    Velocity    = 10;
+    Idx         = 1;
+    Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );

@@ -42,6 +42,7 @@ function [Fx, Fy, Mz, Mx, My] = ContactPatchLoads( Tire, ...
 
 
 %% Test Case
+%{
 if nargin == 0
     warning('Executing SlipEstimation() Test Case')
     
@@ -179,7 +180,7 @@ if nargin == 0
     return;
 end
 %}
-%{
+
 %% Model Compatibility Check
 if ~ismember(Model.Pure, {'Linear', 'Pacejka'})
     error('Please choose either ''Linear'' or ''Pacejka'' for the pure slip model')
