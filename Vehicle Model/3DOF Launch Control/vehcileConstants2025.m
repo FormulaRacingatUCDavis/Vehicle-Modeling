@@ -1,3 +1,4 @@
+clc; clear; close all;
 %% Short cuts
 RPM_to_radS = 2*pi/60;
 

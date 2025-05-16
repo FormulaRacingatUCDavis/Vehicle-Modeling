@@ -2,7 +2,7 @@
 load('Hoosier_R25B_16x75-10x7.mat');        % e.g., 'TireData.mat' contains a struct named Tire
 load('vehcileConstants2025.m')
 
-ContactPatchLoads( Tire, 0, 0.01, Fz0 , 80, 0, 10, 1, Fidelity ) 
+ContactPatchLoads( Tire, SlipAngle, SlipRatio, FzR , Pressure, Inclination, Velocity, Idx, Fidelity ) 
 
 %{
 SlipRatio_in = 0.1;   
