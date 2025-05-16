@@ -1,13 +1,12 @@
 % Load tire parameter structure from .mat file
-data = load('Hoosier_R25B_16x75-10x7.mat');        % e.g., 'TireData.mat' contains a struct named Tire
-Tire = data.Tire;                   % extract the tire struct (ensure the field name matches)
+load('Hoosier_R25B_16x75-10x7.mat');        % e.g., 'TireData.mat' contains a struct named Tire
+load('vehcileConstants2025.m')
 
-% Define the tire struct as a Simulink parameter for robust linking
-Tire = Simulink.Parameter(Tire);
-Tire.CoderInfo.StorageClass = 'SimulinkGlobal';
+ContactPatchLoads( Tire, 0, 0.01, Fz0 , 80, 0, 10, 1, Fidelity ) 
 
-SlipRatio_in = 0.1;   % example slip ratio
-Fz_in        = 1500;  % example normal load [N]
+%{
+SlipRatio_in = 0.1;   
+Fz_in        = m.total * g;  % example normal load [N]
 V_in         = 15;    % example velocity [m/s]
 
 % Assign inputs to base workspace 
@@ -34,3 +33,5 @@ Fx_max_data = Fx_signal.Values.Data;         % the computed Fx_max value(s)
 
 % Display or use the result
 disp("Computed Fx_max = " + Fx_max_data + " N");
+
+}%
