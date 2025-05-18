@@ -119,8 +119,10 @@ load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
 
 
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
+%%%
+%%%
 SA_CG = deg2rad(linspace(-12,12,61))';
-dSteer = deg2rad(linspace(-30,30,61))';
+dSteer = deg2rad(linspace(-45,45,61))';
 
 
 
@@ -533,12 +535,6 @@ V = 15; % Velocity [m/s]
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
 SA_CG = SA_CG;
 dSteer = dSteer;
-
-dSteer_W1 = toe_f + dSteer;
-dSteer_W2 = -toe_f + dSteer;
-dSteer_W3 = toe_r + dSteer.*0;
-dSteer_W4 = -toe_r + dSteer.*0;
-dSteer_AllW = [dSteer_W1, dSteer_W2, dSteer_W3, dSteer_W4];
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);
@@ -987,10 +983,10 @@ saveCAxVel = zeros(size(saveAyBody));
 
 % Body to velocity coordinate transformation
 for i = 1:length(SA_CG)
-    saveAxVel(:,i) = saveAxBody(:,i) .* cos(SA_CG) + saveAyBody(:,i) .* sin(SA_CG);
-    saveAyVel(:,i) = saveAyBody(:,i) .* cos(SA_CG) - saveAxBody(:,i) .* sin(SA_CG);
-    saveCAxVel(:,i) = saveAxVel(:,i)/g;
-    saveCAyVel(:,i) = saveAyVel(:,i)/g;
+    saveAxVel(i,:) = saveAxBody(i,:).* cos(SA_CG)' + saveAyBody(i,:) .* sin(SA_CG)';
+    saveAyVel(i,:) = saveAyBody(i,:).* cos(SA_CG)' - saveAxBody(i,:) .* sin(SA_CG)';
+    saveCAxVel(i,:) = saveAxVel(i,:)/g;
+    saveCAyVel(i,:) = saveAyVel(i,:)/g;
 end
 
 %%% Shifting result numbers - can take out if wanted (Especially when there
@@ -1000,9 +996,9 @@ end
 [dSteerMesh, SAMesh] = meshgrid(dSteer, SA_CG);
 
 
-zeroIndex = find(dSteerMesh == 0)
+zeroIndex = find(dSteerMesh == 0);
 
-saveCAxVel = saveCAxVel
+saveCAxVel = saveCAxVel;
 
 
 figure
