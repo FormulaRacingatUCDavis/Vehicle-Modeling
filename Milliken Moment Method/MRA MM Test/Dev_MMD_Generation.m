@@ -2,7 +2,7 @@ clc ; clear;close all;
 format long g
 
 %% LOGGING
-%
+
 % 10/21/2024: Ended on line 90, trying to implement sum of tire forces into
 % body forces, but getting confused on the direction of positive steer
 % angle, it seems like weight transfer follows right turn convention, that
@@ -14,12 +14,12 @@ format long g
 % doesnt want to converge and is currently oscillating between two values,
 % BUT I ADDED iteration limit so oh well, seemed to be struggling at
 % SA_CG[3:14] --> Need to investigate
-%
+% 
 % 10/25/2024: Deriving and confirming beta(i) equations, but we need to
 % find out which direction is positive turning, but then ran into troubles
 % with defining correct yaw rate direction and body velocity heading --->
 % need to work on overall coordinate system correction and confirmation
-%
+% 
 % 10/28/2024: Corrected track coordinates in accordance with right hand
 % positive y, paper suspected to use coordinate system suggested in RCVD
 % section 5, tried turning tire model output TM_Fy to negative, but didn't
@@ -33,19 +33,24 @@ format long g
 % reason, removed that and flipped TM_Fy sign by multiplying it by -1,
 % since right hand turns are supposed to yield positive Ay, but TM outputs
 % negative Ay for positive $alpha$, FreeRolling inf radius now works
-%
+% 
 % 10/29/2024: Noticed a potential error, some forces from TM_Fy are
 % negative for some reason, added logging for slip angles to try to
 % evaluate problem, but WT seems to be working fine, SAWheel seems alright?
 % Need to check again, and Vwheel is definitely 0, so something somewhere
 % is going awry
-%
+% 
 % 11/6/2024: PRoblem fixed, indexing problem that flipped the signage of
 % TM_Fy everytime it output a wheel, problem was not putting the index of
 % the value, so it multiplied the entire matrix everytime
-%
+% 
 % 11/17/2024: Fixed Coordinate systen:  everything Y should be to the left,
 % no longer needs negative signs on any Ay
+% 
+% 5/18/2025: Fixed the Ax graph, problem was a indexing problem in the
+% coordinate transfer between the body frame and the velocity frame, it
+% multiplied the steering sweep in the values by the SA_CG values, instead
+% of the SA_CG sweep values by the SA_CG values
 %% Constants
 %
 %
@@ -143,7 +148,7 @@ coord_W4 = [-lr ; -TWr/2];
 coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 
-%% FREE ROLLING MMD SECTION
+%% SECTION 1: FREE ROLLING MMD SECTION
 % 
 % R = 9; %Radius of Turn - m
 % 
@@ -621,20 +626,14 @@ for i = 1:length(dSteer)
                 % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
                 % % 
                 if  false
+
                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
                     %%% Equation 2
                     SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , ...
                         (R.*cos(SA_CG(j)) - coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-                % elseif p == 4
-                %     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-                %     %%% Equation 2
-                %     SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , ...
-                %         (R.*cos(SA_CG(j)) - coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+
                 else
-                    % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-                    % %%% Equation 1
-                    % SA_Wheel(p,1) = atan2( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
-                    %                     , (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+
                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
                     %%% Equation 1
                     SA_Wheel(p,1) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
@@ -745,10 +744,6 @@ for i = 1:length(dSteer)
     end % SA_CG End
 
 end % dSteer End
-
-%% SECTION 4: TESTING LEVEL SURFACES - CONSTANT RADIUS
-
-% R = 9.125; % Radius [m]
 % 
 % 
 % %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
@@ -1060,7 +1055,8 @@ title({['Free Rolling MMD: Constant Velocity'] ...
 
 zeroMz_CAy = zeros(1,length(SA_CG));
 
-% Find Change Pts of Mz from pos to negative for each SA_CG
+% Find Change Pts of Mz from pos to negative for each SA_CG (column of
+% values)
 for j = 1:length(SA_CG)
     for i = 1:length(dSteer)
         if i == length(SA_CG)
