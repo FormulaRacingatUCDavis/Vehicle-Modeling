@@ -1,4 +1,4 @@
-clc ; clear;close all;
+clc ; clear; close all;
 format long g
 
 %% LOGGING
@@ -51,6 +51,7 @@ format long g
 % coordinate transfer between the body frame and the velocity frame, it
 % multiplied the steering sweep in the values by the SA_CG values, instead
 % of the SA_CG sweep values by the SA_CG values
+
 %% Constants
 %
 %
@@ -533,228 +534,13 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 % end % dSteer End
 
 
-%% SECTION 3: TESTING LEVEL SURFACES - CONSTANT VELOCITY
-V = 15; % Velocity [m/s]
+%% SECTION 3: TESTING FREE ROLLING LEVEL SURFACES - CONSTANT VELOCITY
 
-
-%%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
-SA_CG = SA_CG;
-dSteer = dSteer;
-
-% Mat Initialization
-SA_Wheel = zeros(4,1);
-V_Wheel = zeros(4,1);
-TM_Fx = zeros(4,1);
-TM_Fy = zeros(4,1);
-FxTire = zeros(4,1);
-FyTire = zeros(4,1);
-MzTire = zeros(4,1);
-saveAyBody = zeros(length(dSteer), length(SA_CG));
-saveAxBody = zeros(length(dSteer), length(SA_CG));
-saveMzBody = zeros(length(dSteer), length(SA_CG));
-saveItFz = [];
-saveTM_Fy = zeros(length(dSteer),length(SA_CG),4);
-
-% Yaw Rate (Omega) iteration relaxation parameter for convergence:
-% Parameter is between [0-1], is dependent upon how fast the simulation is
-% ran, speeds below tangent speed pr<0.5, speeds above tangent speeds are
-% more stable and requires pr>0.6
-pr = 0.001; 
-
-
-for i = 1:length(dSteer)
-
-    for j = 1:length(SA_CG)
-
-        AxGuess = 0;
-        AyGuess = 0;
-        res = 1;
-        tol = 1e-3;
-
-        itAyBody = [];
-        itAyBody(1,1) = AyGuess;
-        itAxBody = [];
-        itAxBody(1,1) = AxGuess;
-        itCAyBody = [];
-        itCAyBody(1,1) = AxGuess/g;
-        itCAxBody = [];
-        itCAxBody(1,1) = AxGuess/g;
-        itFz = [];
-        itFyTire = [];
-
-        %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
-        itOmega = [];
-        itOmega(1,1) = 0;
-
-        c = 1;
-
-        while abs(res) > tol  
-
-            AyCurr = itAyBody(c);
-            AxCurr = itAxBody(c);
-
-            AyVelCurr = itAyBody(c) .* cos(SA_CG(j)) - itAxBody(c) .* sin(SA_CG(j));
-
-            VyCurr = V .* sin(SA_CG(j));
-            VxCurr = V .* cos(SA_CG(j));
-
-            %%%%% VEHICLE BODY YAW RATE
-
-            % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-            % Omega = 0;
-
-            % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
-            % %%% Equation 1
-            % R = V.^2 / AyVelCurr;
-            % Omega = V/R;
-
-            %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
-            %%% Equation 2
-            if c == 1
-                % Nothing since relaxation parameter requires last index
-            else
-                itOmega(c) = AyVelCurr/VxCurr * (1-pr) + itOmega(c-1)*pr;
-            end
-            R =  VxCurr.^2 / AyVelCurr;
-            Omega = itOmega(c);
-
-            for p = 1:4
-
-                %%%%% WHEEL SLIP ANGLE EQUATIONS
-                % 
-                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-                % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
-                % % 
-                if  false
-
-                    %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-                    %%% Equation 2
-                    SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , ...
-                        (R.*cos(SA_CG(j)) - coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-
-                else
-
-                    %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-                    %%% Equation 1
-                    SA_Wheel(p,1) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
-                                        , (VxCurr - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
-
-                end
-
-
-               %%%%% WHEEL SPEED EQUATIONS
-
-               % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-               % V_Wheel(p,1) = 0;
-
-               %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
-               V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
-
-            end
-
-
-            dFzf_dAx = (hCG .* m)./(2.* WB);
-            dFzf_dAy = 1*(hCG .* m .* PFront)/TWf;
-            dFzr_dAy = 1*(hCG .* m .* (1-PFront))/TWr;
-
-            FzAero = (1/2)*rho*crossA*Cl*V^2;
-            Fz_WeightFront = (m.*g.* PFront + FzAero .* CoP)/2;
-            Fz_WeightRear = (m.*g.* (1-PFront) + FzAero .* (1 - CoP))/2;
-
-            Fz(1,1) = Fz_WeightFront + dFzf_dAx .* AxCurr + dFzf_dAy .* AyCurr;
-            Fz(2,1) = Fz_WeightFront + dFzf_dAx .* AxCurr - dFzf_dAy .* AyCurr;
-            Fz(3,1) = Fz_WeightRear - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
-            Fz(4,1) = Fz_WeightRear - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
-
-            for p = 1:4
-                [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
-
-                %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-                TM_Fx(p) = TM_Fx(p) .* 0; 
-
-                % Calspan TTC Data usual correction factor - 0.7
-                TM_Fx(p) = TM_Fx(p) .* 0.7;
-                % Tire Model outputs in opposite Y coordinates
-                TM_Fy(p) = (1).* TM_Fy(p) .* 0.56;
-
-                FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
-                FyTire(p,1) = 1*TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
-
-                % Made it a matrix sum so its not ugly :)
-                MzTire(p,1) = sum( [coord_AllW(1,p) .* TM_Fx(p) .* sin(dSteer_AllW(i,p)) ;
-                                   -coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
-                                    coord_AllW(2,p) .* TM_Fy(p) .* sin(dSteer_AllW(i,p)) ;
-                                    coord_AllW(1,p) .* TM_Fy(p) .* cos(dSteer_AllW(i,p))  ] ); 
-            end
-
-            FxDrag = (1/2)*rho*crossA*Cd*V^2;
-
-            FxBody = sum(FxTire) - FxDrag;
-            FyBody = sum(FyTire);
-            MzBody = sum(MzTire);
-
-            itFz(:,c) = Fz;
-            itFyTire(:,c) =  FyTire;
-            itAyBody(c+1,1) = FyBody/m;
-            itAxBody(c+1,1) = FxBody/m;
-
-            % Using dimensionless G's to iteration (apparently improves
-            % stability)?
-            itCAyBody(c+1,1) = itAyBody(c+1,1)/g;
-            itCAxBody(c+1,1) = itAxBody(c+1,1)/g;
-            res = itCAyBody(c+1) - itCAyBody(c);
-            resAx = itCAxBody(c+1) - itCAxBody(c);
-
-            % %%% CAN COMMENT IN AND WILL DISPLAY THE ITERATIONS THAT IT IS
-            % %%% STUCK ON BUT MASSIVELY IMPACTS PERFORMANCE - ONLY USE WHEN
-            % %%% THE SIMULATION IS SEEMINGLY STUCK
-            % % Tests the c 
-            % plot(1:c+1, itAyBody);
-
-            c = c + 1;
-
-            if c > 1000
-                iterationCtrl = itAyBody( (c-100) : (c-1) );
-                itAyBody(c) = min(iterationCtrl);
-                break
-            end
-
-        end % while loop end
-        % if j == 13
-        %     return
-        % end
-        %saveAyBody(i,j) = (itAyBody(end)+itAyBody(end-1))/2;
-        for p = 1:4
-        saveSA_WheelTerm(p,j) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
-                                        , (VxCurr - Omega .* coord_AllW(2,p)) );
-        end
-
-        saveOmega(i,j) = Omega;
-        saveTM_Fy(i,j,:) = TM_Fy;
-        saveSA_Wheel(:,j) = SA_Wheel;
-        saveFz(:,j) = Fz;
-        saveAyBody(i,j) = itAyBody(end);
-        saveAxBody(i,j) = itAxBody(end);
-        saveMzBody(i,j) = MzBody/(m.*g.*WB);
-        saveItFz(:,j) = Fz;
-        saveItAyBody{j,1} = itAyBody;
-
-        disp("Steering Angle [" + i + "] Slip Angle [" + j + "] finished, iterations: " +  c)
-
-    end % SA_CG End
-
-end % dSteer End
-% 
+% V = 15; % Velocity [m/s]
 % 
 % %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
 % SA_CG = SA_CG;
 % dSteer = dSteer;
-% 
-% dSteer_W1 = toe_f + dSteer;
-% dSteer_W2 = -toe_f + dSteer;
-% dSteer_W3 = toe_r + dSteer.*0;
-% dSteer_W4 = -toe_r + dSteer.*0;
-% dSteer_AllW = [dSteer_W1, dSteer_W2, dSteer_W3, dSteer_W4];
 % 
 % % Mat Initialization
 % SA_Wheel = zeros(4,1);
@@ -781,8 +567,8 @@ end % dSteer End
 % 
 %     for j = 1:length(SA_CG)
 % 
-%         AxGuess = 1;
-%         AyGuess = 1;
+%         AxGuess = 0;
+%         AyGuess = 0;
 %         res = 1;
 %         tol = 1e-3;
 % 
@@ -808,10 +594,7 @@ end % dSteer End
 %             AyCurr = itAyBody(c);
 %             AxCurr = itAxBody(c);
 % 
-%             V = sqrt(abs(AyCurr) .* R);
-% 
 %             AyVelCurr = itAyBody(c) .* cos(SA_CG(j)) - itAxBody(c) .* sin(SA_CG(j));
-%             AyVelCurr = AyVelCurr .* sign(AyCurr);
 % 
 %             VyCurr = V .* sin(SA_CG(j));
 %             VxCurr = V .* cos(SA_CG(j));
@@ -833,7 +616,7 @@ end % dSteer End
 %             else
 %                 itOmega(c) = AyVelCurr/VxCurr * (1-pr) + itOmega(c-1)*pr;
 %             end
-% 
+%             R =  VxCurr.^2 / AyVelCurr;
 %             Omega = itOmega(c);
 % 
 %             for p = 1:4
@@ -844,16 +627,14 @@ end % dSteer End
 %                 % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
 %                 % % 
 %                 if  false
+% 
 %                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
 %                     %%% Equation 2
 %                     SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , ...
 %                         (R.*cos(SA_CG(j)) - coord_AllW(2,p)) ) - dSteer_AllW(i,p);
 % 
 %                 else
-%                     % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
-%                     % %%% Equation 1
-%                     % SA_Wheel(p,1) = atan2( (V.* sin(SA_CG(j)) + Omega .* coord_AllW(1,p)) ...
-%                     %                     , (V.* cos(SA_CG(j)) - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+% 
 %                     %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
 %                     %%% Equation 1
 %                     SA_Wheel(p,1) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
@@ -893,7 +674,7 @@ end % dSteer End
 %                 TM_Fx(p) = TM_Fx(p) .* 0; 
 % 
 %                 % Calspan TTC Data usual correction factor - 0.7
-%                 TM_Fx(p) = TM_Fx(p) .* 0.0;
+%                 TM_Fx(p) = TM_Fx(p) .* 0.7;
 %                 % Tire Model outputs in opposite Y coordinates
 %                 TM_Fy(p) = (1).* TM_Fy(p) .* 0.56;
 % 
@@ -908,7 +689,6 @@ end % dSteer End
 %             end
 % 
 %             FxDrag = (1/2)*rho*crossA*Cd*V^2;
-% 
 % 
 %             FxBody = sum(FxTire) - FxDrag;
 %             FyBody = sum(FyTire);
@@ -935,7 +715,7 @@ end % dSteer End
 %             c = c + 1;
 % 
 %             if c > 1000
-%                 iterationCtrl = itAyBody( (c-10) : (c-1) );
+%                 iterationCtrl = itAyBody( (c-100) : (c-1) );
 %                 itAyBody(c) = min(iterationCtrl);
 %                 break
 %             end
@@ -965,6 +745,230 @@ end % dSteer End
 %     end % SA_CG End
 % 
 % end % dSteer End
+
+
+%% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
+
+V = 15; % Velocity [m/s]
+
+%%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
+SA_CG = SA_CG;
+dSteer = dSteer;
+
+% Mat Initialization
+SA_Wheel = zeros(4,1);
+V_Wheel = zeros(4,1);
+TM_Fx = zeros(4,1);
+TM_Fy = zeros(4,1);
+FxTire = zeros(4,1);
+FyTire = zeros(4,1);
+MzTire = zeros(4,1);
+saveAyBody = zeros(length(dSteer), length(SA_CG));
+saveAxBody = zeros(length(dSteer), length(SA_CG));
+saveMzBody = zeros(length(dSteer), length(SA_CG));
+saveItFz = [];
+saveTM_Fy = zeros(length(dSteer),length(SA_CG),4);
+
+% Yaw Rate (Omega) iteration relaxation parameter for convergence:
+% Parameter is between [0-1], is dependent upon how fast the simulation is
+% ran, speeds below tangent speed pr<0.5, speeds above tangent speeds are
+% more stable and requires pr>0.6
+pr = 0.001; 
+
+
+%%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
+%%%
+%%%
+targetAx = 0.5; % G's
+
+for k = 1:length(targetAx)
+
+    for i = 1:length(dSteer)
+    
+        for j = 1:length(SA_CG)
+    
+            AxGuess = 0;
+            AyGuess = 0;
+            AxTarget = targetAx(k);
+            res = 1;
+            tol = 1e-3;
+    
+            itAyBody = [];
+            itAyBody(1,1) = AyGuess;
+            itAxBody = [];
+            itAxBody(1,1) = AxGuess;
+            itCAyBody = [];
+            itCAyBody(1,1) = AxGuess/g;
+            itCAxBody = [];
+            itCAxBody(1,1) = AxGuess/g;
+            itFz = [];
+            itFyTire = [];
+    
+            %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+            itOmega = [];
+            itOmega(1,1) = 0;
+    
+            c = 1;
+    
+            while abs(res) > tol  
+    
+                AyCurr = itAyBody(c);
+                AxCurr = itAxBody(c);
+    
+                AyVelCurr = itAyBody(c) .* cos(SA_CG(j)) - itAxBody(c) .* sin(SA_CG(j));
+    
+                VyCurr = V .* sin(SA_CG(j));
+                VxCurr = V .* cos(SA_CG(j));
+    
+                %%%%% VEHICLE BODY YAW RATE
+    
+                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                % Omega = 0;
+    
+                % %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+                % %%% Equation 1
+                % R = V.^2 / AyVelCurr;
+                % Omega = V/R;
+    
+                %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+                %%% Equation 2
+                if c == 1
+                    % Nothing since relaxation parameter requires last index
+                else
+                    itOmega(c) = AyVelCurr/VxCurr * (1-pr) + itOmega(c-1)*pr;
+                end
+                R =  VxCurr.^2 / AyVelCurr;
+                Omega = itOmega(c);
+    
+                for p = 1:4
+    
+                    %%%%% WHEEL SLIP ANGLE EQUATIONS
+                    % 
+                    % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                    % SA_Wheel(p,1) = SA_CG(j) - dSteer_AllW(i,p);
+                    % % 
+                    if  false
+    
+                        %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                        %%% Equation 2
+                        SA_Wheel(p,1) = atan2( (R.*sin(SA_CG(j)) + coord_AllW(1,p)) , ...
+                            (R.*cos(SA_CG(j)) - coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+    
+                    else
+    
+                        %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius) -
+                        %%% Equation 1
+                        SA_Wheel(p,1) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
+                                            , (VxCurr - Omega .* coord_AllW(2,p)) ) - dSteer_AllW(i,p);
+    
+                    end
+    
+    
+                   %%%%% WHEEL SPEED EQUATIONS
+    
+                   % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                   % V_Wheel(p,1) = 0;
+    
+                   %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
+                   V_Wheel(p,1) = V + sqrt(  (-Omega.*coord_AllW(2,p)).^2  +  (Omega.*coord_AllW(1,p)).^2  );
+    
+                end
+    
+    
+                dFzf_dAx = (hCG .* m)./(2.* WB);
+                dFzf_dAy = 1*(hCG .* m .* PFront)/TWf;
+                dFzr_dAy = 1*(hCG .* m .* (1-PFront))/TWr;
+    
+                FzAero = (1/2)*rho*crossA*Cl*V^2;
+                Fz_WeightFront = (m.*g.* PFront + FzAero .* CoP)/2;
+                Fz_WeightRear = (m.*g.* (1-PFront) + FzAero .* (1 - CoP))/2;
+    
+                Fz(1,1) = Fz_WeightFront + dFzf_dAx .* AxCurr + dFzf_dAy .* AyCurr;
+                Fz(2,1) = Fz_WeightFront + dFzf_dAx .* AxCurr - dFzf_dAy .* AyCurr;
+                Fz(3,1) = Fz_WeightRear - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
+                Fz(4,1) = Fz_WeightRear - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
+    
+                for p = 1:4
+                    [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
+    
+                    %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                    TM_Fx(p) = TM_Fx(p) .* 0; 
+    
+                    % Calspan TTC Data usual correction factor - 0.7
+                    TM_Fx(p) = TM_Fx(p) .* 0.7;
+                    % Tire Model outputs in opposite Y coordinates
+                    TM_Fy(p) = (1).* TM_Fy(p) .* 0.56;
+    
+                    FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
+                    FyTire(p,1) = 1*TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
+    
+                    % Made it a matrix sum so its not ugly :)
+                    MzTire(p,1) = sum( [coord_AllW(1,p) .* TM_Fx(p) .* sin(dSteer_AllW(i,p)) ;
+                                       -coord_AllW(2,p) .* TM_Fx(p) .* cos(dSteer_AllW(i,p)) ; 
+                                        coord_AllW(2,p) .* TM_Fy(p) .* sin(dSteer_AllW(i,p)) ;
+                                        coord_AllW(1,p) .* TM_Fy(p) .* cos(dSteer_AllW(i,p))  ] ); 
+                end
+    
+                FxDrag = (1/2)*rho*crossA*Cd*V^2;
+    
+                FxBody = sum(FxTire) - FxDrag;
+                FyBody = sum(FyTire);
+                MzBody = sum(MzTire);
+    
+                itFz(:,c) = Fz;
+                itFyTire(:,c) =  FyTire;
+                itAyBody(c+1,1) = FyBody/m;
+                itAxBody(c+1,1) = FxBody/m;
+    
+                % Using dimensionless G's to iteration (apparently improves
+                % stability)?
+                itCAyBody(c+1,1) = itAyBody(c+1,1)/g;
+                itCAxBody(c+1,1) = itAxBody(c+1,1)/g;
+                res = itCAyBody(c+1) - itCAyBody(c);
+                resAx = itCAxBody(c+1) - itCAxBody(c);
+    
+                % %%% CAN COMMENT IN AND WILL DISPLAY THE ITERATIONS THAT IT IS
+                % %%% STUCK ON BUT MASSIVELY IMPACTS PERFORMANCE - ONLY USE WHEN
+                % %%% THE SIMULATION IS SEEMINGLY STUCK
+                %
+                % % Tests the c 
+                % plot(1:c+1, itAyBody);
+    
+                c = c + 1;
+    
+                if c > 1000
+                    iterationCtrl = itAyBody( (c-100) : (c-1) );
+                    itAyBody(c) = min(iterationCtrl);
+                    break
+                end
+    
+            end % while loop end
+            % if j == 13
+            %     return
+            % end
+            %saveAyBody(i,j) = (itAyBody(end)+itAyBody(end-1))/2;
+            for p = 1:4
+            saveSA_WheelTerm(p,j) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
+                                            , (VxCurr - Omega .* coord_AllW(2,p)) );
+            end
+    
+            saveOmega(i,j) = Omega;
+            saveTM_Fy(i,j,:) = TM_Fy;
+            saveSA_Wheel(:,j) = SA_Wheel;
+            saveFz(:,j) = Fz;
+            saveAyBody(i,j) = itAyBody(end);
+            saveAxBody(i,j) = itAxBody(end);
+            saveMzBody(i,j) = MzBody/(m.*g.*WB);
+            saveItFz(:,j) = Fz;
+            saveItAyBody{j,1} = itAyBody;
+    
+            disp("Steering Angle [" + i + "] Slip Angle [" + j + "] finished, iterations: " +  c)
+    
+        end % SA_CG End
+    
+    end % dSteer End
+
+end % targetAx End
 
 
 
@@ -1117,6 +1121,8 @@ end
 
 
 
+% Current display will only show the indMaxThroSA even if the maximum was
+% found through the dSteer method, needs some interpolation
 
 AyMaxSS = plot(CAymax, 0, "Marker", ".", "MarkerSize", 20, "Color","g");
 label = sprintf('C_{Ay_0} = %.4g\nSlip Angle = %.3g°',...
