@@ -1,4 +1,4 @@
-clc ; clear; close all;
+clc ; clear; %close all;
 format long g
 
 %% LOGGING
@@ -128,17 +128,33 @@ load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
 %%%
 %%%
-SA_CG = deg2rad(linspace(-12,12,41))';
-dSteer = deg2rad(linspace(-27,27,31))';
+rangeSA = [-12,12];
+rangeSteer = [-27,27];
+
+
+if mod(sum(abs(rangeSA)), 2) == 0
+    numSA = sum(abs(rangeSA)) + 1;
+else
+    numSA = sum(abs(rangeSA));
+end
+
+if mod(sum(abs(rangeSteer)), 2) == 0
+    numST = sum(abs(rangeSteer)) + 1;
+else
+    numST = sum(abs(rangeSteer));
+end
+
+SA_CG = deg2rad(linspace(rangeSA(1), rangeSA(2),numSA))';
+dSteer = deg2rad(linspace(rangeSteer(1), rangeSteer(2),numST))';
 
 
 
 
 
-dSteer_W1 = toe_f + dSteer;
-dSteer_W2 = -toe_f + dSteer;
-dSteer_W3 = toe_r + dSteer.*0;
-dSteer_W4 = -toe_r + dSteer.*0;
+dSteer_W1 = -toe_f + dSteer;
+dSteer_W2 = toe_f + dSteer;
+dSteer_W3 = -toe_r + dSteer.*0;
+dSteer_W4 = toe_r + dSteer.*0;
 dSteer_AllW = [dSteer_W1, dSteer_W2, dSteer_W3, dSteer_W4];
 
 lf = WB * (1-PFront);
@@ -668,7 +684,17 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %             Fz(3,1) = Fz_WeightRear - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
 %             Fz(4,1) = Fz_WeightRear - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
 % 
-%             for p = 1:4
+%              for p = 1:4
+%                 if p == 1 
+%                     TireInclination = sign(SA_CG(j)) .* -TireInclinationFront;
+%                 elseif p == 2
+%                     TireInclination = TireInclinationFront;
+%                 elseif p == 3
+%                     TireInclination = sign(SA_CG(j)) .* -TireInclinationRear;
+%                 else
+%                     TireInclination = TireInclinationRear;
+%                 end
+% 
 %                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
 % 
 %                 %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
@@ -746,8 +772,8 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %     end % SA_CG End
 % 
 % end % dSteer End
-%
-%
+% 
+% 
 % saveAxVel = zeros(size(saveAyBody));
 % saveAyVel = zeros(size(saveAyBody));
 % saveCAyVel = zeros(size(saveAyBody));
@@ -781,7 +807,7 @@ saveAyBody = zeros(length(dSteer), length(SA_CG));
 saveAxBody = zeros(length(dSteer), length(SA_CG));
 saveMzBody = zeros(length(dSteer), length(SA_CG));
 saveItFz = [];
-saveTM_Fy = zeros(length(dSteer),length(SA_CG),4);
+
 
 saveAxVel = zeros(size(saveAyBody));
 saveAyVel = zeros(size(saveAyBody));
@@ -981,16 +1007,16 @@ for i = 1:length(dSteer)
         end
 
         saveOmega(i,j) = Omega;
-        saveTM_Fy(i,j,:) = TM_Fy;
-        saveSA_Wheel(:,j) = SA_Wheel;
-        saveFz(:,j) = Fz;
+        saveTM_Fy(:,j,i) = TM_Fy;
+        saveSA_Wheel(:,j,i) = SA_Wheel;
+        saveFzWheel(:,j,i) = Fz;
 
         saveAyBody(i,j) = itAyBody(end);
         saveAxBody(i,j) = itAxBody(end);
         saveMzBody(i,j) = MzBody/(m.*g.*WB);
 
-        saveAxVel(i,j) = saveAxBody(i,j).* cos(SA_CG(j)) + saveAyBody(i,j) .* sin(SA_CG(j))';
-        saveAyVel(i,j) = saveAyBody(i,j).* cos(SA_CG(j))' - saveAxBody(i,j) .* sin(SA_CG(j))';
+        saveAxVel(i,j) = saveAxBody(i,j).* cos(SA_CG(j)) + saveAyBody(i,j) .* sin(SA_CG(j));
+        saveAyVel(i,j) = saveAyBody(i,j).* cos(SA_CG(j)) - saveAxBody(i,j) .* sin(SA_CG(j));
         saveCAxVel(i,j) = saveAxVel(i,j)/g;
         saveCAyVel(i,j) = saveAyVel(i,j)/g;
 
@@ -1014,14 +1040,17 @@ zeroMz_CAy_ST = zeros(length(dSteer),1);
 zeroMz_SteerDeg = zeros(length(SA_CG),1);
 zeroMz_SADeg = zeros(length(dSteer),1);
 
- % Go Through the Mz Data through SlipAngle(columns) to check the SA lines
+% Go Through the Mz Data through SlipAngle(columns) to check the SA lines
+% ---- CAUTIONS: This only finds the first point along the line that
+% crosses the zero boundary
+% Also interpolates for the other angle values not used (SA or Steer)
 for j = 1:length(SA_CG)
     checkMat = saveMzBody(2:end,j).*saveMzBody(1:end-1,j);
     indexSS = find(checkMat <0, 1, 'first');
     if isempty(indexSS)
 
         % The below creates the minimum value of when the line doesnt cross
-        % the 0 value, but need to return 0 in case the value is larger
+        % the 0 value, but need to return 0 in case the minimum value is larger
         % than the actual legit maximum SS Ay
         %
         % [minMz,indexMin] = min(abs(saveMzBody(:,j)));
@@ -1038,19 +1067,13 @@ for j = 1:length(SA_CG)
     end
 end
 
+% Go Through the Mz Data through Steer Angle(rows) to check the steer lines
+% ---- CAUTIONS: This only finds the first point along the line that
+% crosses the zero boundary
 for i = 1:length(dSteer)
     checkMat = saveMzBody(i, 2:end).*saveMzBody(i, 1:end-1);
     indexSS = find(checkMat <0);
     if isempty(indexSS)
-
-        % The below creates the minimum value of when the line doesnt cross
-        % the 0 value, but need to return 0 in case the value is larger
-        % than the actual legit maximum SS Ay
-        %
-        % [minMz,indexMin] = min(abs(saveMzBody(:,j)));
-        % zeroMz_CAy_SA(j) = saveCAyVel(indexMin,j);
-        % zeroMz_Steer(j) = dSteer(indexMin);
-
         zeroMz_CAy_ST(i) = 0;
         zeroMz_SADeg(i) = 0;
     else
@@ -1061,18 +1084,52 @@ for i = 1:length(dSteer)
     end
 end
 
+% Finds the maximum CAy value in both methods and compares and assigns the
+% label values for SA and Steer
 [maxCAy_SA, maxCAy_SA_ind] = max(zeroMz_CAy_SA);
 [maxCAy_ST, maxCAy_ST_ind] = max(zeroMz_CAy_ST);
+
 CAyMax = max(maxCAy_SA, maxCAy_ST);
+
 if max(maxCAy_SA, maxCAy_ST) == maxCAy_SA
     SA_CAyMax = rad2deg(SA_CG(maxCAy_SA_ind));
     ST_CAyMax = zeroMz_SteerDeg(maxCAy_SA_ind);
 else
     SA_CAyMax = zeroMz_SADeg(maxCAy_ST_ind);
     ST_CAyMax = rad2deg(dSteer(maxCAy_ST_ind));
-
 end
 
+
+%% Finding Stability and Control Derivatives
+
+%%% Finds control derivative
+if sum(ismember(SA_CG, 0)) > 0
+    deriv = gradient(saveMzBody(:, SA_CG == 0)) ./ gradient(dSteer);
+    if sum(ismember(dSteer, 0)) > 0
+        controlVal = deriv((find(dSteer == 0) + 1));
+    else
+        disp('Choose an odd number of array values for dSteer doofus');
+    end
+else
+    disp('Choose an odd number of array values for SA_CG doofus');
+end
+
+%%% Finds stability derivative
+if sum(ismember(dSteer, 0)) > 0
+    deriv = gradient(saveMzBody(dSteer == 0,:)) ./ gradient(SA_CG);
+    if sum(ismember(SA_CG, 0)) > 0
+        stabilityVal = deriv((find(SA_CG == 0) + 1));
+    else
+        disp('Choose an odd number of array values for SA_CG doofus');
+    end
+else
+    disp('Choose an odd number of array values for dSteer doofus');
+end
+
+fprintf('-----------------------------------------------------------------')
+fprintf('\nControl Derivative Value: ' + string(controlVal)+ ' Nm/deg' +...
+        '\nStability Derivative Value: ' + string(stabilityVal) + ' Nm/deg\n');
+fprintf('-----------------------------------------------------------------\n')
 
 %% PLOTTING
 close all;
@@ -1092,19 +1149,16 @@ hold on
 grid on
 for i = 1:length(dSteer)
     steer = plot(saveCAyVel(i,:),saveMzBody(i,:), "Color", "blue", 'LineStyle','--');
-    % if mod(i,7) == 0
-    %     labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg steer'];  % Dynamic label for clarity
-    %     % text(saveCAyVel(i,end), saveMzBody(i,end), labelText)
-    % end
-
+    if dSteer(i) == 0
+        plot_zeroSteer = plot(saveCAyVel(i,:),saveMzBody(i,:), "Color", "blue", 'LineStyle','-');
+    end
 end
 
 for i = 1:length(SA_CG)
-    slip = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red");
-    % if mod(i,7) == 0
-    %     labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg SA'];  % Dynamic label for clarity
-    %     % text(saveCAyVel(1,i), saveMzBody(1,i), labelText)
-    % end
+    slip = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red", 'LineStyle', '--');
+    if SA_CG(i) == 0
+        plot_zeroSA = plot(saveCAyVel(:,i),saveMzBody(:,i), "Color", "red", "LineStyle", '-');
+    end
 end
 
 xlabel("Normalized Lateral Acceleration $(C_{Ay})$",'Interpreter','latex')
@@ -1128,8 +1182,11 @@ label = sprintf(['C_{Ay0}   = %.4g\n' ...
 
 text(CAyMax - 0.07, 0.20, label, "FontSize", 8, 'FontWeight','bold');
 
-legend([steer, slip, AyMaxSS],{"Constant Steer", "Constant Slip", "$C_{Ay_{Max SS}}$"},...
-    "Location","northeast",'Interpreter','latex')
+legend([steer, slip, AyMaxSS], ...
+        {"Constant Steer", ...
+         "Constant Slip", ...
+         "$C_{Ay_{Max SS}}$"},...
+         "Location","northeast",'Interpreter','latex')
 
 %% TESTING
 % NOTES FOR FUTURE:12/6/2024: Theres smth wrong, cant get the corners of
