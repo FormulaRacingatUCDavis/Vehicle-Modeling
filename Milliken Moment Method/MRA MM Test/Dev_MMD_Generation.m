@@ -62,8 +62,8 @@ format long g
 % Tires go 
 %
 % Forwards
-% 1  2      Postive Y coord
-% 3  4
+% 2  1      Postive Y coord
+% 4  2
 % Backwards
 %
 % RIGHT HAND TURN RESULTS IN POSTIVE AY(yes you heard that right)
@@ -149,10 +149,10 @@ dSteer = deg2rad(linspace(rangeSteer(1), rangeSteer(2),numST))';
 
 
 
-dSteer_W1 = -toe_f + dSteer;
-dSteer_W2 = toe_f + dSteer;
-dSteer_W3 = -toe_r + dSteer.*0;
-dSteer_W4 = toe_r + dSteer.*0;
+dSteer_W1 = toe_f + dSteer;
+dSteer_W2 = -toe_f + dSteer;
+dSteer_W3 = toe_r + dSteer.*0;
+dSteer_W4 = -toe_r + dSteer.*0;
 dSteer_AllW = [dSteer_W1, dSteer_W2, dSteer_W3, dSteer_W4];
 
 lf = WB * (1-PFront);
@@ -796,10 +796,6 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 V = 15; % Velocity [m/s]
 
-%%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
-SA_CG = SA_CG;
-dSteer = dSteer;
-
 % Mat Initialization
 SA_Wheel = zeros(4,1);
 V_Wheel = zeros(4,1);
@@ -811,7 +807,6 @@ MzTire = zeros(4,1);
 saveAyBody = zeros(length(dSteer), length(SA_CG));
 saveAxBody = zeros(length(dSteer), length(SA_CG));
 saveMzBody = zeros(length(dSteer), length(SA_CG));
-saveItFz = [];
 
 
 saveAxVel = zeros(size(saveAyBody));
@@ -835,6 +830,8 @@ tic
 
 
 for i = 1:length(dSteer)
+    
+    sumc = 1;
 
     for j = 1:length(SA_CG)
 
@@ -939,14 +936,17 @@ for i = 1:length(dSteer)
             Fz(4,1) = Fz_WeightRear - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
 
             for p = 1:4
+                %%% Still need to figure out tire inclination
+                %%% stuff--------- camber changes based on wheel SA, body
+                %%% SA, and which wheel it is
                 if p == 1 
-                    TireInclination = sign(SA_CG(j)) .* -TireInclinationFront;
+                    TireInclination = sign(SA_Wheel(p)) .* TireInclinationFront;
                 elseif p == 2
-                    TireInclination = TireInclinationFront;
+                    TireInclination =  sign(SA_Wheel(p)).* -TireInclinationFront;
                 elseif p == 3
-                    TireInclination = sign(SA_CG(j)) .* -TireInclinationRear;
+                    TireInclination = sign(SA_Wheel(p)) .* TireInclinationRear;
                 else
-                    TireInclination = TireInclinationRear;
+                    TireInclination =  sign(SA_Wheel(p)) .* -TireInclinationRear;
                 end
 
 
@@ -978,8 +978,6 @@ for i = 1:length(dSteer)
             FyBody = sum(FyTire);
             MzBody = sum(MzTire);
 
-            itFz(:,c) = Fz;
-            itFyTire(:,c) =  FyTire;
             itAyBody(c+1,1) = FyBody/m;
             itAxBody(c+1,1) = FxBody/m;
 
@@ -1009,6 +1007,7 @@ for i = 1:length(dSteer)
             
         end % while loop end
         
+        sumc = sumc + c;
         for p = 1:4
         saveSA_WheelTerm(p,j) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
                                         , (VxCurr - Omega .* coord_AllW(2,p)) );
@@ -1034,8 +1033,8 @@ for i = 1:length(dSteer)
 
 
     end % SA_CG End
-
-    disp("Steering Angle [" + i + "] finished, iterations: " +  c)
+    
+    disp("Steering Angle [" + i + "] finished, Avg Iterations: " +  sumc/length(SA_CG))
     waitbar(i/length(dSteer), f, sprintf('Progress: %d %%', floor(i/length(dSteer)*100)));
     
 end % dSteer End
@@ -1114,7 +1113,7 @@ end
 
 %% Finding Stability and Control Derivatives
 
-%%% Finds control derivative (Mz/steer slope)
+%%% Finds control derivative (Mz/steer slope on the SA line)
 if sum(ismember(SA_CG, 0)) > 0
     deriv1 = gradient(saveMzBody(:, SA_CG == 0)) ./ rad2deg(gradient(dSteer));
     if sum(ismember(dSteer, 0)) > 0
@@ -1126,7 +1125,7 @@ else
     disp('Choose an odd number of array values for SA_CG doofus');
 end
 
-%%% Finds stability derivative (Mz/SA slope)
+%%% Finds stability derivative (Mz/SA slope on the steer line)
 if sum(ismember(dSteer, 0)) > 0
     deriv2 = gradient(saveMzBody(dSteer == 0,:))' ./ rad2deg(gradient(SA_CG));
     if sum(ismember(SA_CG, 0)) > 0
@@ -1149,14 +1148,14 @@ fprintf('-----------------------------------------------------------------\n')
 %% PLOTTING
 close all;
 
-%%% Shifting result numbers - can take out if wanted (Especially when there
-%%% isnt a 0 radians number for the SA_CG and dSteer
-%%% indexes---------------- Have not been implemented
-[dSteerMesh, SAMesh] = meshgrid(dSteer, SA_CG);
-
-zeroIndex = find(dSteerMesh == 0);
-
-saveCAxVel = saveCAxVel;
+% %%% Shifting result numbers - can take out if wanted (Especially when there
+% %%% isnt a 0 radians number for the SA_CG and dSteer
+% %%% indexes---------------- Have not been implemented
+% [dSteerMesh, SAMesh] = meshgrid(dSteer, SA_CG);
+% 
+% zeroIndex = find(dSteerMesh == 0);
+% 
+% saveCAxVel = saveCAxVel;
 
 
 figure
