@@ -131,7 +131,6 @@ load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
 rangeSA = [-12,12];
 rangeSteer = [-27,27];
 
-
 if mod(sum(abs(rangeSA)), 2) == 0
     numSA = sum(abs(rangeSA)) + 1;
 else
@@ -146,7 +145,6 @@ end
 
 SA_CG = deg2rad(linspace(rangeSA(1), rangeSA(2),numSA))';
 dSteer = deg2rad(linspace(rangeSteer(1), rangeSteer(2),numST))';
-
 
 
 
@@ -580,6 +578,10 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 % pr = 0.001; 
 % 
 % 
+% f = waitbar(0, 'Starting');
+% tic
+% 
+% 
 % for i = 1:length(dSteer)
 % 
 %     for j = 1:length(SA_CG)
@@ -672,8 +674,8 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 % 
 % 
 %             dFzf_dAx = (hCG .* m)./(2.* WB);
-%             dFzf_dAy = 1*(hCG .* m .* PFront)/TWf;
-%             dFzr_dAy = 1*(hCG .* m .* (1-PFront))/TWr;
+%             dFzf_dAy = (hCG .* m .* PFront)/TWf;
+%             dFzr_dAy = (hCG .* m .* (1-PFront))/TWr;
 % 
 %             FzAero = (1/2)*rho*crossA*Cl*V^2;
 %             Fz_WeightFront = (m.*g.* PFront + FzAero .* CoP)/2;
@@ -684,7 +686,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %             Fz(3,1) = Fz_WeightRear - dFzf_dAx .* AxCurr + dFzr_dAy .* AyCurr;
 %             Fz(4,1) = Fz_WeightRear - dFzf_dAx .* AxCurr - dFzr_dAy .* AyCurr;
 % 
-%              for p = 1:4
+%             for p = 1:4
 %                 if p == 1 
 %                     TireInclination = sign(SA_CG(j)) .* -TireInclinationFront;
 %                 elseif p == 2
@@ -695,7 +697,10 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %                     TireInclination = TireInclinationRear;
 %                 end
 % 
-%                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire, rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure , TireInclination, V_Wheel(p), Idx, Model);
+% 
+%                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire,...
+%                     rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure ,...
+%                     TireInclination, V_Wheel(p), Idx, Model);
 % 
 %                 %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
 %                 TM_Fx(p) = TM_Fx(p) .* 0; 
@@ -706,7 +711,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %                 TM_Fy(p) = (1).* TM_Fy(p) .* 0.56;
 % 
 %                 FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
-%                 FyTire(p,1) = 1*TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
+%                 FyTire(p,1) = TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
 % 
 %                 % Made it a matrix sum so its not ugly :)
 %                 MzTire(p,1) = sum( [coord_AllW(1,p) .* TM_Fx(p) .* sin(dSteer_AllW(i,p)) ;
@@ -736,11 +741,14 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %             % %%% CAN COMMENT IN AND WILL DISPLAY THE ITERATIONS THAT IT IS
 %             % %%% STUCK ON BUT MASSIVELY IMPACTS PERFORMANCE - ONLY USE WHEN
 %             % %%% THE SIMULATION IS SEEMINGLY STUCK
+%             %
 %             % % Tests the c 
 %             % plot(1:c+1, itAyBody);
 % 
 %             c = c + 1;
 % 
+%             % If the iterations do not converge, take an average of last
+%             % 100 values and set that
 %             if c > 1000
 %                 iterationCtrl = itAyBody( (c-100) : (c-1) );
 %                 itAyBody(c) = min(iterationCtrl);
@@ -748,44 +756,41 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 %             end
 % 
 %         end % while loop end
-%         % if j == 13
-%         %     return
-%         % end
-%         %saveAyBody(i,j) = (itAyBody(end)+itAyBody(end-1))/2;
+% 
 %         for p = 1:4
 %         saveSA_WheelTerm(p,j) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
 %                                         , (VxCurr - Omega .* coord_AllW(2,p)) );
 %         end
 % 
 %         saveOmega(i,j) = Omega;
-%         saveTM_Fy(i,j,:) = TM_Fy;
-%         saveSA_Wheel(:,j) = SA_Wheel;
-%         saveFz(:,j) = Fz;
+%         saveTM_Fy(:,j,i) = TM_Fy;
+%         saveSA_Wheel(:,j,i) = SA_Wheel;
+%         saveFzWheel(:,j,i) = Fz;
+% 
 %         saveAyBody(i,j) = itAyBody(end);
 %         saveAxBody(i,j) = itAxBody(end);
 %         saveMzBody(i,j) = MzBody/(m.*g.*WB);
+% 
+%         saveAxVel(i,j) = saveAxBody(i,j).* cos(SA_CG(j)) + saveAyBody(i,j) .* sin(SA_CG(j));
+%         saveAyVel(i,j) = saveAyBody(i,j).* cos(SA_CG(j)) - saveAxBody(i,j) .* sin(SA_CG(j));
+%         saveCAxVel(i,j) = saveAxVel(i,j)/g;
+%         saveCAyVel(i,j) = saveAyVel(i,j)/g;
+% 
+% 
 %         saveItFz(:,j) = Fz;
 %         saveItAyBody{j,1} = itAyBody;
 % 
-%         disp("Steering Angle [" + i + "] Slip Angle [" + j + "] finished, iterations: " +  c)
 % 
 %     end % SA_CG End
 % 
+%     disp("Steering Angle [" + i + "] finished, iterations: " +  c)
+%     waitbar(i/length(dSteer), f, sprintf('Progress: %d %%', floor(i/length(dSteer)*100)));
+% 
 % end % dSteer End
 % 
-% 
-% saveAxVel = zeros(size(saveAyBody));
-% saveAyVel = zeros(size(saveAyBody));
-% saveCAyVel = zeros(size(saveAyBody));
-% saveCAxVel = zeros(size(saveAyBody));
-% 
-% % Body to velocity coordinate transformation
-% for i = 1:length(SA_CG)
-%     saveAxVel(i,:) = saveAxBody(i,:).* cos(SA_CG)' + saveAyBody(i,:) .* sin(SA_CG)';
-%     saveAyVel(i,:) = saveAyBody(i,:).* cos(SA_CG)' - saveAxBody(i,:) .* sin(SA_CG)';
-%     saveCAxVel(i,:) = saveAxVel(i,:)/g;
-%     saveCAyVel(i,:) = saveAyVel(i,:)/g;
-% end
+% close(f)
+% toc
+
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
@@ -825,6 +830,9 @@ pr = 0.001;
 %%%
 %%%
 targetAx = 0.5; % G's
+f = waitbar(0, 'Starting');
+tic
+
 
 for i = 1:length(dSteer)
 
@@ -998,7 +1006,7 @@ for i = 1:length(dSteer)
                 itAyBody(c) = min(iterationCtrl);
                 break
             end
-
+            
         end % while loop end
         
         for p = 1:4
@@ -1028,8 +1036,12 @@ for i = 1:length(dSteer)
     end % SA_CG End
 
     disp("Steering Angle [" + i + "] finished, iterations: " +  c)
+    waitbar(i/length(dSteer), f, sprintf('Progress: %d %%', floor(i/length(dSteer)*100)));
     
 end % dSteer End
+
+close(f)
+toc
 
 
 
@@ -1102,11 +1114,11 @@ end
 
 %% Finding Stability and Control Derivatives
 
-%%% Finds control derivative
+%%% Finds control derivative (Mz/steer slope)
 if sum(ismember(SA_CG, 0)) > 0
-    deriv = gradient(saveMzBody(:, SA_CG == 0)) ./ gradient(dSteer);
+    deriv1 = gradient(saveMzBody(:, SA_CG == 0)) ./ rad2deg(gradient(dSteer));
     if sum(ismember(dSteer, 0)) > 0
-        controlVal = deriv((find(dSteer == 0) + 1));
+        controlVal = deriv1((find(dSteer == 0))) .* (m.*g.*WB);
     else
         disp('Choose an odd number of array values for dSteer doofus');
     end
@@ -1114,11 +1126,14 @@ else
     disp('Choose an odd number of array values for SA_CG doofus');
 end
 
-%%% Finds stability derivative
+%%% Finds stability derivative (Mz/SA slope)
 if sum(ismember(dSteer, 0)) > 0
-    deriv = gradient(saveMzBody(dSteer == 0,:)) ./ gradient(SA_CG);
+    deriv2 = gradient(saveMzBody(dSteer == 0,:))' ./ rad2deg(gradient(SA_CG));
     if sum(ismember(SA_CG, 0)) > 0
-        stabilityVal = deriv((find(SA_CG == 0) + 1));
+        %%% This value is negative because the values for steering starts
+        %%% on the right side of the map going to the left side
+        %%% ------------- Maybe something wrong with the coordinates again?
+        stabilityVal = -deriv2((find(SA_CG == 0))) .* (m.*g.*WB);
     else
         disp('Choose an odd number of array values for SA_CG doofus');
     end
@@ -1126,7 +1141,7 @@ else
     disp('Choose an odd number of array values for dSteer doofus');
 end
 
-fprintf('-----------------------------------------------------------------')
+fprintf('\n-----------------------------------------------------------------')
 fprintf('\nControl Derivative Value: ' + string(controlVal)+ ' Nm/deg' +...
         '\nStability Derivative Value: ' + string(stabilityVal) + ' Nm/deg\n');
 fprintf('-----------------------------------------------------------------\n')
