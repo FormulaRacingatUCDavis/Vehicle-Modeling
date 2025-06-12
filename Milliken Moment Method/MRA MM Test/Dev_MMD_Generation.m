@@ -116,8 +116,7 @@ hCG = hCG;
 Idx = 1;                     % Moment of Inertia in x for wheel
 TirePressure = 70;           % kPa
 TireInclinationFront = -1.3; % deg 
-TireInclinationRear = -1; % deg 
-TireSR = 0.000;                 % -
+TireInclinationRear = -1; % deg   
 Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
  % load('Hoosier_R25B_16x75-10x7.mat');
 load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
@@ -824,8 +823,8 @@ pr = 0.001;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetAx = 0.5; % G's
-f = waitbar(0, 'Starting');
+targetCAx = 0.1; % G's
+% f = waitbar(0, 'Starting');
 tic
 
 
@@ -940,13 +939,17 @@ for i = 1:length(dSteer)
                 %%% stuff--------- camber changes based on wheel SA, body
                 %%% SA, and which wheel it is
                 if p == 1 
-                    TireInclination = sign(SA_Wheel(p)) .* TireInclinationFront;
+                    TireInclination = -sign(SA_Wheel(p)) .* TireInclinationFront;
+                    TireSR = 0;
                 elseif p == 2
-                    TireInclination =  sign(SA_Wheel(p)).* -TireInclinationFront;
+                    TireInclination =  -sign(SA_Wheel(p)).* -TireInclinationFront;
+                    TireSR = 0;
                 elseif p == 3
-                    TireInclination = sign(SA_Wheel(p)) .* TireInclinationRear;
+                    TireInclination = -sign(SA_Wheel(p)) .* TireInclinationRear;
+                    TireSR = 0;
                 else
-                    TireInclination =  sign(SA_Wheel(p)) .* -TireInclinationRear;
+                    TireInclination =  -sign(SA_Wheel(p)) .* -TireInclinationRear;
+                    TireSR = 0;
                 end
 
 
@@ -954,8 +957,8 @@ for i = 1:length(dSteer)
                     rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure ,...
                     TireInclination, V_Wheel(p), Idx, Model);
 
-                %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-                TM_Fx(p) = TM_Fx(p) .* 0; 
+                % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
+                % TM_Fx(p) = TM_Fx(p) .* 0; 
 
                 % Calspan TTC Data usual correction factor - 0.7
                 TM_Fx(p) = TM_Fx(p) .* 0.7;
@@ -1035,12 +1038,19 @@ for i = 1:length(dSteer)
     end % SA_CG End
     
     disp("Steering Angle [" + i + "] finished, Avg Iterations: " +  sumc/length(SA_CG))
-    waitbar(i/length(dSteer), f, sprintf('Progress: %d %%', floor(i/length(dSteer)*100)));
+    % waitbar(i/length(dSteer), f, sprintf('Progress: %d %%', floor(i/length(dSteer)*100)));
     
 end % dSteer End
 
-close(f)
+% close(f)
 toc
+
+%% SECTION 4 CONTINUED: ADJUSTING AX FOR EACH POINT
+
+deltaMat = ones(size(saveCAxVel)).* targetCAx - saveCAxVel;
+% Needs regression function, might need to integraate Ax target into the
+% loop
+
 
 
 
@@ -1232,7 +1242,7 @@ for i = 1:length(SA_CG)
 end
 
 xlabel("Normalized Lateral Acceleration $(C_{Ay})$",'Interpreter','latex')
-ylabel("Normalized Longitudinaal Accleration $(C_{Ax})$",'Interpreter','latex')
+ylabel("Normalized Longitudinal Accleration $(C_{Ax})$",'Interpreter','latex')
 
 
 
