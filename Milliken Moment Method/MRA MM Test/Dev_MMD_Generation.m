@@ -88,20 +88,21 @@ format long g
 
 %%% FE12 Constants
 g = 9.81;                       % Grav constant [m/s^2]
-m = 260;                        % Total Mass [kg]
+m = 270;                        % Total Mass [kg]
 PFront = 53.4/100;              % Percent Mass Front [0-1]
 WB = 1.582;                     % Wheelbase [m]
 TWf = 1.240;                    % Trackwidth [m]
 TWr = 1.240;
 toe_f = -0.5 * (pi/180);        % Toe Angles [radians] (positive is inwards)
-toe_r = 0 * (pi/180);
+toe_r = 0.5 * (pi/180);
 hCG = 0.314;                    % CG height [m]
 
-Cl = 2.36; 
-Cd = 1.14; 
-CoP = 20/100;       % front downforce distribution (%)
+Cl = 3.215; % Real
+% Cl = 4.2; % Fake: reaches 1.5g
+Cd = 1.468; 
+CoP = 45/100;       % front downforce distribution (%)
 rho = 1.165;        % kg/m^3
-crossA = 0.5;      % m^2
+crossA = 0.9237;      % m^2
 
 
 
@@ -793,7 +794,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
-V = 15; % Velocity [m/s]
+V = 10.5; % Velocity [m/s]
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);
@@ -817,7 +818,7 @@ saveCAxVel = zeros(size(saveAyBody));
 % Parameter is between [0-1], is dependent upon how fast the simulation is
 % ran, speeds below tangent speed pr<0.5, speeds above tangent speeds are
 % more stable and requires pr>0.6
-pr = 0.001; 
+pr = 0.000; 
 
 
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
@@ -963,7 +964,7 @@ for i = 1:length(dSteer)
                 % Calspan TTC Data usual correction factor - 0.7
                 TM_Fx(p) = TM_Fx(p) .* 0.7;
                 % Tire Model outputs in opposite Y coordinates
-                TM_Fy(p) = (1).* TM_Fy(p) .* 0.56;
+                TM_Fy(p) = (1).* TM_Fy(p) .* 0.53;
 
                 FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(i,p)) - TM_Fy(p) .* sin(dSteer_AllW(i,p));
                 FyTire(p,1) = TM_Fx(p) .* sin(dSteer_AllW(i,p)) + TM_Fy(p) .* cos(dSteer_AllW(i,p));
@@ -1199,12 +1200,12 @@ title({['Free Rolling MMD: Constant Velocity'] ...
 %%% Maximum Ay Plotting Stuff
 
 AyMaxSS = plot(CAyMax, 0, "Marker", ".", "MarkerSize", 20, "Color","g");
-label = sprintf(['C_{Ay0}   = %.4g\n' ...
-                 'SA      = %.3g°\n' ...
+label = sprintf(['C0   = %.4g\n',...
+                 'SA      = %.3g°\n',...
                  'Steer  = %.3g°'],...
                 CAyMax, SA_CAyMax, ST_CAyMax);
 
-text(CAyMax - 0.07, 0.20, label, "FontSize", 8, 'FontWeight','bold');
+text(CAyMax - 0.07, 0.20, label, "FontSize", 8, 'FontWeight','bold', 'Interpreter', 'latex');
 
 legend([steer, slip, AyMaxSS], ...
         {"Constant Steer", ...
