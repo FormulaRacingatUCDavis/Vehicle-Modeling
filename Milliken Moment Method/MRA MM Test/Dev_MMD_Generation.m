@@ -63,7 +63,7 @@ format long g
 %
 % Forwards
 % 2  1      Postive Y coord
-% 4  2
+% 4  3
 % Backwards
 %
 % RIGHT HAND TURN RESULTS IN POSTIVE AY(yes you heard that right)
@@ -103,6 +103,8 @@ Cd = 1.468;
 CoP = 45/100;       % front downforce distribution (%)
 rho = 1.165;        % kg/m^3
 crossA = 0.9237;      % m^2
+
+B_FBB = 1;             % Front brake bias TODO: find the actual value
 
 
 
@@ -803,6 +805,7 @@ TM_Fx = zeros(4,1);
 TM_Fy = zeros(4,1);
 FxTire = zeros(4,1);
 FyTire = zeros(4,1);
+TireFxTarget = zeros(4, 1);
 MzTire = zeros(4,1);
 saveAyBody = zeros(length(dSteer), length(SA_CG));
 saveAxBody = zeros(length(dSteer), length(SA_CG));
@@ -824,7 +827,7 @@ pr = 0.000;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetCAx = 0.1; % G's
+targetCAx = 0; % G's
 % f = waitbar(0, 'Starting');
 tic
 
@@ -834,10 +837,13 @@ for i = 1:length(dSteer)
     sumc = 1;
 
     for j = 1:length(SA_CG)
+        tireSR = zeros(4, 1);
 
         AxGuess = 0;
         AyGuess = 0;
         res = 1;
+        resAx = 1;
+        Ferror = 1;
         tol = 1e-3;
 
         itAyBody = [];
@@ -857,7 +863,7 @@ for i = 1:length(dSteer)
 
         c = 1;
 
-        while abs(res) > tol  
+        while abs(res) + abs(resAx) > tol  
 
             AyCurr = itAyBody(c);
             AxCurr = itAxBody(c);
@@ -941,21 +947,17 @@ for i = 1:length(dSteer)
                 %%% SA, and which wheel it is
                 if p == 1 
                     TireInclination = -sign(SA_Wheel(p)) .* TireInclinationFront;
-                    TireSR = 0;
                 elseif p == 2
                     TireInclination =  -sign(SA_Wheel(p)).* -TireInclinationFront;
-                    TireSR = 0;
                 elseif p == 3
                     TireInclination = -sign(SA_Wheel(p)) .* TireInclinationRear;
-                    TireSR = 0;
                 else
                     TireInclination =  -sign(SA_Wheel(p)) .* -TireInclinationRear;
-                    TireSR = 0;
                 end
 
 
                 [TM_Fx(p,1), TM_Fy(p,1), ~, ~, ~] = ContactPatchLoads(Tire,...
-                    rad2deg(SA_Wheel(p)), TireSR, Fz(p) , TirePressure ,...
+                    rad2deg(SA_Wheel(p)), tireSR(p), Fz(p) , TirePressure ,...
                     TireInclination, V_Wheel(p), Idx, Model);
 
                 % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
@@ -992,6 +994,35 @@ for i = 1:length(dSteer)
             res = itCAyBody(c+1) - itCAyBody(c);
             resAx = itCAxBody(c+1) - itCAxBody(c);
 
+            % level surface stuff
+            Ferror = m * (targetCAx - FxBody/m);
+            % determine drive/brake condition
+            if abs(Ferror) > 1
+                if Ferror > 0
+                    % drive
+                    TireFxTarget([3, 4]) = (sum(FxTire([3, 4], 1)) + Ferror) / 2;
+
+                    TireFxTarget = TireFxTarget ./ 0.7; % Tire correction factor
+        
+                    tireSR([1, 2]) = 0;
+                    for p=3:4 
+                        tireSR(p) = calcSR(TireFxTarget(p), Tire, rad2deg(SA_Wheel(p)), Fz(p) , TirePressure ,...
+                        TireInclination, V_Wheel(p), Idx, Model);
+                    end
+                elseif Ferror < 0
+                    % brake
+                    TireFxTarget([1, 2]) = B_FBB * (sum(FxTire) + Ferror) / (2 * (1 + B_FBB));
+                    TireFxTarget([3, 4]) = (sum(FxTire) + Ferror) / (2 * (1 + B_FBB));
+
+                    TireFxTarget = TireFxTarget ./ 0.7; % Tire correction factor
+        
+                    for p=1:4 
+                        tireSR(p) = calcSR(TireFxTarget(p), Tire, rad2deg(SA_Wheel(p)), Fz(p) , TirePressure ,...
+                        TireInclination, V_Wheel(p), Idx, Model);
+                    end
+                end
+            end
+
             % %%% CAN COMMENT IN AND WILL DISPLAY THE ITERATIONS THAT IT IS
             % %%% STUCK ON BUT MASSIVELY IMPACTS PERFORMANCE - ONLY USE WHEN
             % %%% THE SIMULATION IS SEEMINGLY STUCK
@@ -1006,11 +1037,12 @@ for i = 1:length(dSteer)
             if c > 1000
                 iterationCtrl = itAyBody( (c-100) : (c-1) );
                 itAyBody(c) = min(iterationCtrl);
+                disp("over iter limit")
                 break
             end
             
         end % while loop end
-        
+    
         sumc = sumc + c;
         for p = 1:4
         saveSA_WheelTerm(p,j) = atan2( (VyCurr + Omega .* coord_AllW(1,p)) ...
@@ -1034,8 +1066,6 @@ for i = 1:length(dSteer)
 
         saveItFz(:,j) = Fz;
         saveItAyBody{j,1} = itAyBody;
-
-
     end % SA_CG End
     
     disp("Steering Angle [" + i + "] finished, Avg Iterations: " +  sumc/length(SA_CG))
@@ -1048,7 +1078,7 @@ toc
 
 %% SECTION 4 CONTINUED: ADJUSTING AX FOR EACH POINT
 
-deltaMat = ones(size(saveCAxVel)).* targetCAx - saveCAxVel;
+deltaFMat = m .* (ones(size(saveCAxVel)).* targetCAx - saveCAxVel);
 % Needs regression function, might need to integraate Ax target into the
 % loop
 
