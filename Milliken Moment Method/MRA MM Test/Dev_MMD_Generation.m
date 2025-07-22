@@ -842,7 +842,7 @@ for i = 1:length(dSteer)
         AxGuess = 0;
         AyGuess = 0;
         res = 1;
-        resAx = 1;
+        resCAx = 1;
         Ferror = 1;
         tol = 1e-3;
 
@@ -863,7 +863,7 @@ for i = 1:length(dSteer)
 
         c = 1;
 
-        while abs(res) + abs(resAx) > tol  
+        while abs(res) + abs(resCAx) > tol  
 
             AyCurr = itAyBody(c);
             AxCurr = itAxBody(c);
@@ -992,15 +992,15 @@ for i = 1:length(dSteer)
             itCAyBody(c+1,1) = itAyBody(c+1,1)/g;
             itCAxBody(c+1,1) = itAxBody(c+1,1)/g;
             res = itCAyBody(c+1) - itCAyBody(c);
-            resAx = itCAxBody(c+1) - itCAxBody(c);
+            resCAx = itCAxBody(c+1) - itCAxBody(c);
 
             % level surface stuff
-            Ferror = m * (targetCAx - FxBody/m);
+            Ferror = m * g * (targetCAx - itCAxBody(c+1,1));
             % determine drive/brake condition
-            if abs(Ferror) > 1
+            if abs(Ferror) > 0
                 if Ferror > 0
                     % drive
-                    TireFxTarget([3, 4]) = (sum(FxTire([3, 4], 1)) + Ferror) / 2;
+                    TireFxTarget([3, 4]) = (sum(FxTire([3, 4])) + Ferror) / 2;
 
                     TireFxTarget = TireFxTarget ./ 0.7; % Tire correction factor
         
