@@ -88,6 +88,9 @@ while true
 
 end
 
+rawX(j) = rawX(1);
+rawY(j) = rawY(1);
+
 %% Plotting
 
 numPlotted = nnz(rawX);
@@ -115,11 +118,17 @@ ylim([-distLimY, 0])
 
 %% TESTING
 
-lineThingy = spline(scaledX, scaledY);
-lineThingy2 = pchip(scaledX, scaledY);
+
+scaledCoords = [scaledX, scaledY];
+t = 1:length(scaledX);
+pointsMat = linspace(1, length(scaledX), 10000)';
+
+lineThingy = pchip(t, scaledCoords');
+evaluatedVal = ppval(lineThingy, pointsMat);
+evaluatedVal = evaluatedVal';
 figure
 hold on
-plot(scaledX, scaledY)
-fnplt(lineThingy2)
+plot(evaluatedVal(:,1), evaluatedVal(:,2), LineWidth = 5)
+plot(scaledX, scaledY, LineWidth = 2)
 % fnplt(lineThingy)
 

@@ -1446,33 +1446,33 @@ for i = 1:1:length(outside)
 end
 %% Seciton 8: Load Endurance Racing Line
 disp('Loading Endurance Racing Line')
-% xx = load('endurance_racing_line.mat');
-% xx = xx.endurance_racing_line;
+xx = load('endurance_racing_line.mat');
+xx = xx.endurance_racing_line;
 
 % load('maxar_racing_line_opt.mat');
 % xx = x;
-xx = ones(1, 137);
+% xx = ones(1, 137);
 %% Section 9: Optimize Endurance Racing Line
 % The pre-loaded racing line should work for most applications; however,
 % if you have the need to re-evaluate or generate a new optimized racing
 % line, simply un-comment the code below:
 
-track_width = tw;
-disp('Optimizing Endurance Racing Line')
-A = eye(length(xx));
-b = ones(length(xx),1);
-lb = zeros(1,length(xx));
-ub = ones(1,length(xx));
-options = optimoptions('fmincon',...
-    'Algorithm','sqp','Display','iter','ConstraintTolerance',1e-12);
-options = optimoptions(options,'MaxIter', 10000, 'MaxFunEvals', 1000000,'ConstraintTolerance',1e-12,'DiffMaxChange',.1);
-
-
-
-x = fmincon(@lap_time,xx,[],[],[],[],lb,ub,@track_curvature,options);
-xx = x;
-x(end+1) = x(1);
-x(end+1) = x(2);
+% track_width = tw;
+% disp('Optimizing Endurance Racing Line')
+% A = eye(length(xx));
+% b = ones(length(xx),1);
+% lb = zeros(1,length(xx));
+% ub = ones(1,length(xx));
+% options = optimoptions('fmincon',...
+%     'Algorithm','sqp','Display','iter','ConstraintTolerance',1e-12);
+% options = optimoptions(options,'MaxIter', 10000, 'MaxFunEvals', 1000000,'ConstraintTolerance',1e-12,'DiffMaxChange',.1);
+% 
+% 
+% 
+% x = fmincon(@lap_time,xx,[],[],[],[],lb,ub,@track_curvature,options);
+% xx = x;
+% x(end+1) = x(1);
+% x(end+1) = x(2);
 %% Section 10: Generate Final Endurance Trajectory
 x = xx;
 % Plot finished line
