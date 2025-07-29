@@ -88,10 +88,11 @@ while true
 
 end
 
-rawX(j) = rawX(1);
-rawY(j) = rawY(1);
 
 %% Plotting
+
+rawX(j) = rawX(1);
+rawY(j) = rawY(1);
 
 numPlotted = nnz(rawX);
 scaledX = rawX(1:numPlotted) .* scalePixel;
@@ -120,15 +121,15 @@ ylim([-distLimY, 0])
 
 
 scaledCoords = [scaledX, scaledY];
-t = 1:length(scaledX);
-pointsMat = linspace(1, length(scaledX), 10000)';
+t = 1:numPlotted;
+extraPoints = linspace(1, length(scaledX), 10000)';
 
-lineThingy = pchip(t, scaledCoords');
-evaluatedVal = ppval(lineThingy, pointsMat);
-evaluatedVal = evaluatedVal';
+ppFunc = pchip(t, scaledCoords');
+extraCoords = ppval(ppFunc, extraPoints);
+extraCoords = extraCoords';
 figure
 hold on
-plot(evaluatedVal(:,1), evaluatedVal(:,2), LineWidth = 5)
+plot(extraCoords(:,1), extraCoords(:,2), LineWidth = 5)
 plot(scaledX, scaledY, LineWidth = 2)
-% fnplt(lineThingy)
+
 
