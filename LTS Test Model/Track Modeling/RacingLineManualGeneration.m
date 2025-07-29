@@ -113,3 +113,13 @@ ylabel("Y Coordinate (distance unit)")
 xlim([0, distLimX])
 ylim([-distLimY, 0])
 
+%% TESTING
+
+lineThingy = spline(scaledX, scaledY);
+lineThingy2 = pchip(scaledX, scaledY);
+figure
+hold on
+plot(scaledX, scaledY)
+fnplt(lineThingy2)
+% fnplt(lineThingy)
+
