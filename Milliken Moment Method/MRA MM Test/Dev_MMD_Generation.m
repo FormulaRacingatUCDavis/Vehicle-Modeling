@@ -104,7 +104,7 @@ CoP = 45/100;       % front downforce distribution (%)
 rho = 1.165;        % kg/m^3
 crossA = 0.9237;      % m^2
 
-B_FBB = 2;             % Front brake bias TODO: find the actual value
+B_FBB = 1.5;             % Front brake bias TODO: find the actual value
 
 
 
@@ -130,8 +130,8 @@ load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
 %%% SELECT RANGES FOR BODY SLIP AND STEERING ANGLES
 %%%
 %%%
-rangeSA = [-12,12];
-rangeSteer = [-27,27];
+rangeSA = [-5,5];
+rangeSteer = [-30,30];
 
 if mod(sum(abs(rangeSA)), 2) == 0
     numSA = sum(abs(rangeSA)) + 1;
@@ -796,7 +796,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
-V = 10.5; % Velocity [m/s]
+V = 30; % Velocity [m/s]
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);
@@ -827,7 +827,7 @@ pr = 0.000;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetCAx = -2; % G's
+targetCAx = 10; % G's
 % f = waitbar(0, 'Starting');
 tic
 
@@ -1475,8 +1475,64 @@ end
 xlabel("Normalized Lateral Acceleration $(C_{Ay})$",'Interpreter','latex')
 ylabel("Normalized Longitudinal Accleration $(C_{Ax})$",'Interpreter','latex')
 
+% Get sort the coordinate pairs
+points = [saveCAyVel(1:end); saveCAxVel(1:end)];
+[~, idx] = sort(points(1, :));
+points = points(:, idx);
 
+% scatter(points(1, :), points(2, :))
 
+% split into left and right parts
+[~, idx] = min(abs(points(1, :)));
+leftPart = points(:, 1:idx);
+rightPart = points(:, idx:end);
+
+[~, idx] = sort(leftPart(2, :));
+leftPart = leftPart(:, idx);
+
+[~, idx] = sort(rightPart(2, :));
+rightPart = rightPart(:, idx);
+
+leftBound = nan(2, 999);
+rightBound = nan(2, 999);
+
+AxRange = linspace(-3, 3, 100);
+for i = 1:100-1
+    % find the points within the interval
+    startIdx = find(leftPart(2, :) > AxRange(i), 1, 'first');
+    endIdx   = find(leftPart(2, :) < AxRange(i + 1), 1, 'last');
+    filteredLeftRange = leftPart(:, startIdx:endIdx);
+
+    startIdx = find(rightPart(2, :) > AxRange(i), 1, 'first');
+    endIdx   = find(rightPart(2, :) < AxRange(i + 1), 1, 'last');
+    filteredRightRange = rightPart(:, startIdx:endIdx);
+
+    % find the edge point
+    [~, idx] = min(filteredLeftRange(1, :));
+    if ~isempty(idx)
+        leftBound(:, i) = filteredLeftRange(:, idx);
+    end
+
+    [~, idx] = max(filteredRightRange(1, :));
+    if ~isempty(idx)
+        rightBound(:, i) = filteredRightRange(:, idx);
+    end
+end
+
+leftBound = leftBound(:, ~isnan(leftBound(1, :)));
+rightBound = rightBound(:, ~isnan(rightBound(1, :)));
+
+leftBound = unique(leftBound', 'rows')';
+rightBound = unique(rightBound', 'rows')';
+
+scatter(leftBound(1, :), leftBound(2, :))
+scatter(rightBound(1, :), rightBound(2, :))
+
+figure;
+hold on;
+
+accelBound = [leftBound rightBound];
+plot(accelBound(1, :), accelBound(2, :))
 figure
 hold on
 grid on
