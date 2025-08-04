@@ -408,6 +408,8 @@ function steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer)
         steadyStateCAy.SA = zeroMz_SADeg(maxCAy_ST_ind);
         steadyStateCAy.dSteer = rad2deg(dSteer(maxCAy_ST_ind));
     end
+
+    steadyStateCAy.Mz = 0;
 end
 
 function absoluteCAy = getAbsoluteCAy(rawData, SA_CG, dSteer)
@@ -415,11 +417,13 @@ function absoluteCAy = getAbsoluteCAy(rawData, SA_CG, dSteer)
     [SA_CG, dSteer] = meshgrid(SA_CG, dSteer);
     dataPoints = [rawData.saveCAyVel(1:end);
                   SA_CG(1:end);
-                  dSteer(1:end)];
+                  dSteer(1:end);
+                  rawData.saveMzBody(1:end)];
 
     [absoluteCAy.CAy, idx] = max(dataPoints(1, :));
     absoluteCAy.SA = dataPoints(2, idx);
     absoluteCAy.dSteer = dataPoints(3, idx);
+    absoluteCAy.Mz = dataPoints(4, idx);
 
 end
 
