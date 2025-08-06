@@ -62,4 +62,34 @@ parfor i = 1:length(velocity)
     end
 end
 
+%% Mirror data to the left side
+
+mask = dataPoints(1, :) == 10;
+dataPoints = [dataPoints dataPoints .* [1; -1; 1]];
+base = dataPoints(:, mask);
+for i = 1:length(base)
+    dataPoints = [dataPoints, [ones(1, 10) .* base(1, i); linspace(-base(2, i), base(2, i), 10); ones(1, 10) .* base(3, i)]];
+end
+
 %%
+
+x = dataPoints(3, :);
+y = dataPoints(2, :);
+z = dataPoints(1, :);
+
+xrange = linspace(min(x), max(x), 100);
+yrange = linspace(min(y), max(y), 100);
+[xq, yq] = meshgrid(xrange, yrange);
+
+F = scatteredInterpolant(x', y', z', 'natural', 'none');
+zq = F(xq, yq);
+
+figure;
+
+hold on
+surf(xq, yq, zq)
+scatter3(x, y, z)
+view(3)
+xlim([-2, 2])
+ylim([-2, 2])
+zlim([0, 35])
