@@ -65,7 +65,11 @@ function [steadyStateCAy, absoluteCAy, rawData] = MMD_Generattion(carParams, ran
     end
 
     %%% Find steadyStateCAy/AbsoluteCAy
-    steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer);
+    if exist('targetCAx','var')
+        steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer, targetCAx);
+    else
+        steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer);
+    end
     absoluteCAy = getAbsoluteCAy(rawData, SA_CG, dSteer);
 
     %%% Make the plots
@@ -337,11 +341,11 @@ function rawData = MMD_iteration(carParams, ...
             % saveItAyBody{j,1} = itAyBody;
         end % SA_CG End
         
-        disp("Steering Angle [" + i + "] finished, Avg Iterations: " +  sumc/length(SA_CG))
+        % disp("Steering Angle [" + i + "] finished, Avg Iterations: " +  sumc/length(SA_CG))
     end % dSteer End
 end
 
-function steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer)
+function steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer, targetCAx)
     zeroMz_CAy_SA = zeros(length(SA_CG),1);
     zeroMz_CAy_ST = zeros(length(dSteer),1);
     zeroMz_SteerDeg = zeros(length(SA_CG),1);
@@ -349,6 +353,7 @@ function steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer)
 
     saveMzBody = rawData.saveMzBody;
     saveCAyVel = rawData.saveCAyVel;
+    saveCAxVel = rawData.saveCAxVel;
     
     % Go Through the Mz Data through SlipAngle(columns) to check the SA lines
     % ---- CAUTIONS: This only finds the first point along the line that
@@ -356,7 +361,13 @@ function steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer)
     % Also interpolates for the other angle values not used (SA or Steer)
     for j = 1:length(SA_CG)
         checkMat = saveMzBody(2:end,j).*saveMzBody(1:end-1,j);
-        indexSS = find(checkMat <0, 1, 'first');
+        if exist('targetCAx','var')
+            avgAx = (saveCAxVel(2:end, j) + saveCAxVel(1:end-1, j)) ./ 2;
+            indexSS = abs(avgAx - targetCAx) < 5e-2 & checkMat < 0;
+        else
+            indexSS = checkMat < 0;
+        end
+        indexSS = find(indexSS, 1, 'first');
         if isempty(indexSS)
     
             % The below creates the minimum value of when the line doesnt cross
@@ -382,7 +393,13 @@ function steadyStateCAy = getSteadyStateCAy(rawData, SA_CG, dSteer)
     % crosses the zero boundary
     for i = 1:length(dSteer)
         checkMat = saveMzBody(i, 2:end).*saveMzBody(i, 1:end-1);
-        indexSS = find(checkMat <0);
+        if exist('targetCAx','var')
+            avgAx = (saveCAxVel(i, 2:end) + saveCAxVel(i, 1:end-1)) ./ 2;
+            indexSS = abs(avgAx - targetCAx) < 5e-2 & checkMat < 0;
+        else
+            indexSS = checkMat < 0;
+        end
+        indexSS = find(indexSS, 1, 'first');
         if isempty(indexSS)
             zeroMz_CAy_ST(i) = 0;
             zeroMz_SADeg(i) = 0;

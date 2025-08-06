@@ -1,0 +1,65 @@
+clear;
+
+% FE12 constants
+% Chasis/suspension constants
+carParams.m = 270;                        % Total Mass [kg]
+carParams.PFront = 53.4/100;              % Percent Mass Front [0-1]
+carParams.WB = 1.582;                     % Wheelbase [m]
+carParams.TWf = 1.240;                    % Trackwidth [m]
+carParams.TWr = 1.240;
+carParams.toe_f = -0.5 * (pi/180);        % Toe Angles [radians] (positive is inwards)
+carParams.toe_r = 0.5 * (pi/180);
+carParams.hCG = 0.314;                    % CG height [m]
+carParams.TireInclinationFront = -1.3; % deg 
+carParams.TireInclinationRear = -1;    % deg   
+
+% Aero constants
+carParams.Cl = 3.215;
+carParams.Cd = 1.468; 
+carParams.CoP = 45/100;                   % front downforce distribution (%)
+carParams.rho = 1.165;                    % kg/m^3
+carParams.crossA = 0.9237;                % m^2
+
+% braking system
+% THIS IS MADE UP, NEED TO GET THE ACTUAL VALUE
+carParams.B_FBB = 1.5;                    % Front brake bias
+
+% Tire
+tire = load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
+tire.Idx = 1;                     % Moment of Inertia in x for wheel
+tire.TirePressure = 70;           % kPa
+tire.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
+carParams.tire = tire;
+
+velocity = linspace(10, 30, 8);
+
+dataPoints = [];
+
+rangeSA = [-5,5];
+rangeSteer = [-30,30];
+
+stepSize = 0.1;
+
+parfor i = 1:length(velocity)
+    targetCAx = 0;
+    [SSAy, ~, ~] = MMD_Generattion(carParams, rangeSA, rangeSteer, velocity(i), false, targetCAx)
+    while SSAy.CAy ~= 0
+        disp("targetCAx: " + targetCAx + " velocity: " + velocity(i))
+        point = [velocity(i); SSAy.CAy; targetCAx];
+        dataPoints = [dataPoints point];
+        [SSAy, ~, ~] = MMD_Generattion(carParams, rangeSA, rangeSteer, velocity(i), false, targetCAx)
+        targetCAx = targetCAx + stepSize;
+    end
+
+    targetCAx = -stepSize;
+    [SSAy, ~, ~] = MMD_Generattion(carParams, rangeSA, rangeSteer, velocity(i), false, targetCAx)
+    while SSAy.CAy ~= 0
+        disp("targetCAx: " + targetCAx + " velocity: " + velocity(i))
+        point = [velocity(i); SSAy.CAy; targetCAx];
+        dataPoints = [dataPoints point];
+        [SSAy, ~, ~] = MMD_Generattion(carParams, rangeSA, rangeSteer, velocity(i), false, targetCAx)
+        targetCAx = targetCAx - stepSize;
+    end
+end
+
+%%

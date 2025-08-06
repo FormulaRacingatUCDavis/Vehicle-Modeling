@@ -827,7 +827,7 @@ pr = 0.000;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetCAx = 10; % G's
+targetCAx = 100; % G's
 % f = waitbar(0, 'Starting');
 tic
 
@@ -1298,7 +1298,9 @@ zeroMz_SADeg = zeros(length(dSteer),1);
 % Also interpolates for the other angle values not used (SA or Steer)
 for j = 1:length(SA_CG)
     checkMat = saveMzBody(2:end,j).*saveMzBody(1:end-1,j);
-    indexSS = find(checkMat <0, 1, 'first');
+    avgAx = (saveCAxVel(2:end, j) + saveCAxVel(1:end-1, j)) ./ 2;
+    indexSS = abs(avgAx - targetCAx) < 5e-2 & checkMat < 0;
+    indexSS = find(indexSS, 1, 'first');
     if isempty(indexSS)
 
         % The below creates the minimum value of when the line doesnt cross
@@ -1324,7 +1326,9 @@ end
 % crosses the zero boundary
 for i = 1:length(dSteer)
     checkMat = saveMzBody(i, 2:end).*saveMzBody(i, 1:end-1);
-    indexSS = find(checkMat <0);
+    avgAx = (saveCAxVel(i, 2:end) + saveCAxVel(i, 1:end-1)) ./ 2;
+    indexSS = abs(avgAx - targetCAx) < 5e-2 & checkMat < 0;
+    indexSS = find(indexSS, 1, 'first');
     if isempty(indexSS)
         zeroMz_CAy_ST(i) = 0;
         zeroMz_SADeg(i) = 0;
