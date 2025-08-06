@@ -87,12 +87,12 @@ while true
     end
 
 end
-
+rawX(j) = rawX(1);
+rawY(j) = rawY(1);
 
 %% Plotting
 
-rawX(j) = rawX(1);
-rawY(j) = rawY(1);
+
 
 numPlotted = nnz(rawX);
 scaledX = rawX(1:numPlotted) .* scalePixel;
@@ -119,17 +119,20 @@ ylim([-distLimY, 0])
 
 %% TESTING
 
-
 scaledCoords = [scaledX, scaledY];
-t = 1:numPlotted;
+numPlottedMat = 1:numPlotted;
 extraPoints = linspace(1, length(scaledX), 10000)';
 
-ppFunc = pchip(t, scaledCoords');
+ppFunc = pchip(numPlottedMat, scaledCoords');
 extraCoords = ppval(ppFunc, extraPoints);
 extraCoords = extraCoords';
 figure
 hold on
-plot(extraCoords(:,1), extraCoords(:,2), LineWidth = 5)
+plot(extraCoords(:,1), extraCoords(:,2), 'o-')
 plot(scaledX, scaledY, LineWidth = 2)
+title("Track Plotting Comparison")
+legend(["Extended", "Original"])
+xlabel("X Coordinate (distance unit)")
+ylabel("Y Coordinate (distance unit)")
 
 
