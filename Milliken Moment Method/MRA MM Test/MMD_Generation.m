@@ -1,4 +1,4 @@
-function [steadyStateCAy, absoluteCAy, rawData] = MMD_Generattion(carParams, rangeSA, rangeSteer, velocity, plots, targetCAx)
+function [steadyStateCAy, absoluteCAy, rawData] = MMD_Generation(carParams, rangeSA, rangeSteer, velocity, plots, targetCAx)
 
     % RIGHT HAND SIDE IS POSITIVE Y - RCVD Standard (but lots of industry
     % doesnt like to use this, but for the sake of the paper, we will use this,

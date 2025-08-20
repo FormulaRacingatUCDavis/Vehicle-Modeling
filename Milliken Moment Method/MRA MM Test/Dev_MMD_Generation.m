@@ -131,7 +131,7 @@ load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
 %%%
 %%%
 rangeSA = [-5,5];
-rangeSteer = [-30,30];
+rangeSteer = [-15,15];
 
 if mod(sum(abs(rangeSA)), 2) == 0
     numSA = sum(abs(rangeSA)) + 1;
@@ -796,7 +796,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
-V = 30; % Velocity [m/s]
+V = 5; % Velocity [m/s]
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);
@@ -827,7 +827,7 @@ pr = 0.000;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetCAx = 100; % G's
+targetCAx = 0; % G's
 % f = waitbar(0, 'Starting');
 tic
 

@@ -88,8 +88,12 @@ figure;
 
 hold on
 surf(xq, yq, zq)
-scatter3(x, y, z)
+% scatter3(x, y, z)
 view(3)
 xlim([-2, 2])
 ylim([-2, 2])
 zlim([0, 35])
+
+xlabel("Normalized Longitudinal Accelaration(g)")
+ylabel("Normalized Lateral Accelaration(g)")
+zlabel("Velocity(m/s)")
