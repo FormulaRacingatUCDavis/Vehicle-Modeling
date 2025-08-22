@@ -93,8 +93,8 @@ PFront = 53.4/100;              % Percent Mass Front [0-1]
 WB = 1.582;                     % Wheelbase [m]
 TWf = 1.240;                    % Trackwidth [m]
 TWr = 1.240;
-toe_f = -0.5 * (pi/180);        % Toe Angles [radians] (positive is inwards)
-toe_r = 0.5 * (pi/180);
+toe_f = 0.5 * (pi/180);        % Toe Angles [radians] (positive is outwards)
+toe_r = -0.5 * (pi/180);
 hCG = 0.314;                    % CG height [m]
 
 Cl = 3.215; % Real
@@ -796,7 +796,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
-V = 5; % Velocity [m/s]
+V = 30; % Velocity [m/s]
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);

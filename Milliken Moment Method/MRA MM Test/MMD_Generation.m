@@ -174,10 +174,10 @@ function rawData = MMD_iteration(carParams, ...
                     % could set a tolerance for Ferror here
                     if abs(Ferror) > 0
     
+                        TireFxTarget = zeros(4, 1);
                         % determine drive/brake condition
                         if driveCondition(i, j)
                             % drive
-                            TireFxTarget = zeros(4, 1);
                             TireFxTarget([3, 4]) = (sum(TM_Fx([3, 4])) + Ferror) / 2;
                         else
                             % brake
