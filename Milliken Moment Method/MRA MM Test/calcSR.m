@@ -76,6 +76,13 @@ function [tireSRCurve, minFx, maxFx] = getTireSRCurve(Tire, SlipAngle, NormalLoa
     
     [maxFx, max_idx] = max(Fx);
     [minFx, min_idx] = min(Fx);
+
+    if min_idx > max_idx
+        temp = max_idx;
+        max_idx = min_idx;
+        min_idx = temp;
+    end
+
     newSR = SlipRatio(min_idx:max_idx);
     newFx = Fx(min_idx:max_idx);
     
