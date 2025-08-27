@@ -104,7 +104,7 @@ CoP = 45/100;       % front downforce distribution (%)
 rho = 1.165;        % kg/m^3
 crossA = 0.9237;      % m^2
 
-B_FBB = 1.5;             % Front brake bias TODO: find the actual value
+B_FBB = 55/45;             % Front brake bias
 
 
 
@@ -827,7 +827,7 @@ pr = 0.000;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetCAx = 0; % G's
+targetCAx = -10; % G's
 % f = waitbar(0, 'Starting');
 tic
 

@@ -22,7 +22,7 @@ carParams.crossA = 0.9237;                % m^2
 
 % braking system
 % THIS IS MADE UP, NEED TO GET THE ACTUAL VALUE
-carParams.B_FBB = 1.5;                    % Front brake bias
+carParams.B_FBB = 55/45;                    % Front brake bias
 
 % Tire
 tire = load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
