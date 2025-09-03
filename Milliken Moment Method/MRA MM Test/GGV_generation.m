@@ -1,5 +1,7 @@
 clear;
 
+clear;
+
 % FE12 constants
 % Chasis/suspension constants
 carParams.m = 270;                        % Total Mass [kg]
@@ -21,8 +23,16 @@ carParams.rho = 1.165;                    % kg/m^3
 carParams.crossA = 0.9237;                % m^2
 
 % braking system
-% THIS IS MADE UP, NEED TO GET THE ACTUAL VALUE
 carParams.B_FBB = 55/45;                    % Front brake bias
+
+% drivetrain
+carParams.drivetrain.M_torque = 220;             % [N·m] max motor torque (torque cap)
+carParams.drivetrain.Power    = 80;              % [kW] motor power (constant-power region)
+carParams.drivetrain.KMV      = 12;              % [RPM/V] motor speed constant
+carParams.drivetrain.Max_V    = 504;             % [V] max DC link voltage
+carParams.drivetrain.tire_diameter_in = 16;      % [in] tire diameter
+carParams.drivetrain.FDR               = 2.91;   % final drive ratio
+carParams.drivetrain.eta_drivetrain    = 0.92;    
 
 % Tire
 tire = load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
@@ -31,7 +41,7 @@ tire.TirePressure = 70;           % kPa
 tire.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 carParams.tire = tire;
 
-velocity = linspace(20, 55, 8);
+velocity = linspace(10, 45, 12);
 
 dataPoints = [];
 
@@ -101,7 +111,7 @@ zlabel("Velocity(m/s)")
 
 %%
 
-mask = dataPoints(3, :) < 0;
+mask = dataPoints(3, :) >= 0;
 
 x = dataPoints(1, mask);
 y = dataPoints(2, mask);
@@ -123,3 +133,9 @@ scatter3(x, y, z)
 xlabel("Velocity(m/s)")
 ylabel("Normalized Lateral Accelaration(g)")
 zlabel("Normalized Longitudinal Accelaration(g)")
+
+%%
+
+v_max = max(dataPoints(1, :));
+
+dataPoints = [dataPoints [ones(1, 10)*(v_max+0.1); linspace(-2, 2, 10); zeros(1, 10)]];

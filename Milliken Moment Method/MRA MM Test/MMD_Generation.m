@@ -178,7 +178,12 @@ function rawData = MMD_iteration(carParams, ...
                         % determine drive/brake condition
                         if driveCondition(i, j)
                             % drive
-                            TireFxTarget([3, 4]) = (sum(TM_Fx([3, 4])) + Ferror) / 2;
+                            targetFx = (sum(TM_Fx([3, 4])) + Ferror);
+                            motorLimFx = get_motor_limit(carParams, V);
+                            if (targetFx > motorLimFx)
+                                targetFx = motorLimFx;
+                            end
+                            TireFxTarget([3, 4]) = targetFx / 2;
                         else
                             % brake
                             TireFxTarget([1, 2]) = B_FBB * (sum(TM_Fx) + Ferror) / (2 * (1 + B_FBB));
