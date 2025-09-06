@@ -4,7 +4,7 @@ clear;
 
 % FE12 constants
 % Chasis/suspension constants
-carParams.m = 270;                        % Total Mass [kg]
+carParams.m = 645 * 0.45359237;                        % Total Mass [kg]
 carParams.PFront = 53.4/100;              % Percent Mass Front [0-1]
 carParams.WB = 1.582;                     % Wheelbase [m]
 carParams.TWf = 1.240;                    % Trackwidth [m]
@@ -16,11 +16,11 @@ carParams.TireInclinationFront = -1.3; % deg
 carParams.TireInclinationRear = -1;    % deg   
 
 % Aero constants
-carParams.Cl = 3.215;
-carParams.Cd = 1.468; 
-carParams.CoP = 45/100;                   % front downforce distribution (%)
+carParams.Cl = 2.66;
+carParams.Cd = 1.25; 
+carParams.CoP = 40/100;                   % front downforce distribution (%)
 carParams.rho = 1.165;                    % kg/m^3
-carParams.crossA = 0.9237;                % m^2
+carParams.crossA = 0.960;                % m^2
 
 % braking system
 carParams.B_FBB = 55/45;                    % Front brake bias
@@ -41,7 +41,7 @@ tire.TirePressure = 70;           % kPa
 tire.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 carParams.tire = tire;
 
-velocity = linspace(10, 45, 12);
+velocity = linspace(10, 45, 10);
 
 dataPoints = [];
 
@@ -98,8 +98,8 @@ zq = F(xq, yq);
 figure;
 
 hold on
-surf(xq, yq, zq)
-% scatter3(x, y, z)
+% surf(xq, yq, zq)
+scatter3(x, y, z)
 view(3)
 xlim([-4, 4])
 ylim([-4, 4])
@@ -111,7 +111,7 @@ zlabel("Velocity(m/s)")
 
 %%
 
-mask = dataPoints(3, :) >= 0;
+mask = dataPoints(3, :) < 0;
 
 x = dataPoints(1, mask);
 y = dataPoints(2, mask);
@@ -121,7 +121,7 @@ xrange = linspace(10, 60 , 100);
 yrange = linspace(min(y), max(y), 100);
 [xq, yq] = meshgrid(xrange, yrange);
 
-F = scatteredInterpolant(x', y', z', "linear", "nearest");
+F = scatteredInterpolant(x', y', z', "linear", "none");
 zq = F(xq, yq);
 
 figure;
