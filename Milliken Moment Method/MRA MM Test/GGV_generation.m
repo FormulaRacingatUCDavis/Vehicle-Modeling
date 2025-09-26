@@ -3,7 +3,7 @@ clear;
 clear;
 
 % FE12 constants
-% Chasis/suspension constants
+% Chassis/suspension constants
 carParams.m = 645 * 0.45359237;                        % Total Mass [kg]
 carParams.PFront = 53.4/100;              % Percent Mass Front [0-1]
 carParams.WB = 1.582;                     % Wheelbase [m]
@@ -75,12 +75,12 @@ end
 
 %% Mirror data to the left side
 
-mask = dataPoints(1, :) == 10;
+% mask = dataPoints(1, :) == 10;
 dataPoints = [dataPoints dataPoints .* [1; -1; 1]];
-base = dataPoints(:, mask);
-for i = 1:length(base)
-    dataPoints = [dataPoints, [ones(1, 10) .* base(1, i); linspace(-base(2, i), base(2, i), 10); ones(1, 10) .* base(3, i)]];
-end
+% base = dataPoints(:, mask);
+% for i = 1:length(base)
+%     dataPoints = [dataPoints, [ones(1, 10) .* base(1, i); linspace(-base(2, i), base(2, i), 10); ones(1, 10) .* base(3, i)]];
+% end
 
 %%
 
@@ -98,12 +98,12 @@ zq = F(xq, yq);
 figure;
 
 hold on
-% surf(xq, yq, zq)
-scatter3(x, y, z)
+surf(xq, yq, zq)
+% scatter3(x, y, z)
 view(3)
 xlim([-4, 4])
 ylim([-4, 4])
-zlim([10, 60])
+zlim([0, 60])
 
 xlabel("Normalized Longitudinal Accelaration(g)")
 ylabel("Normalized Lateral Accelaration(g)")
@@ -111,7 +111,7 @@ zlabel("Velocity(m/s)")
 
 %%
 
-mask = dataPoints(3, :) < 0;
+mask = dataPoints(3, :) >= 0;
 
 x = dataPoints(1, mask);
 y = dataPoints(2, mask);
