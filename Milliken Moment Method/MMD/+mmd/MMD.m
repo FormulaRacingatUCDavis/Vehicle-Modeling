@@ -31,6 +31,7 @@ classdef MMD
         
         function result = evaluate(obj, grid, mode, targetCAx)
             % Evaluate MMD
+
         end
     end
 end

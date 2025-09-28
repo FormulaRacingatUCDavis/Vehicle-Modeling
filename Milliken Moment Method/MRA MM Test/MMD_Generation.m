@@ -135,7 +135,6 @@ function rawData = MMD_iteration(carParams, ...
     TM_Fy = zeros(4,1);
     FxTire = zeros(4,1);
     FyTire = zeros(4,1);
-    TireFxTarget = zeros(4, 1);
     MzTire = zeros(4,1);
 
     % the iteration
@@ -144,9 +143,7 @@ function rawData = MMD_iteration(carParams, ...
         sumc = 1;
     
         for j = 1:length(SA_CG)
-            tireSR = zeros(4, 1);
-    
-            res = 1;
+            resCAy = 1;
             resCAx = 1;
             tol = 1e-3;
     
@@ -158,6 +155,7 @@ function rawData = MMD_iteration(carParams, ...
             itCAyBody(1,1) = rawData.saveAyBody(i, j)/g;
             itCAxBody = [];
             itCAxBody(1,1) = rawData.saveAxBody(i, j)/g;
+            tireSR = zeros(4, 1);
                
             %%% METHOD 2: Free Rolling MMD Assumption (Finite Radius)
             itOmega = [];
@@ -165,7 +163,7 @@ function rawData = MMD_iteration(carParams, ...
     
             c = 1;
     
-            while abs(res) > tol || abs(resCAx) > tol || c < 3
+            while abs(resCAy) > tol || abs(resCAx) > tol || c < 3
     
                 if nargin == 9 && c > 1
                 % level surface stuff
@@ -295,7 +293,7 @@ function rawData = MMD_iteration(carParams, ...
                 % stability)?
                 itCAyBody(c+1,1) = itAyBody(c+1,1)/g;
                 itCAxBody(c+1,1) = itAxBody(c+1,1)/g;
-                res = itCAyBody(c+1) - itCAyBody(c);
+                resCAy = itCAyBody(c+1) - itCAyBody(c);
                 resCAx = itCAxBody(c+1) - itCAxBody(c);
     
                 % %%% CAN COMMENT IN AND WILL DISPLAY THE ITERATIONS THAT IT IS
