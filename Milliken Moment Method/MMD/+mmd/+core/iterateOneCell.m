@@ -18,11 +18,15 @@ function [AyBody, AxBody, MzBody, AxVel, AyVel, Omega] = iterateOneCell(carParam
     Model = carParams.tire.Model;
     Tire = carParams.tire.Tire;
 
+    coord_AllW = carParams.coord_AllW;
+
     % variable initializations
     itAyBody = [];
     itAyBody(1,1) = AyBodyinit;
     itAxBody = [];
     itAxBody(1,1) = AxBodyinit;
+    itOmega = [];
+    itOmega(1,1) = 0;
 
     SA_Wheel = zeros(4, 1);
     V_Wheel  = zeros(4, 1);
@@ -31,6 +35,7 @@ function [AyBody, AxBody, MzBody, AxVel, AyVel, Omega] = iterateOneCell(carParam
     FxTire   = zeros(4, 1);
     FyTire   = zeros(4, 1);
     MzTire   = zeros(4, 1);
+    tireSR   = zeros(4, 1);
 
     g = 9.81;
     c = 1;
@@ -40,10 +45,10 @@ function [AyBody, AxBody, MzBody, AxVel, AyVel, Omega] = iterateOneCell(carParam
 
     pr = config.pr;
 
-    dSteer_AllW = models.models.steeringModel(carParams, dSteer);
+    dSteer_AllW = models.steeringModel(carParams, dSteer);
 
     % Iterate
-    while abs(resCAy) > tol || abs(resCAx) > config.tol || c < 3
+    while abs(resCAy) > config.tol || abs(resCAx) > config.tol || c < 3
     
         AyCurr = itAyBody(c);
         AxCurr = itAxBody(c);
@@ -74,7 +79,7 @@ function [AyBody, AxBody, MzBody, AxVel, AyVel, Omega] = iterateOneCell(carParam
             if driveCondition
                 % drive
                 targetFx = (sum(TM_Fx([3, 4])) + Ferror);
-                motorLimFx = models.moterLimitFn(carParams, V);
+                motorLimFx = models.motorLimitFn(carParams, V);
                 if (targetFx > motorLimFx)
                     targetFx = motorLimFx;
                 end

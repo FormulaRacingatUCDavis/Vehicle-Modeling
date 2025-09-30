@@ -23,40 +23,51 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
 
         % mode: running mode
         mode           (1, 1) string
-        targetCAx      (1 ,1) double = 0
+        targetCAx      (1, 1) double = 0
 
         % previous result: result from previous run to accel iteration
-        prevResult            double = []
+        prevResult            struct = []
 
         % models used in the simulation
-        models.moterLimitFn     = @mmd.models.motorLimit_default
-        models.weightTransferFn = @mmd.models.weightTransfer_default
-        models.steeringModel    = @mmd.models.steeringModel_default
+        models         (1, 1) struct = struct()
 
-        % config: extra configureations
-        config.tol     (1,1) double {mustBePositive} = 1e-3
-        config.maxIter (1,1) double {mustBeInteger, mustBePositive} = 1000
-        config.pr      (1,1) double {mustBeGreaterThanOrEqual(config.pr,0), mustBeLessThanOrEqual(config.pr,1)} = 0.0
-        config.log     (1,1) logical = false
+        % more configurations
+        config         (1, 1) struct = struct()
     end
+
+    if ~isfield(models,'motorLimitFn'),     models.motorLimitFn     = @mmd.models.motorLimit_default; end
+    if ~isfield(models,'weightTransferFn'), models.weightTransferFn = @mmd.models.weightTransfer_default; end
+    if ~isfield(models,'steeringModel'),    models.steeringModel    = @mmd.models.steeringModel_default; end
+    if ~isfield(config,'tol'),     config.tol = 1e-3; end
+    if ~isfield(config,'maxIter'), config.maxIter = 1000; end
+    if ~isfield(config,'pr'),      config.pr = 0.0; end
+    if ~isfield(config,'log'),     config.log = false; end
 
     % initialize driving/braking conditions
     if mode == "level_surface"
-        initRunResult = sovle(grid, carParams, "free_rolling", prevResult, models, config);
-        grid.driveCondition = (ones(size(initRunResult.CAxVel)).* targetCAx - initRunResult.CAxVel) > 0;
+        initRunResult = mmd.core.solve(grid, carParams, "free_rolling", 0, prevResult, models, config);
+        grid.driveCondition = (ones(size(initRunResult.AxVel)).* targetCAx - initRunResult.AxVel ./ 9.81) > 0;
     elseif mode == "drive"
         grid.driveCondition = ones(length(grid.dSteer), length(grid.SA_CG));
     elseif mode == "brake"
         grid.driveCondition = zeros(length(grid.dSteer), length(grid.SA_CG));
     elseif mode == "free_rolling"
         targetCAx = [];
+        grid.driveCondition = zeros(length(grid.dSteer), length(grid.SA_CG)); % just a place holder here
     end
+
+    % Wheel coordinates calculation
+    carParams.coord_AllW = calcWheelCoords(carParams);
 
     %% Perform the iteration in parallel
 
     % initialize mats
     AyBody = zeros(length(grid.dSteer), length(grid.SA_CG));
     AxBody = zeros(length(grid.dSteer), length(grid.SA_CG));
+    AxVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
+    AyVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
+    MzBody = zeros(length(grid.dSteer), length(grid.SA_CG));
+    Omega  = zeros(length(grid.dSteer), length(grid.SA_CG));
 
     if ~isempty(prevResult)
         AyBodyinit = prevResult.AyBody;
@@ -69,35 +80,70 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     % This is for the parallel for loop. It prevents the grid being 
     % copied to all the workers and cost extra memory
     constGrid = parallel.pool.Constant(grid);
-    AyBodyinit = parallel.pool.Constant(AyBodyinit);
-    AxBodyinit = parallel.pool.Constant(AxBodyinit);
+    constAyBodyinit = parallel.pool.Constant(AyBodyinit);
+    constAxBodyinit = parallel.pool.Constant(AxBodyinit);
     V = grid.V;
 
-    for i = 1:length(grid.dSteer)
+    parfor i = 1:length(constGrid.Value.dSteer)
 
-        rowAxBody = zeros(1, length(constGrid.Value.dSteer));
-        rowAyBody = zeros(1, length(constGrid.Value.dSteer));
-        rowAxVel  = zeros(1, length(constGrid.Value.dSteer));
-        rowAyVel  = zeros(1, length(constGrid.Value.dSteer));
-        rowMzBody = zeros(1, length(constGrid.Value.dSteer));
-        rowOmega  = zeros(1, length(constGrid.Value.dSteer));
+        dSteer = constGrid.Value.dSteer;
+        SA_CG = constGrid.Value.SA_CG;
 
-        for j = 1:length(constGrid.Value.dSteer)
 
-            cellResult = iterateOneCell(carParams, constGrid.Value.dSteer(i), constGrid.Value.SA_CG(j), V, constGrid.Value.driveCondition(i, j), targetCAx, models, AxBodyinit(i, j), AyBodyinit(i, j));
-    
-            rowAxBody(j) = cellResult(1);
-            rowAyBody(j) = cellResult(2);
-            rowAxVel(j)  = cellResult(3);
-            rowAyVel(j)  = cellResult(4);
-            rowMzBody(j) = cellResult(5);
-            rowOmega(j)  = cellResult(6);
+        rowAxBody = zeros(1, length(SA_CG));
+        rowAyBody = zeros(1, length(SA_CG));
+        rowAxVel  = zeros(1, length(SA_CG));
+        rowAyVel  = zeros(1, length(SA_CG));
+        rowMzBody = zeros(1, length(SA_CG));
+        rowOmega  = zeros(1, length(SA_CG));
+
+        for j = 1:length(SA_CG)
+
+            [
+                rowAxBody(j),           ...
+                rowAyBody(j),           ...
+                rowAxVel(j),            ...
+                rowAyVel(j),            ...
+                rowMzBody(j),           ...
+                rowOmega(j)             ...
+            ] = mmd.core.iterateOneCell ...
+            (                           ...
+                carParams,              ...
+                dSteer(i),              ...
+                SA_CG(j),               ...
+                V,                      ...
+                constGrid.Value.driveCondition(i, j), ...
+                targetCAx,              ...
+                models,                 ...
+                constAxBodyinit.Value(i, j), ...
+                constAyBodyinit.Value(i, j), ...
+                config                  ...
+            );
+
         end
 
         AxBody(i, :) = rowAxBody;
         AyBody(i, :) = rowAyBody;
+        AxVel(i, :)  = rowAxVel;
+        AyVel(i, :)  = rowAyVel;
+        MzBody(i, :) = rowMzBody;
+        Omega(i, :)  = rowOmega;
     end
 
     result.AxBody = AxBody;
     result.AyBody = AyBody;
+    result.AxVel  = AxVel;
+    result.AyVel  = AyVel;
+    result.MzBody = MzBody;
+    result.Omega  = Omega;
+end
+
+function coord_AllW = calcWheelCoords(carParams)
+    lf = carParams.WB * (1-carParams.PFront);
+    lr = carParams.WB * (carParams.PFront);
+    coord_W1 = [lf ; carParams.TWf/2];
+    coord_W2 = [lf ; -carParams.TWf/2];
+    coord_W3 = [-lr ; carParams.TWr/2];
+    coord_W4 = [-lr ; -carParams.TWr/2];
+    coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 end
