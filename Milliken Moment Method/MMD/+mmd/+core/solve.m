@@ -62,10 +62,10 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     %% Perform the iteration in parallel
 
     % initialize mats
-    AyBody = zeros(length(grid.dSteer), length(grid.SA_CG));
-    AxBody = zeros(length(grid.dSteer), length(grid.SA_CG));
-    AxVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
-    AyVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
+    CAyBody = zeros(length(grid.dSteer), length(grid.SA_CG));
+    CAxBody = zeros(length(grid.dSteer), length(grid.SA_CG));
+    CAxVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
+    CAyVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
     MzBody = zeros(length(grid.dSteer), length(grid.SA_CG));
     Omega  = zeros(length(grid.dSteer), length(grid.SA_CG));
 
@@ -84,26 +84,26 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     constAxBodyinit = parallel.pool.Constant(AxBodyinit);
     V = grid.V;
 
-    parfor i = 1:length(constGrid.Value.dSteer)
+    for i = 1:length(constGrid.Value.dSteer)
 
         dSteer = constGrid.Value.dSteer;
         SA_CG = constGrid.Value.SA_CG;
 
 
-        rowAxBody = zeros(1, length(SA_CG));
-        rowAyBody = zeros(1, length(SA_CG));
-        rowAxVel  = zeros(1, length(SA_CG));
-        rowAyVel  = zeros(1, length(SA_CG));
+        rowCAxBody = zeros(1, length(SA_CG));
+        rowCAyBody = zeros(1, length(SA_CG));
+        rowCAxVel  = zeros(1, length(SA_CG));
+        rowCAyVel  = zeros(1, length(SA_CG));
         rowMzBody = zeros(1, length(SA_CG));
         rowOmega  = zeros(1, length(SA_CG));
 
         for j = 1:length(SA_CG)
 
             [
-                rowAxBody(j),           ...
-                rowAyBody(j),           ...
-                rowAxVel(j),            ...
-                rowAyVel(j),            ...
+                rowCAxBody(j),           ...
+                rowCAyBody(j),           ...
+                rowCAxVel(j),            ...
+                rowCAyVel(j),            ...
                 rowMzBody(j),           ...
                 rowOmega(j)             ...
             ] = mmd.core.iterateOneCell ...
@@ -122,20 +122,21 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
 
         end
 
-        AxBody(i, :) = rowAxBody;
-        AyBody(i, :) = rowAyBody;
-        AxVel(i, :)  = rowAxVel;
-        AyVel(i, :)  = rowAyVel;
+        CAxBody(i, :) = rowCAxBody;
+        CAyBody(i, :) = rowCAyBody;
+        CAxVel(i, :)  = rowCAxVel;
+        CAyVel(i, :)  = rowCAyVel;
         MzBody(i, :) = rowMzBody;
         Omega(i, :)  = rowOmega;
     end
 
-    result.AxBody = AxBody;
-    result.AyBody = AyBody;
-    result.AxVel  = AxVel;
-    result.AyVel  = AyVel;
+    result.CAxBody = CAxBody;
+    result.CAyBody = CAyBody;
+    result.CAxVel  = CAxVel;
+    result.CAyVel  = CAyVel;
     result.MzBody = MzBody;
     result.Omega  = Omega;
+    result.grid   = grid;
 end
 
 function coord_AllW = calcWheelCoords(carParams)

@@ -1,9 +1,10 @@
-function [AyBody, AxBody, MzBody, AxVel, AyVel, Omega] = iterateOneCell(carParams, dSteer, SA_CG, V, driveCondition, targetCAx, models, AxBodyinit, AyBodyinit, config)
+function [CAyBody, CAxBody, MzBody, CAxVel, CAyVel, Omega] = iterateOneCell(carParams, dSteer, SA_CG, V, driveCondition, targetCAx, models, AxBodyinit, AyBodyinit, config)
     % unpack car params
     m = carParams.m;                % Total Mass [kg]
     PFront = carParams.PFront;      % Percent Mass Front [0-1]
     CamberFront = carParams.CamberFront;
     CamberRear = carParams.CamberRear;
+    WB = carParams.WB;
     
     Cl = carParams.Cl;
     Cd = carParams.Cd; 
@@ -192,10 +193,10 @@ function [AyBody, AxBody, MzBody, AxVel, AyVel, Omega] = iterateOneCell(carParam
         end
     end % while loop end
     
-    AxBody = itAxBody(end);
-    AyBody = itAyBody(end);
-    MzBody = MzBody(end);
-    AxVel = AxBody * cos(SA_CG) + AyBody .* sin(SA_CG);
-    AyVel = AyBody.* cos(SA_CG) - AxBody .* sin(SA_CG);
+    CAxBody = itAxBody(end) / g;
+    CAyBody = itAyBody(end) / g;
+    MzBody = MzBody/(m.*g.*WB);
+    CAxVel = CAxBody * cos(SA_CG) + CAyBody .* sin(SA_CG);
+    CAyVel = CAyBody.* cos(SA_CG) - CAxBody .* sin(SA_CG);
     Omega  = itOmega(end);
 end

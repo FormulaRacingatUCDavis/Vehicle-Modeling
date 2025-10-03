@@ -1,6 +1,6 @@
-function steadyStateCAy = getSteadyStateCAy(result, grid, targetCAx)
-    SA_CG = grid.SA_CG;
-    dSteer = grid.dSteer;
+function steadyStateCAy = getSteadyStateCAy(result, targetCAx)
+    SA_CG = result.grid.SA_CG;
+    dSteer = result.grid.dSteer;
     zeroMz_CAy_SA = zeros(length(SA_CG),1);
     zeroMz_CAy_ST = zeros(length(dSteer),1);
     zeroMz_SteerDeg = zeros(length(SA_CG),1);
