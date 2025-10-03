@@ -1,7 +1,8 @@
 clear;
-close all;
 
-carParams.m = 645 * 0.45359237;                        % Total Mass [kg]
+% FE12 constants
+% Chasis/suspension constants
+carParams.m = 270;                        % Total Mass [kg]
 carParams.PFront = 53.4/100;              % Percent Mass Front [0-1]
 carParams.WB = 1.582;                     % Wheelbase [m]
 carParams.TWf = 1.240;                    % Trackwidth [m]
@@ -13,16 +14,16 @@ carParams.CamberFront = -1.3; % deg
 carParams.CamberRear = -1;    % deg   
 
 % Aero constants
-carParams.Cl = 2.66;
-carParams.Cd = 1.25; 
-carParams.CoP = 40/100;                   % front downforce distribution (%)
+carParams.Cl = 3.215;
+carParams.Cd = 1.468; 
+carParams.CoP = 45/100;                   % front downforce distribution (%)
 carParams.rho = 1.165;                    % kg/m^3
-carParams.crossA = 0.960;                % m^2
+carParams.crossA = 0.9237;                % m^2
 
 % braking system
 carParams.B_FBB = 55/45;                    % Front brake bias
 
-% drivetrain
+% powertrain
 carParams.drivetrain.M_torque = 220;             % [N·m] max motor torque (torque cap)
 carParams.drivetrain.Power    = 80;              % [kW] motor power (constant-power region)
 carParams.drivetrain.KMV      = 12;              % [RPM/V] motor speed constant
@@ -39,7 +40,12 @@ tire.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 carParams.tire = tire;
 
 grid.SA_CG = -5:5;
-grid.dSteer = -15:15;
+grid.dSteer = -30:30;
 grid.V = 30;
 
-mmd.core.solve(grid, carParams, "free_rolling")
+result = mmd.core.solve(grid, carParams, "level_surface", 0)
+
+maxFy = mmd.analysis.getSteadyStateCAy(result, 0)
+
+mmd.plot.plotMMD(result, maxFy)
+mmd.plot.plot3DMMD(result)

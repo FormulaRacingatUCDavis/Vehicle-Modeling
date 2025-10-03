@@ -16,11 +16,11 @@ carParams.TireInclinationFront = -1.3; % deg
 carParams.TireInclinationRear = -1;    % deg   
 
 % Aero constants
-carParams.Cl = 2.66;
-carParams.Cd = 1.25; 
+carParams.Cl = 4.16;
+carParams.Cd = 1.64; 
 carParams.CoP = 40/100;                   % front downforce distribution (%)
 carParams.rho = 1.165;                    % kg/m^3
-carParams.crossA = 0.960;                % m^2
+carParams.crossA = 0.99;                % m^2
 
 % braking system
 carParams.B_FBB = 55/45;                    % Front brake bias

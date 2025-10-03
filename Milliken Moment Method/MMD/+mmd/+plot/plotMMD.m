@@ -1,4 +1,5 @@
 function plotMMD(result, SSAy)
+    V      = result.grid.V;
     SA_CG  = result.grid.SA_CG;
     dSteer = result.grid.dSteer;
     CAyVel = result.CAyVel;
@@ -28,7 +29,7 @@ function plotMMD(result, SSAy)
     
     title({'Free Rolling MMD: Constant Velocity' ...
            ['Velocity = ', num2str(V),' m/s'] ...
-           ['Minimum Radius = ' num2str(V.^2./(SSFy.CAy.*9.81)) ' m']...
+           % ['Minimum Radius = ' num2str(V.^2./(SSFy.CAy.*9.81)) ' m']...
           },'Interpreter','latex')
     
     

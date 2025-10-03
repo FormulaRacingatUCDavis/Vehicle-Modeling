@@ -45,8 +45,8 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
 
     % initialize driving/braking conditions
     if mode == "level_surface"
-        initRunResult = mmd.core.solve(grid, carParams, "free_rolling", 0, prevResult, models, config);
-        grid.driveCondition = (ones(size(initRunResult.AxVel)).* targetCAx - initRunResult.AxVel ./ 9.81) > 0;
+        prevResult = mmd.core.solve(grid, carParams, "free_rolling", 0, prevResult, models, config);
+        grid.driveCondition = (ones(size(prevResult.CAxVel)).* targetCAx - prevResult.CAxVel) > 0;
     elseif mode == "drive"
         grid.driveCondition = ones(length(grid.dSteer), length(grid.SA_CG));
     elseif mode == "brake"
@@ -70,12 +70,15 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     Omega  = zeros(length(grid.dSteer), length(grid.SA_CG));
 
     if ~isempty(prevResult)
-        AyBodyinit = prevResult.AyBody;
-        AxBodyinit = prevResult.AxBody;
+        AyBodyinit = prevResult.CAyBody .* 9.81;
+        AxBodyinit = prevResult.CAxBody .* 9.81;
     else
         AyBodyinit = zeros(length(grid.dSteer), length(grid.SA_CG));
         AxBodyinit = zeros(length(grid.dSteer), length(grid.SA_CG));
     end
+
+    grid.SA_CG = deg2rad(grid.SA_CG);
+    grid.dSteer = deg2rad(grid.dSteer);
 
     % This is for the parallel for loop. It prevents the grid being 
     % copied to all the workers and cost extra memory
@@ -84,7 +87,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     constAxBodyinit = parallel.pool.Constant(AxBodyinit);
     V = grid.V;
 
-    for i = 1:length(constGrid.Value.dSteer)
+    parfor i = 1:length(constGrid.Value.dSteer)
 
         dSteer = constGrid.Value.dSteer;
         SA_CG = constGrid.Value.SA_CG;
