@@ -43,9 +43,10 @@ grid.SA_CG = -5:5;
 grid.dSteer = -30:30;
 grid.V = 30;
 
-result = mmd.core.solve(grid, carParams, "level_surface", 0)
+result = mmd.core.solve(grid, carParams, "free_rolling")
 
-maxFy = mmd.analysis.getSteadyStateCAy(result, 0)
+%%
+maxFy = mmd.analysis.getSteadyStateCAy(result, 0.15)
 
 mmd.plot.plotMMD(result, maxFy)
 mmd.plot.plot3DMMD(result)

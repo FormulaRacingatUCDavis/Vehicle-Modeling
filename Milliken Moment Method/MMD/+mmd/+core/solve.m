@@ -23,7 +23,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
 
         % mode: running mode
         mode           (1, 1) string
-        targetCAx      (1, 1) double = 0
+        targetCAx             double = 0
 
         % previous result: result from previous run to accel iteration
         prevResult            struct = []
