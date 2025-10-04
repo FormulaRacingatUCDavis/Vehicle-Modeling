@@ -29,7 +29,7 @@ classdef MMD
                 prevResult       struct = []
             end
             % Evaluate MMD
-            result = mmd.core.solve(grid, obj.carParams, mode, targetCAx, prevResult, obj.models, obj.config);
+            result = MMD.core.solve(grid, obj.carParams, mode, targetCAx, prevResult, obj.models, obj.config);
         end
     end
 end

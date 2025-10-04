@@ -1,4 +1,4 @@
-function plot3DMMD(result)
+function fig = plot3DMMD(result, fig)
     dSteer = result.grid.dSteer;
     SA_CG  = result.grid.SA_CG;
     MzBody = result.MzBody;
@@ -6,7 +6,11 @@ function plot3DMMD(result)
     CAyVel = result.CAyVel;
 
 
-    figure
+    if nargin == 2
+        figure(fig);
+    else
+        fig = figure;
+    end
     hold on
     grid on
     

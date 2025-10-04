@@ -35,9 +35,9 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
         config         (1, 1) struct = struct()
     end
 
-    if ~isfield(models,'motorLimitFn'),     models.motorLimitFn     = @mmd.models.motorLimit_default; end
-    if ~isfield(models,'weightTransferFn'), models.weightTransferFn = @mmd.models.weightTransfer_default; end
-    if ~isfield(models,'steeringModel'),    models.steeringModel    = @mmd.models.steeringModel_default; end
+    if ~isfield(models,'motorLimitFn'),     models.motorLimitFn     = @MMD.models.motorLimit_default; end
+    if ~isfield(models,'weightTransferFn'), models.weightTransferFn = @MMD.models.weightTransfer_default; end
+    if ~isfield(models,'steeringModel'),    models.steeringModel    = @MMD.models.steeringModel_default; end
     if ~isfield(config,'tol'),     config.tol = 1e-3; end
     if ~isfield(config,'maxIter'), config.maxIter = 1000; end
     if ~isfield(config,'pr'),      config.pr = 0.0; end
@@ -45,7 +45,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
 
     % initialize driving/braking conditions
     if mode == "level_surface"
-        prevResult = mmd.core.solve(grid, carParams, "free_rolling", 0, prevResult, models, config);
+        prevResult = MMD.core.solve(grid, carParams, "free_rolling", 0, prevResult, models, config);
         grid.driveCondition = (ones(size(prevResult.CAxVel)).* targetCAx - prevResult.CAxVel) > 0;
     elseif mode == "drive"
         grid.driveCondition = ones(length(grid.dSteer), length(grid.SA_CG));
@@ -87,7 +87,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     constAxBodyinit = parallel.pool.Constant(AxBodyinit);
     V = grid.V;
 
-    parfor i = 1:length(constGrid.Value.dSteer)
+    for i = 1:length(constGrid.Value.dSteer)
 
         dSteer = constGrid.Value.dSteer;
         SA_CG = constGrid.Value.SA_CG;
@@ -109,7 +109,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
                 rowCAyVel(j),            ...
                 rowMzBody(j),           ...
                 rowOmega(j)             ...
-            ] = mmd.core.iterateOneCell ...
+            ] = MMD.core.iterateOneCell ...
             (                           ...
                 carParams,              ...
                 dSteer(i),              ...
