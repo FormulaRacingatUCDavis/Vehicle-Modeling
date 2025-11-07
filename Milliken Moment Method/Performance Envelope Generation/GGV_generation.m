@@ -1,10 +1,36 @@
 clear; clc; close all;
 
-mmd = MMD.MMD(Cars.FE12());
+carParams = Cars.FE12();
 
-GGV_data = generate_GGV(mmd, 10:5:45);
+% % car parameter override
+% carParas.m = 114514; % (random number)
+% 
+% % model override
+% models.weightTransferFn = @SampoWeightTransferModel;
+% 
+% % extra configurations (not quite implemented)
+% config.log     = true;
+% config.maxIter = 500;
 
-GGV_data = [GGV_data; (GGV_data' .* [1; -1; 1])'];
+carParams.m = 280;
+carParams.Cl = -0.13;
+carParams.Cd = 0.87;
+carParams.crossA = 0.620;
+carParams.tire.CorrectionFactor = 0.7;
+
+mmd = MMD.MMD(carParams);
+
+% % Example use: generate and plot MMD
+% grid.SA_CG  = -5:5;
+% grid.dSteer = -15:15;
+% grid.V      = 30;
+% result = mmd.evaluate(grid, "free_rolling");
+% MMD.plot.plot3DMMD(result)
+
+% Example use: generate GGV
+V = linspace(7, 50, 20);
+%% 
+GGV_data = generate_GGV(mmd, V);
 
 %%
 scatter3(GGV_data(:, 1), GGV_data(:, 2), GGV_data(:, 3))
@@ -15,3 +41,10 @@ zlabel("V")
 
 xlim([-5, 5])
 ylim([-5, 5])
+
+%%
+[filename, pathname] = uiputfile('*.mat', 'save data');
+if ~(isequal(filename,0) || isequal(pathname,0))
+    save(fullfile(pathname, filename), "GGV_data", "carParams");
+    disp(['GGV data saved' fullfile(pathname, filename)]);
+end

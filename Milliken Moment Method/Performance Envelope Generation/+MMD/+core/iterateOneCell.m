@@ -91,8 +91,8 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, MzBody, Omega] = iterateOneCell(carP
                 TireFxTarget([3, 4]) = (sum(TM_Fx) + Ferror) / (2 * (1 + B_FBB));
             end
             
-            tireSR = calcSR(TireFxTarget, driveCondition, B_FBB, Tire, rad2deg(SA_Wheel), Fz , TirePressure ,...
-                    TireInclination, V_Wheel, Idx, Model);
+            tireSR = calcSR(carParams, TireFxTarget, driveCondition, rad2deg(SA_Wheel), Fz ,...
+                    TireInclination, V_Wheel);
         end
 
         for p = 1:4
@@ -144,7 +144,7 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, MzBody, Omega] = iterateOneCell(carP
             % TM_Fx(p) = TM_Fx(p) .* 0; 
 
             % Calspan TTC Data usual correction factor - 0.7
-            TM_Fx(p) = TM_Fx(p) .* 0.7;
+            TM_Fx(p) = TM_Fx(p) .* carParams.tire.CorrectionFactor ;
             % Tire Model outputs in opposite Y coordinates
             TM_Fy(p) = (1).* TM_Fy(p) .* 0.53;
 

@@ -39,7 +39,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     if ~isfield(models,'weightTransferFn'), models.weightTransferFn = @MMD.models.weightTransfer_default; end
     if ~isfield(models,'steeringModel'),    models.steeringModel    = @MMD.models.steeringModel_default; end
     if ~isfield(config,'tol'),     config.tol = 1e-3; end
-    if ~isfield(config,'maxIter'), config.maxIter = 1000; end
+    if ~isfield(config,'maxIter'), config.maxIter = 600; end
     if ~isfield(config,'pr'),      config.pr = 0.0; end
     if ~isfield(config,'log'),     config.log = false; end
 
@@ -87,7 +87,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     constAxBodyinit = parallel.pool.Constant(AxBodyinit);
     V = grid.V;
 
-    for i = 1:length(constGrid.Value.dSteer)
+    parfor i = 1:length(constGrid.Value.dSteer)
 
         dSteer = constGrid.Value.dSteer;
         SA_CG = constGrid.Value.SA_CG;

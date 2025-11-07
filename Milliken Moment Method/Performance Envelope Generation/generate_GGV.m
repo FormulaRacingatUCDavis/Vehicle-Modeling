@@ -62,4 +62,6 @@ function GGV_data = generate_GGV(mmd, V, SA_CG, dSteer, stepSize)
             GGV_data = [GGV_data; [targetCAx SSAy.CAy v]];
         end
     end
+
+    GGV_data = [GGV_data; (GGV_data' .* [1; -1; 1])'];
 end

@@ -1,16 +1,18 @@
-function SR = calcSR(FxTarget, driveCondtion, B_FBB, Tire, SlipAngle, NormalLoad, Pressure, Inclination, Velocity, Idx, Model)
+function SR = calcSR(carParams, FxTarget, driveCondtion, SlipAngle, NormalLoad, Inclination, Velocity)
     % The "inverse" tire model for MMD with level surface
     SR = zeros(4, 1);
     tireSRCurve = cell(4, 1);
     minFx = zeros(4, 1);
     maxFx = zeros(4, 1);
+    B_FBB = carParams.B_FBB;
+
 
     % Get the Fx-slipratio curves
     for p=1:4
         if driveCondtion && any(p==[1,2])
             continue
         end
-        [tireSRCurve{p}, minFx(p), maxFx(p)] = getTireSRCurve(Tire, SlipAngle(p), NormalLoad(p), Pressure, Inclination, Velocity(p), Idx, Model);
+        [tireSRCurve{p}, minFx(p), maxFx(p)] = getTireSRCurve(carParams, SlipAngle(p), NormalLoad(p), Inclination, Velocity(p));
     end
 
     % Determine if tires are saturated and reset FxTarget
@@ -64,15 +66,20 @@ function SR = calcSR(FxTarget, driveCondtion, B_FBB, Tire, SlipAngle, NormalLoad
     % end
 end
 
-function [tireSRCurve, minFx, maxFx] = getTireSRCurve(Tire, SlipAngle, NormalLoad, Pressure, Inclination, Velocity, Idx, Model)
+function [tireSRCurve, minFx, maxFx] = getTireSRCurve(carParams, SlipAngle, NormalLoad, Inclination, Velocity)
     SlipRatio = linspace(-1, 1, 1000)';
+
+    Tire = carParams.tire.Tire;
+    Pressure = carParams.tire.TirePressure;
+    Idx = carParams.tire.Idx;
+    Model = carParams.tire.Model;
     
     [Fx, ~, ~, ~, ~] = ContactPatchLoads( Tire, ...
         SlipAngle, SlipRatio, ...
         NormalLoad, Pressure, Inclination, Velocity, ...
         Idx, Model );
 
-    Fx = Fx .* 0.7; % tire correction factor
+    Fx = Fx .* carParams.tire.CorrectionFactor; % tire correction factor
     
     [maxFx, max_idx] = max(Fx);
     [minFx, min_idx] = min(Fx);
