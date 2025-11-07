@@ -3,7 +3,7 @@ clc; clear; close all
 %% Initialization
 f1 = figure;
 j = 1;
-imageFile = 'Screenshot 2024-11-04 174632.jpg';
+imageFile = 'Screenshot_20250909-185228_7.png';
 image = imread(imageFile);
 imshow(imageFile);
 hold on;
