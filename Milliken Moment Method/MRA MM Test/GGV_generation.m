@@ -84,9 +84,9 @@ dataPoints = [dataPoints dataPoints .* [1; -1; 1]];
 
 %%
 
-x = dataPoints(3, :);
+x = dataPoints(1, :);
 y = dataPoints(2, :);
-z = dataPoints(1, :);
+z = dataPoints(3, :);
 
 xrange = linspace(min(x), max(x), 100);
 yrange = linspace(min(y), max(y), 100);

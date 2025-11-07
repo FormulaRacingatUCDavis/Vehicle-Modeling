@@ -36,5 +36,6 @@ function carParams = FE12()
     tire.Idx = 1;                     % Moment of Inertia in x for wheel
     tire.TirePressure = 70;           % kPa
     tire.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
+    tire.CorrectionFactor = 1;
     carParams.tire = tire;
 end
