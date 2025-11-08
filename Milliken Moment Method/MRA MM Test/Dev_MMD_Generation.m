@@ -796,7 +796,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
-V = 30; % Velocity [m/s]
+V = 1; % Velocity [m/s]
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);
@@ -827,7 +827,7 @@ pr = 0.000;
 %%% CHOOSE RANGE FOR LONGITUDINAL ACCELERATION
 %%%
 %%%
-targetCAx = -10; % G's
+targetCAx = 0; % G's
 % f = waitbar(0, 'Starting');
 tic
 
