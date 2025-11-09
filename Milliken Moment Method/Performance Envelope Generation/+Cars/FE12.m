@@ -15,7 +15,7 @@ function carParams = FE12()
     % Aero constants
     carParams.Cl = 3.215;
     carParams.Cd = 1.468; 
-    carParams.CoP = 45/100;                   % front downforce distribution (%)
+    carParams.CoP = 37.85/100;                   % front downforce distribution (%)
     carParams.rho = 1.165;                    % kg/m^3
     carParams.crossA = 0.9237;                % m^2
     

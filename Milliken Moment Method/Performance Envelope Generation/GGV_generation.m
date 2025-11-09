@@ -14,8 +14,9 @@ carParams = Cars.FE12();
 
 carParams.m = 280;
 carParams.Cl = -0.13;
-carParams.Cd = 0.87;
-carParams.crossA = 0.620;
+carParams.Cd = 0.78;
+carParams.crossA = 0.62;
+carParams.CoP = 7.65/100;
 carParams.tire.CorrectionFactor = 0.7;
 
 mmd = MMD.MMD(carParams);
