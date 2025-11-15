@@ -3,7 +3,7 @@ function plotMMD(result, SSAy)
     SA_CG  = result.grid.SA_CG;
     dSteer = result.grid.dSteer;
     CAyVel = result.CAyVel;
-    MzBody = result.MzBody;
+    MzBody = result.CMzBody;
 
     figure
     hold on

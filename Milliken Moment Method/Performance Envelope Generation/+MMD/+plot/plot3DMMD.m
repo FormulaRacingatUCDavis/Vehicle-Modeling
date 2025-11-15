@@ -1,7 +1,7 @@
 function fig = plot3DMMD(result, fig)
     dSteer = result.grid.dSteer;
     SA_CG  = result.grid.SA_CG;
-    MzBody = result.MzBody;
+    CMzBody = result.CMzBody;
     CAxVel = result.CAxVel;
     CAyVel = result.CAyVel;
 
@@ -16,7 +16,7 @@ function fig = plot3DMMD(result, fig)
     
     for i = 1:length(dSteer)
     
-        steer = plot3(MzBody(i,:),CAyVel(i,:),CAxVel(i,:), "Color", "blue", 'LineStyle','--');
+        steer = plot3(CMzBody(i,:),CAyVel(i,:),CAxVel(i,:), "Color", "blue", 'LineStyle','--');
         % if mod(i,7) == 0
         %     labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg steer'];  % Dynamic label for clarity
         %     % text(saveCAyVel(i,end), saveMzBody(i,end), labelText)
@@ -25,7 +25,7 @@ function fig = plot3DMMD(result, fig)
     end
     
     for i = 1:length(SA_CG)
-        slip = plot3(MzBody(:,i),CAyVel(:,i),CAxVel(:,i), "Color", "red", 'LineStyle','--');
+        slip = plot3(CMzBody(:,i),CAyVel(:,i),CAxVel(:,i), "Color", "red", 'LineStyle','--');
         % if mod(i,7) == 0
         %     labelText = ['\leftarrow ',num2str(rad2deg(dSteer(i))), ' deg SA'];  % Dynamic label for clarity
         %     % text(saveCAyVel(1,i), saveMzBody(1,i), labelText)

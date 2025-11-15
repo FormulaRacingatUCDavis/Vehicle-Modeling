@@ -1,4 +1,4 @@
-function [CAxBody, CAyBody, CAxVel, CAyVel, MzBody, Omega] = iterateOneCell(carParams, dSteer, SA_CG, V, driveCondition, targetCAx, models, AxBodyinit, AyBodyinit, config)
+function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(carParams, dSteer, SA_CG, V, driveCondition, targetCAx, models, AxBodyinit, AyBodyinit, config)
     % unpack car params
     m = carParams.m;                % Total Mass [kg]
     PFront = carParams.PFront;      % Percent Mass Front [0-1]
@@ -195,7 +195,7 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, MzBody, Omega] = iterateOneCell(carP
     
     CAxBody = itAxBody(end) / g;
     CAyBody = itAyBody(end) / g;
-    MzBody = MzBody/(m.*g.*WB);
+    CMzBody = MzBody/(m.*g.*WB);
     CAxVel = CAxBody * cos(SA_CG) + CAyBody .* sin(SA_CG);
     CAyVel = CAyBody.* cos(SA_CG) - CAxBody .* sin(SA_CG);
     Omega  = itOmega(end);

@@ -6,7 +6,7 @@ function steadyStateCAy = getSteadyStateCAy(result, targetCAx)
     zeroMz_SteerDeg = zeros(length(SA_CG),1);
     zeroMz_SADeg = zeros(length(dSteer),1);
 
-    MzBody = result.MzBody;
+    MzBody = result.CMzBody;
     CAyVel = result.CAyVel;
     CAxVel = result.CAxVel;
     

@@ -66,7 +66,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     CAxBody = zeros(length(grid.dSteer), length(grid.SA_CG));
     CAxVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
     CAyVel  = zeros(length(grid.dSteer), length(grid.SA_CG));
-    MzBody = zeros(length(grid.dSteer), length(grid.SA_CG));
+    CMzBody = zeros(length(grid.dSteer), length(grid.SA_CG));
     Omega  = zeros(length(grid.dSteer), length(grid.SA_CG));
 
     if ~isempty(prevResult)
@@ -97,7 +97,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
         rowCAyBody = zeros(1, length(SA_CG));
         rowCAxVel  = zeros(1, length(SA_CG));
         rowCAyVel  = zeros(1, length(SA_CG));
-        rowMzBody = zeros(1, length(SA_CG));
+        rowCMzBody = zeros(1, length(SA_CG));
         rowOmega  = zeros(1, length(SA_CG));
 
         for j = 1:length(SA_CG)
@@ -107,7 +107,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
                 rowCAyBody(j),           ...
                 rowCAxVel(j),            ...
                 rowCAyVel(j),            ...
-                rowMzBody(j),           ...
+                rowCMzBody(j),           ...
                 rowOmega(j)             ...
             ] = MMD.core.iterateOneCell ...
             (                           ...
@@ -129,7 +129,7 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
         CAyBody(i, :) = rowCAyBody;
         CAxVel(i, :)  = rowCAxVel;
         CAyVel(i, :)  = rowCAyVel;
-        MzBody(i, :) = rowMzBody;
+        CMzBody(i, :) = rowCMzBody;
         Omega(i, :)  = rowOmega;
     end
 
@@ -137,9 +137,10 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     result.CAyBody = CAyBody;
     result.CAxVel  = CAxVel;
     result.CAyVel  = CAyVel;
-    result.MzBody = MzBody;
+    result.CMzBody = CMzBody;
     result.Omega  = Omega;
     result.grid   = grid;
+    result.carParams = carParams;
 end
 
 function coord_AllW = calcWheelCoords(carParams)

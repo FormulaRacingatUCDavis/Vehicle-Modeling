@@ -796,7 +796,7 @@ coord_AllW = [coord_W1, coord_W2, coord_W3, coord_W4];
 
 %% SECTION 4: TESTING ACCELERATION LEVEL SURFACES - CONSTANT VELOCITY
 
-V = 1; % Velocity [m/s]
+V = 30; % Velocity [m/s]
 
 % Mat Initialization
 SA_Wheel = zeros(4,1);
@@ -1097,7 +1097,7 @@ for i = 1:length(dSteer)
                     TireFxTarget([3, 4]) = (sum(TM_Fx) + Ferror) / (2 * (1 + B_FBB));
                 end
                 
-                tireSR = calcSR(TireFxTarget, driveCondition(i, j), B_FBB, Tire, rad2deg(SA_Wheel), Fz , TirePressure ,...
+                tireSR = calcSR_old(TireFxTarget, driveCondition(i, j), B_FBB, Tire, rad2deg(SA_Wheel), Fz , TirePressure ,...
                         TireInclination, V_Wheel, Idx, Model);
             end
 

@@ -12,14 +12,15 @@ carParams = Cars.FE13();
 % config.log     = true;
 % config.maxIter = 500;
 
-% carParams.m = 280;
-% carParams.Cl = -0.13;
-% carParams.Cd = 0.78;
-% carParams.crossA = 0.62;
-% carParams.CoP = 7.65/100;
+carParams.m = carParams.m - (280 - 295);
+carParams.Cl = -0.13;
+carParams.Cd = 0.78;
+carParams.crossA = 0.62;
+carParams.CoP = 7.65/100;
 % carParams.tire.CorrectionFactor = 0.7;
 
 mmd = MMD.MMD(carParams);
+
 
 % % Example use: generate and plot MMD
 % grid.SA_CG  = -5:5;
@@ -29,7 +30,7 @@ mmd = MMD.MMD(carParams);
 % MMD.plot.plot3DMMD(result)
 
 % Example use: generate GGV
-V = linspace(20, 20, 1);
+V = linspace(9, 40, 20);
 %% 
 GGV_data = generate_GGV(mmd, V);
 
