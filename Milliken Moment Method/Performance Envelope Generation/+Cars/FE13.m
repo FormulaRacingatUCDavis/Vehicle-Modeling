@@ -1,4 +1,8 @@
-function carParams = FE13()
+function carParams = FE13(carParams)
+    arguments
+        carParams = struct()
+    end
+    
     % FE12 constants
     % Chasis/suspension constants
     carParams.m = 264.3;                        % Total Mass [kg]
@@ -11,6 +15,9 @@ function carParams = FE13()
     carParams.hCG = 0.292;                    % CG height [m]
     carParams.CamberFront = -1.248; % deg 
     carParams.CamberRear = -1.58;    % deg   
+
+    % Sampo model
+    
     
     % Aero constants
     carParams.Cl = 2.805385008;
