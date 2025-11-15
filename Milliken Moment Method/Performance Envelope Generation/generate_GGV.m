@@ -1,10 +1,11 @@
-function GGV_data = generate_GGV(mmd, V, SA_CG, dSteer, stepSize)
+function GGV_data = generate_GGV(mmd, V, SA_CG, dSteer, stepSize, levelSurfStepSize)
     arguments
         mmd
         V 
-        SA_CG = -5:1;
-        dSteer = -15:15;
+        SA_CG = linspace(-8, 1, 8);
+        dSteer = linspace(-20, 20, 30);
         stepSize = 0.05;
+        levelSurfStepSize = 0.1;
     end
 
     grid.SA_CG  = SA_CG;
@@ -55,7 +56,7 @@ function GGV_data = generate_GGV(mmd, V, SA_CG, dSteer, stepSize)
     
         % fill in the blanks
         level_surf_data = [];
-        for targetCAx = unique([targetCAxDecel:0.1:0 0:0.1:targetCAxAccel])
+        for targetCAx = unique([targetCAxDecel:levelSurfStepSize:0 0:levelSurfStepSize:targetCAxAccel])
             level_surf_data = mmd.evaluate(grid, "level_surface", targetCAx, level_surf_data);
 
             SSAy = MMD.analysis.getSteadyStateCAy(level_surf_data, targetCAx);

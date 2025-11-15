@@ -1,6 +1,6 @@
 clear;clc;close all;
 
-mmd = MMD.MMD(Cars.FE12());
+mmd = MMD.MMD(Cars.FE13());
 
 grid.SA_CG = 0:5;
 grid.dSteer = 0:30;

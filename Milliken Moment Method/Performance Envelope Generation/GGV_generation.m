@@ -1,6 +1,6 @@
 clear; clc; close all;
 
-carParams = Cars.FE12();
+carParams = Cars.FE13();
 
 % % car parameter override
 % carParas.m = 114514; % (random number)
@@ -12,12 +12,12 @@ carParams = Cars.FE12();
 % config.log     = true;
 % config.maxIter = 500;
 
-carParams.m = 280;
-carParams.Cl = -0.13;
-carParams.Cd = 0.78;
-carParams.crossA = 0.62;
-carParams.CoP = 7.65/100;
-carParams.tire.CorrectionFactor = 0.7;
+% carParams.m = 280;
+% carParams.Cl = -0.13;
+% carParams.Cd = 0.78;
+% carParams.crossA = 0.62;
+% carParams.CoP = 7.65/100;
+% carParams.tire.CorrectionFactor = 0.7;
 
 mmd = MMD.MMD(carParams);
 
@@ -29,7 +29,7 @@ mmd = MMD.MMD(carParams);
 % MMD.plot.plot3DMMD(result)
 
 % Example use: generate GGV
-V = linspace(7, 50, 20);
+V = linspace(20, 20, 1);
 %% 
 GGV_data = generate_GGV(mmd, V);
 

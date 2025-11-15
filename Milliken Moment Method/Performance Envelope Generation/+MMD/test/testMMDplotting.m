@@ -1,17 +1,16 @@
 clear;
 
-grid.SA_CG = -5:1;
-grid.dSteer = -15:15;
+grid.SA_CG = linspace(-8, 1, 10);
+grid.dSteer = linspace(-20, 20, 20);
 grid.V = 30;
 
-result = MMD.core.solve(grid, Cars.FE12(), "brake", -inf);
+result = MMD.core.solve(grid, Cars.FE13(), "brake", -inf);
 
 
 
 %%
 close all;
-maxFy = MMD.analysis.getSteadyStateCAy(result, 0);
+maxFy = MMD.analysis.getSteadyStateCAy(result, -1.8);
 
 MMD.plot.plotMMD(result, maxFy)
-% fig = MMD.plot.plot3DMMD(result)
-% MMD.plot.plot3DMMD(result2, fig)
+MMD.plot.plot3DMMD(result)
