@@ -1,7 +1,7 @@
 function [FaeroFront, FaeroRear, FaeroDrag] = aeroWithYaw(carParams, state)
     V = state.V;
-    yaw = state.yaw;
-    
+    yaw = rad2deg(abs(state.yaw));
+
     Cl = carParams.Cl(yaw);
     Cd = carParams.Cd; 
     CoP = carParams.CoP;            % front downforce distribution (%)
