@@ -6,10 +6,6 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(car
     CamberRear = carParams.CamberRear;
     WB = carParams.WB;
     
-    Cl = carParams.Cl;
-    Cd = carParams.Cd; 
-    CoP = carParams.CoP;            % front downforce distribution (%)
-    rho = carParams.rho;            % kg/m^3
     crossA = carParams.crossA;      % m^2
     
     B_FBB = carParams.B_FBB;        % Front brake bias
@@ -109,12 +105,13 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(car
 
         end
 
-
         [latWT_Front, latWT_Rear, longWT] = models.weightTransferFn(carParams, AxCurr, AyCurr);
 
-        FzAero = (1/2)*rho*crossA*Cl*V^2;
-        Fz_WeightFront = (m.*g.* PFront + FzAero .* CoP)/2;
-        Fz_WeightRear = (m.*g.* (1-PFront) + FzAero .* (1 - CoP))/2;
+        state.V = V;
+        state.yaw = SA_CG;
+        [FzaeroFront, FzaeroRear, FxDrag] = models.aeroModel(carParams, state);
+        Fz_WeightFront = (m.*g.* PFront + FzaeroFront)/2;
+        Fz_WeightRear = (m.*g.* (1-PFront) + FzaeroRear)/2;
 
         Fz(1,1) = Fz_WeightFront + longWT + latWT_Front;
         Fz(2,1) = Fz_WeightFront + longWT - latWT_Front;
@@ -157,8 +154,6 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(car
                                 coord_AllW(2,p) .* TM_Fy(p) .* sin(dSteer_AllW(p)) ;
                                 coord_AllW(1,p) .* TM_Fy(p) .* cos(dSteer_AllW(p))  ] ); 
         end
-
-        FxDrag = (1/2)*rho*crossA*Cd*V^2;
 
         FxBody = sum(FxTire) - FxDrag;
         FyBody = sum(FyTire);

@@ -2,7 +2,7 @@ function GGV_data = generate_GGV(mmd, V, SA_CG, dSteer, stepSize, levelSurfStepS
     arguments
         mmd
         V 
-        SA_CG = linspace(-8, 1, 8);
+        SA_CG = linspace(-5, 1, 5);
         dSteer = linspace(-20, 20, 30);
         stepSize = 0.05;
         levelSurfStepSize = 0.1;
