@@ -12,24 +12,24 @@ carParams = Cars.FE13();
 % config.log     = true;
 % config.maxIter = 500;
 
-carParams.m = carParams.m + (42-28-12)*0.453592;
+carParams.m = carParams.m + (42-28)*0.453592;
 %HDF HB
-% carParams.Cl = @(yaw) 3.42663 - 0.02214 .* yaw;
-% carParams.Cd = 1.446;
-% carParams.crossA = 0.99;
-% carParams.CoP = ?/100;
+carParams.Cl = @(yaw) 3.42663 - 0.02214 .* yaw;
+carParams.Cd = 1.446;
+carParams.crossA = 0.99;
+carParams.CoP = 57.94/100;
 
 %HDF MB
 % carParams.Cl = @(yaw) 3.2868 - 0.0195.* yaw;
 % carParams.Cd = 1.463;
 % carParams.crossA = 0.99;
-% carParams.CoP = ?/100;
+% carParams.CoP = 53.36/100;
 
 %HDF LB
 % carParams.Cl = @(yaw) 3.1363 -0.0251 .* yaw;
 % carParams.Cd = 1.428;
 % carParams.crossA = 0.99;
-% carParams.CoP = ?/100;
+% carParams.CoP = 55.11/100;
 
 %LDF HB
 % carParams.Cl = @(yaw) 3.4095 -0.0425 .* yaw;
@@ -38,10 +38,10 @@ carParams.m = carParams.m + (42-28-12)*0.453592;
 % carParams.CoP = 63.79/100;
 
 %LDF MB
-carParams.Cl = @(yaw) 3.0931 -0.0316 .* yaw;
-carParams.Cd = 1.27;
-carParams.crossA = 0.99;
-carParams.CoP = 54.31/100;
+% carParams.Cl = @(yaw) 3.0931 -0.0316 .* yaw;
+% carParams.Cd = 1.27;
+% carParams.crossA = 0.99;
+% carParams.CoP = 54.31/100;
 
 %LDF LB
 % carParams.Cl = @(yaw) 2.9822 -0.0405 .* yaw;
@@ -77,7 +77,7 @@ xlim([-5, 5])
 ylim([-5, 5])
 
 %%
-[filename, pathname] = uiputfile('*.mat', 'save data LDF MB');
+[filename, pathname] = uiputfile('*.mat', 'save data HDF HB');
 if ~(isequal(filename,0) || isequal(pathname,0))
     save(fullfile(pathname, filename), "GGV_data", "carParams");
     disp(['GGV data saved' fullfile(pathname, filename)]);
