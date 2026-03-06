@@ -13,11 +13,24 @@ carParams = Cars.FE13();
 % config.maxIter = 500;
 
 carParams.m = carParams.m + (42-28)*0.453592;
+
+% DRS deactivated
+% carParams.Cl = 4.17;
+% carParams.Cd = 1.37;
+% carParams.crossA = 0.9594448;
+% carParams.CoP = 57.5/100;
+
+% DRS activated
+carParams.Cl = 3.169824686;
+carParams.Cd = 0.934578223;
+carParams.crossA = 0.8197688;
+carParams.CoP = 92.19027169/100;
+
 %HDF HB
-carParams.Cl = @(yaw) 3.42663 - 0.02214 .* yaw;
-carParams.Cd = 1.446;
-carParams.crossA = 0.99;
-carParams.CoP = 57.94/100;
+% carParams.Cl = @(yaw) 3.42663 - 0.02214 .* yaw;
+% carParams.Cd = 1.446;
+% carParams.crossA = 0.99;
+% carParams.CoP = 57.94/100;
 
 %HDF MB
 % carParams.Cl = @(yaw) 3.2868 - 0.0195.* yaw;
@@ -49,9 +62,9 @@ carParams.CoP = 57.94/100;
 % carParams.crossA = 0.99;
 % carParams.CoP = 45.46/100;
 
-models.aeroModel = @MMD.models.aeroWithYaw;
+% models.aeroModel = @MMD.models.aeroWithYaw;
 
-mmd = MMD.MMD(carParams, models);
+mmd = MMD.MMD(carParams);
 
 
 % % Example use: generate and plot MMD

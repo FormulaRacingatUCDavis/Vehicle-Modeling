@@ -6,6 +6,8 @@ for(i = 1:length(Files))
     GGV_data_points{i} = load(Files(i)).GGV_data;
 end
 
+%%
+
 tiledlayout(2, 3)
 for(i = 1:length(Files))
     nexttile
@@ -25,6 +27,7 @@ for(i = 1:length(Files))
     ylim([-3, 3])
 end
 
+%%
 figure;
 hold on
 for(i = 1:length(Files))
