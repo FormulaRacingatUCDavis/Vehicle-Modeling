@@ -48,7 +48,7 @@ tic
 
 %% Filenames
 
-trackfile = 'OpenTRACK Tracks/OpenTRACK_Donington Park_Closed_Forward.mat' ;
+trackfile = '2015-18_LCN_END.mat' ;
 vehiclefile = 'OpenVEHICLE Vehicles/OpenVEHICLE_Formula 1_Open Wheel.mat' ;
 
 %% Loading circuit

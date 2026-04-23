@@ -3,7 +3,7 @@ clc; clear; close all
 %% Initialization
 f1 = figure;
 j = 1;
-imageFile = 'Screenshot_20250909-185228_7.png';
+imageFile = '2015-18_Lincoln_Endurance.jpg';
 image = imread(imageFile);
 imshow(imageFile);
 hold on;
@@ -26,7 +26,7 @@ while true
            break
         end
         % ginput(number) throws error when 'ENTER' is pressed
-        [scaleX(j), scaleY(j)] = ginput(1);
+        [scaleX(j), scaleY(j)] = ginput_mod(1, [1 0 0]);
         plot(scaleX(j), scaleY(j),'ro','MarkerFaceColor','r','MarkerSize',3)
         
         if j == 2
