@@ -12,21 +12,17 @@ Data = Data(idx, :);
 time = datetime(Data.time);
 
 % with switch on the top (Jonah)
-% Ay = Data.AccY_g_;
-% Az = Data.AccX_g_;
-% Ax = -Data.AccZ_g_;
-
 Ax = Data.AccX_g_';
 Ay = Data.AccY_g_';
 Az = Data.AccZ_g_';
 Acc = [Az; Ay; Ax];
 
-R = eul2rotm([0 0 0]);
+R = eul2rotm([0 pi/2 0]);
 Acc_transformed = R * Acc;
 
-Ax = Acc_transformed(1, :)';
+Az = Acc_transformed(1, :)';
 Ay = Acc_transformed(2, :)';
-Az = Acc_transformed(3, :)';
+Ax = Acc_transformed(3, :)';
 
 yaw = Data.AngleX___;
 yawRate = Data.AsX___s_;
