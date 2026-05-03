@@ -5,8 +5,8 @@ jonah_data = load("FE13_BlueMax_Jonah.mat");
 
 figure
 hold on
-scatter(jonah_data.Ay, jonah_data.Ax)
-scatter(jian_data.Ay, jian_data.Ax)
+scatter(jonah_data.smoothAy, jonah_data.smoothAx)
+scatter(jian_data.smoothAy, jian_data.smoothAx)
 legend('Jonah', 'Jian');
 xlabel('Ax');
 ylabel('Ay');

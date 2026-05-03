@@ -10,7 +10,7 @@ function main(track)
     fig = figure();
     ax = axes('Parent', fig, 'Position', [0.08 0.25 0.88 0.70]);
     hold(ax, "on")
-    plot(ax, TrackInfo.coords(:, 1), TrackInfo.coords(:, 2));
+    plot(ax, TrapckInfo.coords(:, 1), TrackInfo.coords(:, 2));
     drs_section = plot(ax, 0, 0, "r");
     
     % GUI parts

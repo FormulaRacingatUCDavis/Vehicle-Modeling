@@ -1,41 +1,53 @@
 clear; clc; close all;
 
 % load data
-% Data = readtable("FE13_BlueMax_endurance.csv");
-Data = readtable("FE13_BlueMax_Jonah_Warmup.csv");
-Data = Data(9e4:end, :);
-% Data = readtable("FE13_BlueMax_Jian_Warmup.csv");
+% Data = readtable("FE13_BlueMax_Jonah_Warmup.csv");
+% Data = Data(9e4:end, :);
+Data = readtable("FE13_BlueMax_Jian_Warmup.csv");
 
 [~, idx] = unique(Data.time);
 Data = Data(idx, :);
 %% Match the axsis
 time = datetime(Data.time);
+time_s = seconds(time - time(1));
 
 % with switch on the top (Jonah)
-Ax = Data.AccX_g_';
-Ay = Data.AccY_g_';
-Az = Data.AccZ_g_';
-Acc = [Az; Ay; Ax];
-
-R = eul2rotm([0 pi/2 0]);
-Acc_transformed = R * Acc;
-
-Az = Acc_transformed(1, :)';
-Ay = Acc_transformed(2, :)';
-Ax = Acc_transformed(3, :)';
-
-yaw = Data.AngleX___;
-yawRate = Data.AsX___s_;
+% Ax = Data.AccX_g_';
+% Ay = Data.AccY_g_';
+% Az = Data.AccZ_g_';
+% Acc = [Az; Ay; Ax];
+% 
+% function [Ax, Ay, Az] = transform_data(Acc, eul)
+%     R = eul2rotm(eul);
+%     Acc_transformed = R * Acc;
+% 
+%     Az = Acc_transformed(1, :)';
+%     Ay = Acc_transformed(2, :)';
+%     Ax = Acc_transformed(3, :)';
+% end
+% 
+% function loss = loss(x, Acc, time_s)
+%     [Ax, ~, ~] = transform_data(Acc, [0, pi/2 + x, 0]);
+%     Vx = cumtrapz(time_s, Ax, 1);
+%     loss = var(Vx);
+% end
+% 
+% f = @(x) loss(x, Acc, time_s);
+% delta_angle = fminbnd(f, -pi/4, pi/4);
+% 
+% [Ax, Ay, Az] = transform_data(Acc, [0, pi/2 + delta_angle, 0]);
+% 
+% yaw = Data.AngleX___;
+% yawRate = Data.AsX___s_;
 
 
 % with switch on the left (Jian)
-% Ax = Data.AccY_g_;
-% Ay = -Data.AccX_g_;
-% Az = Data.AccZ_g_;
-% yaw = Data.AngleZ___;
-% yawRate = Data.AsZ___s_;
+Ax = Data.AccY_g_;
+Ay = -Data.AccX_g_;
+Az = Data.AccZ_g_;
+yaw = Data.AngleZ___;
+yawRate = Data.AsZ___s_;
 
-time_s = seconds(time - time(1));
 Vx = cumtrapz(time_s, Ax);
 X = Data.time;% cumtrapz(time_s, Vx);
 
@@ -52,7 +64,7 @@ legend('AccX', 'AccY', 'AccZ');
 title('Raw accel data');
 
 %% Smoothing
-windowSize = 1000; 
+windowSize = 50; 
 smoothAx = smoothdata(Ax, 'movmean', windowSize);
 smoothAy = smoothdata(Ay, 'movmean', windowSize);
 smoothAz = smoothdata(Az, 'movmean', windowSize);
@@ -107,4 +119,4 @@ plot(Data.time, Vx);
 
 %%
 
-save("FE13_BlueMax_Jonah")
+save("FE13_BlueMax_Jian")
