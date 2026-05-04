@@ -1,22 +1,30 @@
 clear; clc; close all
 
 % load car
-FE13 = Cars.FE13();
+carParams = Cars.FE13();
 
 % no aero
-carParams.Cl = -0.13;
-carParams.Cd = 0.78;
-carParams.CoP = 0.0765;
-carParams.crossA = 0.62;
+% carParams.Cl = -0.13;
+% carParams.Cd = 0.78;
+% carParams.CoP = 0.0765;
+% carParams.crossA = 0.62;
+
+% HDF MB
+% carParams.Cl = @(yaw) 3.42663 - 0.02214 .* yaw;
+% carParams.Cd = 1.446;
+% carParams.crossA = 0.99;
+% carParams.CoP = 57.94/100;
 
 % Run data with different velocity
-V = linspace(10, 30, 20);
-mmd = MMD.MMD(FE13);
+V = linspace(15, 30, 10);
+models = struct();
+% models.aeroModel = @MMD.models.aeroWithYaw;
+mmd = MMD.MMD(carParams, models);
 Ay = zeros(size(V));
 dSteer = zeros(size(V));
 
-grid.SA_CG = linspace(-5, 1, 6);
-grid.dSteer = linspace(-20, 20, 30);
+grid.SA_CG = linspace(-8, 2, 10);
+grid.dSteer = linspace(-20, 20, 20);
 
 for i = 1:length(V)
     grid.V = V(i);
@@ -28,8 +36,8 @@ end
 
 %%
 
-[Ay, idx] = sort(Ay);
-dSteer = dSteer(idx);
+% [Ay, idx] = sort(Ay);
+% dSteer = dSteer(idx);
 
 plot(Ay, dSteer)
 xlabel("Ay (g)")

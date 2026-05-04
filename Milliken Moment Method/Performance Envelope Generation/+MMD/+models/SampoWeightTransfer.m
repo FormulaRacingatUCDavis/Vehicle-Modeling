@@ -2,6 +2,24 @@
 % the flexible vehicle model. This function takes an input of a structure
 % of car parameters, along with the lateral acceleration (Ay)
 function [deltaFzFront, deltaFzRear, longWT] = SampoWeightTransfer(carParams, Ax, Ay)
+
+    % test case
+    if nargin == 0
+        fe13params = load("+Cars/fe13params").fe13params;
+        FE13 = Cars.FE13(fe13params);
+
+        Ay = linspace(0, 2, 10);
+
+        [dFzF, dFzR, ~]= MMD.models.SampoWeightTransfer(FE13, 0, Ay);
+
+        PFront = dFzF ./ (dFzF + dFzR);
+
+        plot(Ay, PFront)
+
+        return
+    end
+
+
     kF = carParams.kF;                                                     % For the sake of simplicity, members of carParams structure are assigned
     kR = carParams.kR;                                                     % to shorter local variables within this function
     kC = carParams.kC;
@@ -22,3 +40,5 @@ function [deltaFzFront, deltaFzRear, longWT] = SampoWeightTransfer(carParams, Ax
 
     [~, ~, longWT] = MMD.models.weightTransfer_default(carParams, Ax, Ay);
 end
+
+

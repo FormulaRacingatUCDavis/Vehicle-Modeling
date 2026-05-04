@@ -1,8 +1,6 @@
-function [stabilityVal, controlVal] = getStabilityNControl(result, sa_cg, dsteer)
+function [stabilityVal, controlVal] = getStabilityNControl(result)
     arguments
         result 
-        sa_cg = 0
-        dsteer = 0
     end
     MzBody = result.CMzBody;
     SA_CG = result.grid.SA_CG;

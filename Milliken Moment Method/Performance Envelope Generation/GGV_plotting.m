@@ -1,6 +1,6 @@
 clear;clc;close all;
 
-Files = ["FE13_HDF_HB" "FE13_HDF_MB" "FE13_HDF_LB" "FE13_LDF_HB" "FE13_LDF_MB" "FE13_LDF_LB"];
+Files = ["FE13_drs_off_new"];
 
 for(i = 1:length(Files))
     GGV_data_points{i} = load(Files(i)).GGV_data;

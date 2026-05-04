@@ -12,7 +12,7 @@ function carParams = FE13(carParams)
     carParams.TWr = 1.241;
     carParams.toe_f = -0.5 * (pi/180);        % Toe Angles [radians] (positive is inwards)
     carParams.toe_r = 0.0 * (pi/180);
-    carParams.hCG = 0.292;                    % CG height [m]
+    carParams.hCG = 0.258;                    % CG height [m]
     carParams.CamberFront = -1.248; % deg 
     carParams.CamberRear = -1.58;    % deg   
 
