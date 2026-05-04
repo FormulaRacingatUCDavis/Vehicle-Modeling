@@ -79,7 +79,7 @@ function [tireSRCurve, minFx, maxFx] = getTireSRCurve(carParams, SlipAngle, Norm
         NormalLoad, Pressure, Inclination, Velocity, ...
         Idx, Model );
 
-    Fx = Fx .* carParams.tire.CorrectionFactor; % tire correction factor
+    Fx = Fx .* carParams.tire.CorrectionFactorLong; % tire correction factor
     
     [maxFx, max_idx] = max(Fx);
     [minFx, min_idx] = min(Fx);

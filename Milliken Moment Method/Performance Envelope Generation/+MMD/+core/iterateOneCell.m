@@ -141,9 +141,9 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(car
             % TM_Fx(p) = TM_Fx(p) .* 0; 
 
             % Calspan TTC Data usual correction factor - 0.7
-            TM_Fx(p) = TM_Fx(p) .* carParams.tire.CorrectionFactor ;
+            TM_Fx(p) = TM_Fx(p) .* carParams.tire.CorrectionFactorLong ;
             % Tire Model outputs in opposite Y coordinates
-            TM_Fy(p) = (1).* TM_Fy(p) .* 0.53;
+            TM_Fy(p) = (1).* TM_Fy(p) .* carParams.tire.CorrectionFactorLat;
 
             FxTire(p,1) = TM_Fx(p) .* cos(dSteer_AllW(p)) - TM_Fy(p) .* sin(dSteer_AllW(p));
             FyTire(p,1) = TM_Fx(p) .* sin(dSteer_AllW(p)) + TM_Fy(p) .* cos(dSteer_AllW(p));

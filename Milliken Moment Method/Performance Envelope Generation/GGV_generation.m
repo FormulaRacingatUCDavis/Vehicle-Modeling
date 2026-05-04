@@ -2,6 +2,9 @@ clear; clc; close all;
 
 carParams = Cars.FE13();
 
+carParams.tire.CorrectionFactorLat = 0.72;
+carParams.tire.CorrectionFactorLong = 0.7;
+
 % % car parameter override
 % carParas.m = 114514; % (random number)
 % 
@@ -14,6 +17,12 @@ carParams = Cars.FE13();
 
 carParams.m = carParams.m + (42-28)*0.453592;
 
+% no aero
+carParams.Cl = -0.13;
+carParams.Cd = 0.78;
+carParams.CoP = 0.0765;
+carParams.crossA = 0.62;
+
 % DRS deactivated
 % carParams.Cl = 4.17;
 % carParams.Cd = 1.37;
@@ -21,10 +30,10 @@ carParams.m = carParams.m + (42-28)*0.453592;
 % carParams.CoP = 57.5/100;
 
 % DRS activated
-carParams.Cl = 3.169824686;
-carParams.Cd = 0.934578223;
-carParams.crossA = 0.8197688;
-carParams.CoP = 92.19027169/100;
+% carParams.Cl = 3.169824686;
+% carParams.Cd = 0.934578223;
+% carParams.crossA = 0.8197688;
+% carParams.CoP = 92.19027169/100;
 
 %HDF HB
 % carParams.Cl = @(yaw) 3.42663 - 0.02214 .* yaw;
@@ -67,12 +76,7 @@ carParams.CoP = 92.19027169/100;
 mmd = MMD.MMD(carParams);
 
 
-% % Example use: generate and plot MMD
-% grid.SA_CG  = -5:5;
-% grid.dSteer = -15:15;
-% grid.V      = 30;
-% result = mmd.evaluate(grid, "free_rolling");
-% MMD.plot.plot3DMMD(result)
+
 
 % Example use: generate GGV
 V = linspace(10, 40, 20);
