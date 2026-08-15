@@ -6,11 +6,9 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(car
     CamberRear = carParams.CamberRear;
     WB = carParams.WB;
     
-    crossA = carParams.crossA;      % m^2
-    
     B_FBB = carParams.B_FBB;        % Front brake bias
 
-    Idx = carParams.tire.Idx;                     % Moment of Inertia in x for wheel
+    Idx = carParams.tire.Idx;
     TirePressure = carParams.tire.TirePressure;           % kPa
     Model = carParams.tire.Model;
     Tire = carParams.tire.Tire;
@@ -138,7 +136,6 @@ function [CAxBody, CAyBody, CAxVel, CAyVel, CMzBody, Omega] = iterateOneCell(car
                 TireInclination, V_Wheel(p), Idx, Model);
 
             % %%% METHOD 1: Free Rolling MMD Assumption (Inf Radius)
-            % TM_Fx(p) = TM_Fx(p) .* 0; 
 
             % Calspan TTC Data usual correction factor - 0.7
             TM_Fx(p) = TM_Fx(p) .* carParams.tire.CorrectionFactorLong ;

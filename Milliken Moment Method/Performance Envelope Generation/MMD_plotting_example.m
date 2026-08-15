@@ -48,7 +48,7 @@ result = mmd.evaluate(grid, "free_rolling");
 
 
 SS = MMD.analysis.getSteadyStateCAy(result);
-MMD.plot.plotMMD(result, SS)
+MMD.plot.plot3DMMD(result)
 [stability, control] = MMD.analysis.getStabilityNControl(result);
 
 stability = stability  / (carParams.WB * carParams.m * 9.81);

@@ -40,10 +40,10 @@ function carParams = FE13(carParams)
     
     % Tire
     tire = load('Hoosier_R20_16(18)x75(60)-10x8(7).mat');
-    tire.Idx = 1;                     % Moment of Inertia in x for wheel
+    tire.Idx = 1;                    
     tire.TirePressure = 70;           % kPa
     tire.Model = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
-    tire.CorrectionFactorLat = 1;
-    tire.CorrectionFactorLong = 1;
+    tire.CorrectionFactorLat = 0.7;
+    tire.CorrectionFactorLong = 0.7;
     carParams.tire = tire;
 end

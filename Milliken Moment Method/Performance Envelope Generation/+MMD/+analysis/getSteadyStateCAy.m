@@ -1,6 +1,9 @@
 function steadyStateCAy = getSteadyStateCAy(result, targetCAx)
     SA_CG = result.grid.SA_CG;
     dSteer = result.grid.dSteer;
+    Omega = result.Omega;
+    zeroMz_Omega_SA = zeros(length(SA_CG),1);
+    zeroMz_Omega_ST = zeros(length(dSteer),1);
     zeroMz_CAy_SA = zeros(length(SA_CG),1);
     zeroMz_CAy_ST = zeros(length(dSteer),1);
     zeroMz_SteerDeg = zeros(length(SA_CG),1);
@@ -40,6 +43,8 @@ function steadyStateCAy = getSteadyStateCAy(result, targetCAx)
                                         CAyVel(indexSS:indexSS+1, j), 0.0, 'linear');
             zeroMz_SteerDeg(j) = rad2deg(interp1( MzBody(indexSS:indexSS+1, j),...
                                        dSteer(indexSS:indexSS+1), 0.0, 'linear'));
+            zeroMz_Omega_SA(j) = interp1( MzBody(indexSS:indexSS+1, j),...
+                                        Omega(indexSS:indexSS+1, j), 0.0, 'linear');
         end
     end
     
@@ -63,6 +68,8 @@ function steadyStateCAy = getSteadyStateCAy(result, targetCAx)
                                         CAyVel(i, indexSS:indexSS+1), 0.0, 'linear');
             zeroMz_SADeg(i) = rad2deg(interp1( MzBody(i, indexSS:indexSS+1),...
                                        SA_CG(indexSS:indexSS+1), 0.0, 'linear'));
+            zeroMz_Omega_ST(i) = interp1( MzBody(i, indexSS:indexSS+1),...
+                                        Omega(i, indexSS:indexSS+1), 0.0, 'linear');
         end
     end
     
@@ -76,9 +83,11 @@ function steadyStateCAy = getSteadyStateCAy(result, targetCAx)
     if max(maxCAy_SA, maxCAy_ST) == maxCAy_SA
         steadyStateCAy.SA = rad2deg(SA_CG(maxCAy_SA_ind));
         steadyStateCAy.dSteer = zeroMz_SteerDeg(maxCAy_SA_ind);
+        steadyStateCAy.Omega = zeroMz_Omega_SA(maxCAy_SA_ind);
     else
         steadyStateCAy.SA = zeroMz_SADeg(maxCAy_ST_ind);
         steadyStateCAy.dSteer = rad2deg(dSteer(maxCAy_ST_ind));
+        steadyStateCAy.Omega = zeroMz_Omega_ST(maxCAy_ST_ind);
     end
 
     steadyStateCAy.Mz = 0;

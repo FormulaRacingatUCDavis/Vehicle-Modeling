@@ -1,4 +1,4 @@
-function fig = plot3DMMD(result, fig)
+function fig = plot3DMMD(result, ax)
     dSteer = result.grid.dSteer;
     SA_CG  = result.grid.SA_CG;
     CMzBody = result.CMzBody;
@@ -7,7 +7,7 @@ function fig = plot3DMMD(result, fig)
 
 
     if nargin == 2
-        figure(fig);
+        axis(ax);
     else
         fig = figure;
     end

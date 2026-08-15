@@ -1,13 +1,18 @@
-function plotMMD(result, SSAy)
+function fig = plotMMD(result, SSAy, ax)
     V      = result.grid.V;
     SA_CG  = result.grid.SA_CG;
     dSteer = result.grid.dSteer;
     CAyVel = result.CAyVel;
     MzBody = result.CMzBody;
 
-    figure
+    if nargin == 3
+        axis(ax);
+    else
+        fig = figure;
+    end
     hold on
     grid on
+
     for i = 1:length(dSteer)
         steer = plot(CAyVel(i,:),MzBody(i,:), "Color", "blue", 'LineStyle','--');
         if dSteer(i) == 0
@@ -34,7 +39,7 @@ function plotMMD(result, SSAy)
     
     
     %%% Maximum Ay Plotting Stuff
-    if nargin == 2
+    if nargin ~= 1
         AyMaxSS = plot(SSAy.CAy, 0, "Marker", ".", "MarkerSize", 20, "Color","g");
         label = sprintf(['C0   = %.4g\n',...
                          'SA      = %.3g°\n',...
