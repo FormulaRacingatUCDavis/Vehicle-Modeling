@@ -4,15 +4,14 @@ carParams = Cars.FE13();
 
 mmd = MMD.MMD(carParams); 
 
-dx= 688.5 %spacing 
 num_points = length(radiusMat);
 Cay = zeros(1, num_points);
-v_max = zeros(1, num_points); %at each dx
+v_max = zeros(1, num_points); % at each dx
 
 
 for i = 1:num_points
     current_R = radiusMat(i);
-
+    
     result = mmd.evaluate(); %which input variables don't give errors??
 
 %get Cay
@@ -29,3 +28,4 @@ fprintf('Point %d Max Speed: %.2f m/s\n', i, v_max(i));
 
 %Sum time 
 total_time = sum(dt);
+
