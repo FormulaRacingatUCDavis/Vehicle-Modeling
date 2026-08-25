@@ -40,8 +40,8 @@ function result = solve(grid, carParams, mode, targetCAx, prevResult, models, co
     if ~isfield(models,'steeringModel'),    models.steeringModel    = @MMD.models.steeringModel_default; end
     if ~isfield(models,'aeroModel'),        models.aeroModel        = @MMD.models.basic_aero; end
     if ~isfield(config,'tol'),     config.tol = 1e-3; end
-    if ~isfield(config,'maxIter'), config.maxIter = 600; end
-    if ~isfield(config,'pr'),      config.pr = 0.0; end
+    if ~isfield(config,'maxIter'), config.maxIter = 500; end
+    if ~isfield(config,'pr'),      config.pr = 0.75; end
     if ~isfield(config,'log'),     config.log = false; end
 
     % initialize driving/braking conditions
